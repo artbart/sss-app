@@ -1,0 +1,241 @@
+/* Stuff So Sweet — shared app styles
+   Matches the marketing-site palette: deep wine red gradient, gold accents. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-top:        #4b0018;
+  --bg-bottom:     #1a0008;
+  --text:          #ffffff;
+  --muted:         rgba(255,255,255,0.86);
+  --faint:         rgba(255,255,255,0.66);
+  --very-faint:    rgba(255,255,255,0.42);
+  --gold:          #f0d48c;
+  --cta:           #e04b57;
+  --cta-hover:     #c63d49;
+  --card:          rgba(255,255,255,0.06);
+  --card-hi:       rgba(255,255,255,0.12);
+  --input:         rgba(255,255,255,0.10);
+  --err:           #ff6b7c;
+}
+
+html, body {
+  min-height: 100%;
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  color: var(--text);
+  font-family: Georgia, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== Top brand bar (used on signed-in pages) ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.topbar .brand {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff4ec;
+  letter-spacing: 0.5px;
+}
+.topbar .brand::before,
+.topbar .brand::after {
+  content: "•";
+  color: var(--gold);
+  margin: 0 6px;
+  font-size: 12px;
+}
+.topbar .menu {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.topbar .menu a, .topbar .menu button {
+  background: none;
+  border: none;
+  color: var(--faint);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.topbar .menu a:hover, .topbar .menu button:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  text-decoration: none;
+}
+
+/* ===== Main centered card layout (used on signin / callback / empty states) ===== */
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  text-align: center;
+}
+.card {
+  width: 100%;
+  max-width: 420px;
+}
+.brand-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff4ec;
+  margin-bottom: 32px;
+}
+.brand-large::before,
+.brand-large::after {
+  content: "•";
+  color: var(--gold);
+  font-size: 14px;
+}
+
+h1 {
+  font-size: clamp(28px, 6vw, 36px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+h2 {
+  font-size: clamp(22px, 4vw, 26px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+.gold { color: var(--gold); font-weight: 700; }
+
+.lede {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* ===== Form inputs ===== */
+.input {
+  width: 100%;
+  padding: 16px 18px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  background: var(--input);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  color: #fff;
+  outline: none;
+  transition: border 0.15s, background 0.15s;
+}
+.input::placeholder { color: var(--very-faint); }
+.input:focus {
+  border-color: rgba(240, 212, 140, 0.5);
+  background: rgba(255,255,255,0.14);
+}
+
+.btn {
+  width: 100%;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--cta);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn:hover { background: var(--cta-hover); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled {
+  background: #5c1e25;
+  color: #a1686e;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.08); }
+
+/* ===== Status/error messages ===== */
+.msg {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.msg.success {
+  background: rgba(95, 210, 143, 0.15);
+  color: #b6f0c8;
+  border: 1px solid rgba(95, 210, 143, 0.3);
+}
+.msg.error {
+  background: rgba(255, 107, 124, 0.15);
+  color: var(--err);
+  border: 1px solid rgba(255, 107, 124, 0.3);
+}
+.msg.info {
+  background: rgba(255,255,255,0.06);
+  color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ===== Loading spinner ===== */
+.spinner {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Vertical spacing helpers ===== */
+.mt-8  { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+
+/* ===== Footer fine print ===== */
+.fine {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: var(--very-faint);
+  margin-top: 24px;
+  line-height: 1.5;
+}
+.fine a { color: var(--very-faint); text-decoration: underline; }
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .topbar { padding: 12px 14px; }
+  .card { max-width: 100%; }
+}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Stuff So Sweet — Your Story Reader</title>
+  <title>Sign in — Stuff So Sweet</title>
   <meta name="description" content="Sign in to read all your personalized stories at Stuff So Sweet.">
 
   <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
@@ -19,7 +19,7 @@
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Stuff So Sweet">
-  <meta property="og:title" content="Your Story Reader — Stuff So Sweet">
+  <meta property="og:title" content="Sign in — Stuff So Sweet">
   <meta property="og:description" content="Sign in to read all your personalized stories at Stuff So Sweet.">
   <meta property="og:url" content="https://app.stuffsosweet.com/">
   <meta property="og:image" content="https://stuffsosweet.com/media/og-card.jpg">
@@ -27,82 +27,81 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      min-height: 100%;
-      background: linear-gradient(180deg, #4b0018, #1a0008);
-      color: #ffffff;
-      font-family: Georgia, serif;
-    }
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 20px;
-      text-align: center;
-    }
-    .card { max-width: 420px; width: 100%; }
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: Arial, sans-serif;
-      font-size: 18px;
-      font-weight: 500;
-      color: #fff4ec;
-      margin-bottom: 32px;
-    }
-    .brand::before, .brand::after {
-      content: '•';
-      color: #f0d48c;
-      font-size: 14px;
-      line-height: 1;
-    }
-    h1 {
-      font-size: clamp(28px, 6vw, 36px);
-      font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-    }
-    .gold { color: #f0d48c; font-weight: 700; }
-    .sub {
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
-      color: rgba(255,255,255,0.86);
-      margin-bottom: 28px;
-    }
-    .note {
-      display: inline-block;
-      background: rgba(255,255,255,0.08);
-      padding: 14px 18px;
-      border-radius: 14px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      color: rgba(255,255,255,0.75);
-      margin-bottom: 24px;
-    }
-    .marketing-link {
-      display: inline-block;
-      color: rgba(255,255,255,0.62);
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      text-decoration: underline;
-    }
-  </style>
+  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <div class="card">
-    <div class="brand">Stuff So Sweet</div>
-    <h1>Your story reader is <span class="gold">almost ready</span>.</h1>
-    <p class="sub">We're putting the finishing touches on a place where you can read, continue, and revisit all your personalized stories from one screen.</p>
-    <div class="note">Building in progress. Check back soon — or read your chapters in your email inbox in the meantime.</div>
-    <br>
-    <a class="marketing-link" href="https://stuffsosweet.com/">← Back to Stuff So Sweet</a>
-  </div>
+  <main class="center">
+    <div class="card">
+      <div class="brand-large">Stuff So Sweet</div>
+      <h1>Sign in to <span class="gold">your stories</span>.</h1>
+      <p class="lede">We'll send a sign-in link to your email — the same one you used at signup.</p>
+
+      <form id="signInForm">
+        <input type="email" id="email" class="input" placeholder="you@example.com" autocomplete="email" required>
+        <button type="submit" id="submitBtn" class="btn mt-16">Send me a sign-in link</button>
+      </form>
+
+      <div id="msg" class="msg" style="display:none"></div>
+
+      <div class="fine">
+        By signing in you agree to our <a href="https://stuffsosweet.com/terms-of-services.html">Terms</a> and <a href="https://stuffsosweet.com/privacy-policy.html">Privacy Policy</a>.
+        <br><br>
+        Don't have stories yet? <a href="https://stuffsosweet.com/">Start one →</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { redirectIfAuthenticated, requestMagicLink } from "/assets/lib.js";
+
+    // If a session already exists, skip the sign-in form and go to stories.
+    await redirectIfAuthenticated("/stories.html");
+
+    const form = document.getElementById("signInForm");
+    const emailInput = document.getElementById("email");
+    const submitBtn = document.getElementById("submitBtn");
+    const msg = document.getElementById("msg");
+
+    function showMsg(text, kind = "info") {
+      msg.className = "msg " + kind;
+      msg.textContent = text;
+      msg.style.display = "block";
+    }
+
+    // Pre-fill email from ?email= query (used by the marketing-site "Read your stories" CTA)
+    const params = new URLSearchParams(location.search);
+    if (params.get("email")) emailInput.value = params.get("email");
+
+    let cooldownUntil = 0;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (Date.now() < cooldownUntil) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending…";
+      msg.style.display = "none";
+
+      const { ok, error } = await requestMagicLink(emailInput.value);
+
+      if (ok) {
+        showMsg(
+          "Check your inbox — we sent a sign-in link to " + emailInput.value.trim() +
+          ". The link works for 24 hours.",
+          "success"
+        );
+        submitBtn.textContent = "Sign-in link sent ✓";
+        // 30-second cooldown to discourage spam re-clicks
+        cooldownUntil = Date.now() + 30000;
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Send another link";
+        }, 30000);
+      } else {
+        showMsg(error || "Something went wrong. Try again in a moment.", "error");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send me a sign-in link";
+      }
+    });
+  </script>
 </body>
 </html>

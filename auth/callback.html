@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signing you in… — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+  <main class="center">
+    <div class="card">
+      <div class="brand-large">Stuff So Sweet</div>
+      <div id="working">
+        <div class="spinner mt-16"></div>
+        <h2 class="mt-24">Signing you in…</h2>
+        <p class="lede">One moment.</p>
+      </div>
+      <div id="ok" style="display:none">
+        <h1>You're in. <span class="gold">Welcome back.</span></h1>
+        <p class="lede">Taking you to your stories…</p>
+      </div>
+      <div id="err" style="display:none">
+        <h2>This sign-in link didn't work.</h2>
+        <p class="lede" id="errDetail"></p>
+        <a class="btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/">Send a new link</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { supabase, logEvent } from "/assets/lib.js";
+
+    const working = document.getElementById("working");
+    const okEl = document.getElementById("ok");
+    const errEl = document.getElementById("err");
+    const errDetail = document.getElementById("errDetail");
+
+    function fail(detail) {
+      working.style.display = "none";
+      errDetail.textContent = detail || "The link may have expired (links last 24 hours) or already been used.";
+      errEl.style.display = "block";
+    }
+
+    try {
+      // detectSessionInUrl is on, so the SDK auto-exchanges the token from
+      // the URL hash/query into a session. Then we just confirm the session.
+      // Some Supabase versions need a manual exchangeCodeForSession when ?code= is in the URL.
+      const params = new URLSearchParams(location.search);
+      if (params.get("code")) {
+        const { error } = await supabase.auth.exchangeCodeForSession(location.href);
+        if (error) throw error;
+      }
+
+      // Give the SDK a moment to settle the session
+      await new Promise(r => setTimeout(r, 250));
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      if (!session) throw new Error("No session was created.");
+
+      await logEvent("magic_link_clicked");
+      await logEvent("login_success");
+
+      // Update last_seen_at — best-effort
+      supabase.from("users")
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq("id", session.user.id)
+        .then(() => {})
+        .catch(() => {});
+
+      working.style.display = "none";
+      okEl.style.display = "block";
+
+      // Redirect: honor ?next= if it points at our domain, else stories
+      const next = params.get("next");
+      let target = "/stories.html";
+      if (next && next.startsWith("/")) target = next;
+
+      setTimeout(() => { window.location.href = target; }, 800);
+    } catch (e) {
+      console.error("[sss-app] callback failed:", e);
+      fail(e?.message);
+    }
+  </script>
+</body>
+</html>

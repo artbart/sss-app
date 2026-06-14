@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Stories — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="theme-color" content="#4b0018">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+  <div id="topbar"></div>
+  <main class="center">
+    <div class="card">
+      <h1>Your stories</h1>
+      <p class="lede" id="lede">Loading…</p>
+      <div id="list"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
+
+    const session = await requireAuth();
+    renderTopbar();
+    await logEvent("app_open", { metadata: { page: "stories" } });
+
+    // Phase 3 fills in the actual list rendering — for now just confirm auth works
+    const lede = document.getElementById("lede");
+    lede.textContent = "Signed in as " + session.user.email + ". Story list coming in Phase 3.";
+  </script>
+</body>
+</html>
