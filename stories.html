@@ -2,22 +2,136 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Your Stories — Stuff So Sweet</title>
   <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
+  <link rel="manifest" href="https://stuffsosweet.com/site.webmanifest">
   <link rel="stylesheet" href="/assets/style.css">
   <meta name="theme-color" content="#4b0018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Stuff So Sweet">
   <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    .stories-wrap { width: 100%; max-width: 720px; padding: 24px 18px 80px; margin: 0 auto; }
+    .stories-wrap h1 { text-align: left; font-size: clamp(26px, 5vw, 32px); margin-bottom: 8px; }
+    .stories-wrap .sub { font-family: Arial, sans-serif; font-size: 14px; color: var(--faint); margin-bottom: 24px; }
+
+    .story-card {
+      display: block;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      color: inherit;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+    }
+    .story-card:hover {
+      background: var(--card-hi);
+      border-color: rgba(240, 212, 140, 0.3);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .story-title {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--gold);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+    }
+    .progress-bar {
+      flex: 1;
+      max-width: 200px;
+      height: 6px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cta), var(--gold));
+      border-radius: 6px;
+      transition: width 0.4s;
+    }
+
+    .empty {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .coming-soon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .coming-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 18px 16px;
+      text-align: center;
+      opacity: 0.7;
+    }
+    .coming-card .coming-title {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .coming-card .coming-sub {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: var(--very-faint);
+    }
+    .section-label {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--very-faint);
+      margin: 32px 0 8px;
+    }
+  </style>
 </head>
 <body>
   <div id="topbar"></div>
-  <main class="center">
-    <div class="card">
-      <h1>Your stories</h1>
-      <p class="lede" id="lede">Loading…</p>
-      <div id="list"></div>
+  <div class="stories-wrap">
+    <h1>Your stories</h1>
+    <p class="sub" id="subline">Loading…</p>
+    <div id="list"></div>
+
+    <div class="section-label">Coming soon</div>
+    <div class="coming-soon-grid">
+      <div class="coming-card">
+        <div class="coming-title">Books library</div>
+        <div class="coming-sub">Read full-length stories offline.</div>
+      </div>
+      <div class="coming-card">
+        <div class="coming-title">Sound stories</div>
+        <div class="coming-sub">Listen, anytime, anywhere.</div>
+      </div>
+      <div class="coming-card">
+        <div class="coming-title">Companion chat</div>
+        <div class="coming-sub">Talk to your favorite characters.</div>
+      </div>
     </div>
-  </main>
+  </div>
 
   <script type="module">
     import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
@@ -26,9 +140,54 @@
     renderTopbar();
     await logEvent("app_open", { metadata: { page: "stories" } });
 
-    // Phase 3 fills in the actual list rendering — for now just confirm auth works
-    const lede = document.getElementById("lede");
-    lede.textContent = "Signed in as " + session.user.email + ". Story list coming in Phase 3.";
+    const subline = document.getElementById("subline");
+    const list = document.getElementById("list");
+
+    // RLS lets us see stories where user_id matches OR lead_email matches.
+    // Pull stories + chapter count via join.
+    const { data: stories, error } = await supabase
+      .from("stories")
+      .select("id, title, status, current_chapter_number, target_chapter_count, created_at, lead_email, chapters(id)")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      subline.textContent = "Couldn't load your stories. " + error.message;
+      console.error(error);
+    } else if (!stories || stories.length === 0) {
+      subline.style.display = "none";
+      list.innerHTML = `
+        <div class="empty">
+          <h2>You haven't started a story yet.</h2>
+          <p class="lede mt-16">Take the quiz to begin one.</p>
+          <a class="btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="https://stuffsosweet.com/quiz/a.html">Start a new story</a>
+        </div>
+      `;
+    } else {
+      subline.textContent = stories.length + (stories.length === 1 ? " story" : " stories");
+      list.innerHTML = stories.map(s => {
+        const total = s.target_chapter_count || 10;
+        const have = (s.chapters || []).length;
+        const pct = Math.min(100, Math.round((have / total) * 100));
+        const statusBadge = s.status === 'completed' ? ' — completed'
+                          : s.status === 'error'     ? ' — issue, contact support'
+                          : '';
+        return `
+          <a class="story-card" href="/story.html?id=${encodeURIComponent(s.id)}">
+            <div class="story-title">${escapeHtml(s.title || "Untitled story")}</div>
+            <div class="story-meta">
+              <span>Chapter ${have} of ${total}${statusBadge}</span>
+              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            </div>
+          </a>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
   </script>
 </body>
 </html>

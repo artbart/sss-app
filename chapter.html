@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Chapter — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
+  <link rel="manifest" href="https://stuffsosweet.com/site.webmanifest">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="theme-color" content="#4b0018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    .chapter-wrap { width: 100%; max-width: 640px; padding: 24px 20px 80px; margin: 0 auto; }
+    .back-link {
+      display: inline-block;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-bottom: 16px;
+    }
+    .story-title {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--very-faint);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .chapter-label {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .chapter-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px 24px;
+      margin-bottom: 22px;
+    }
+    .chapter-card h1 {
+      font-size: clamp(24px, 5vw, 30px);
+      color: var(--gold);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin-bottom: 18px;
+      text-align: left;
+      line-height: 1.15;
+    }
+    .prose p {
+      font-size: 17px;
+      line-height: 1.7;
+      margin: 0 0 16px;
+      color: #f4ece1;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+
+    .choose-label {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 8px 0 14px;
+    }
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: var(--cta);
+      color: #fff;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 14px;
+      font-family: Georgia, serif;
+      font-size: 15px;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .option-btn:hover { background: var(--cta-hover); }
+    .option-btn:active { transform: translateY(1px); }
+    .option-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .option-btn strong { font-weight: 700; }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 26px;
+      gap: 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; }
+    .nav-btn.primary {
+      background: var(--cta);
+      border-color: var(--cta);
+      color: #fff;
+    }
+    .nav-btn.primary:hover { background: var(--cta-hover); }
+    .nav-btn.disabled { opacity: 0.4; pointer-events: none; }
+
+    /* "Writing your next chapter" overlay states */
+    .waiting-card {
+      background: rgba(240, 212, 140, 0.08);
+      border: 1px solid rgba(240, 212, 140, 0.25);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .waiting-card .spinner { margin-bottom: 14px; }
+    .waiting-card .label {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .waiting-card .sublabel {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+    }
+    .waiting-progress {
+      width: 100%;
+      max-width: 240px;
+      height: 4px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 4px;
+      margin: 16px auto 4px;
+      overflow: hidden;
+    }
+    .waiting-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cta), var(--gold));
+      transition: width 0.5s linear;
+    }
+
+    .final-note {
+      text-align: center;
+      font-family: Georgia, serif;
+      font-style: italic;
+      color: var(--faint);
+      padding: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar"></div>
+  <div class="chapter-wrap">
+    <a class="back-link" href="#" id="backLink">← Back to story</a>
+    <div class="story-title" id="storyTitle"></div>
+    <div class="chapter-label" id="chapterLabel">Loading…</div>
+
+    <div class="chapter-card" id="chapterCard" style="display:none">
+      <h1 id="chapterTitle"></h1>
+      <div class="prose" id="prose"></div>
+    </div>
+
+    <div id="optionsArea"></div>
+    <div id="navArea"></div>
+  </div>
+
+  <script type="module">
+    import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
+
+    await requireAuth();
+    renderTopbar();
+
+    const params = new URLSearchParams(location.search);
+    const storyId = params.get("story");
+    const chapterN = parseInt(params.get("n") || "1", 10);
+    if (!storyId) { window.location.href = "/stories.html"; }
+
+    document.getElementById("backLink").href = "/story.html?id=" + encodeURIComponent(storyId);
+    await logEvent("chapter_viewed", { story_id: storyId, chapter_number: chapterN });
+
+    // Fetch story + this chapter + chapters list (to know prev/next)
+    const [storyR, chapterR, chapterListR] = await Promise.all([
+      supabase.from("stories").select("title, target_chapter_count, current_chapter_number, status").eq("id", storyId).single(),
+      supabase.from("chapters").select("*").eq("story_id", storyId).eq("chapter_number", chapterN).maybeSingle(),
+      supabase.from("chapters").select("chapter_number, chosen_option").eq("story_id", storyId).order("chapter_number"),
+    ]);
+
+    const story = storyR.data;
+    const chapter = chapterR.data;
+    const all = chapterListR.data || [];
+
+    const labelEl   = document.getElementById("chapterLabel");
+    const cardEl    = document.getElementById("chapterCard");
+    const titleEl   = document.getElementById("chapterTitle");
+    const proseEl   = document.getElementById("prose");
+    const optionsEl = document.getElementById("optionsArea");
+    const navEl     = document.getElementById("navArea");
+
+    if (story) document.getElementById("storyTitle").textContent = story.title || "";
+
+    if (!chapter || !chapter.text) {
+      labelEl.textContent = "This chapter hasn't been written yet.";
+      navEl.innerHTML = `<a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a>`;
+    } else {
+      const total = story?.target_chapter_count || 10;
+      labelEl.textContent = `Chapter ${chapterN} of ${total}`;
+      titleEl.textContent = story?.title || "";
+      proseEl.innerHTML = renderProse(chapter.text);
+      cardEl.style.display = "block";
+
+      const isFinal = chapterN >= total;
+      const alreadyChose = chapter.chosen_option != null;
+      const nextExists = all.some(c => c.chapter_number === chapterN + 1);
+
+      if (isFinal) {
+        optionsEl.innerHTML = `<div class="final-note">This was the final chapter of your story. We hope you enjoyed it.</div>`;
+      } else if (alreadyChose && nextExists) {
+        // Already chose AND next chapter exists → show "Read next" button
+        renderNavButtons(chapterN, total, all);
+      } else if (alreadyChose && !nextExists) {
+        // Already clicked but next isn't here yet → waiting state with realtime
+        renderWaitingState();
+      } else {
+        // Show option buttons
+        renderOptionButtons(chapter);
+      }
+    }
+
+    function renderProse(text) {
+      return text.split(/\n{2,}/).map(p =>
+        `<p>${escapeHtml(p.trim()).replace(/\n/g, "<br>")}</p>`
+      ).join("");
+    }
+
+    function renderOptionButtons(chapter) {
+      const opts = [chapter.option_1, chapter.option_2, chapter.option_3].filter(Boolean);
+      const html = `
+        <p class="choose-label">Choose what happens next:</p>
+        ${opts.map((opt, i) => `
+          <button class="option-btn" data-i="${i + 1}">
+            <strong>Option ${i + 1}.</strong> ${escapeHtml(opt)}
+          </button>
+        `).join("")}
+      `;
+      optionsEl.innerHTML = html;
+
+      // Wire up clicks
+      optionsEl.querySelectorAll(".option-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const optIndex = parseInt(btn.dataset.i, 10);
+          await submitChoice(optIndex);
+        });
+      });
+
+      // Prev nav if we have a previous chapter
+      renderNavButtons(chapterN, story?.target_chapter_count || 10, all);
+    }
+
+    async function submitChoice(optionIndex) {
+      // Disable all options
+      optionsEl.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+      const SUPABASE_URL = "https://gmhbcxylqubhxozomhlt.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaGJjeHlscXViaHhvem9taGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTk5OTksImV4cCI6MjA5MjczNTk5OX0.GAM73P5X7fT1BIziTfvqUpFT2W_W5EtFb5Gze5cIFfY";
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-choice`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ story_id: storyId, chapter_number: chapterN, option: optionIndex }),
+        });
+        const result = await res.json();
+        await logEvent("option_clicked", { story_id: storyId, chapter_number: chapterN, metadata: { option: optionIndex, status: result.status } });
+
+        if (result.status === "ok" || result.status === "success" || result.status === "duplicate") {
+          renderWaitingState();
+        } else {
+          throw new Error(result.message || "Something went wrong.");
+        }
+      } catch (e) {
+        console.error("submit-choice failed:", e);
+        optionsEl.innerHTML = `<div class="msg error">Couldn't submit your choice — ${escapeHtml(e.message)}. Refresh and try again.</div>`;
+      }
+    }
+
+    // Waiting state: realtime listener + 2-minute fallback
+    function renderWaitingState() {
+      optionsEl.innerHTML = `
+        <div class="waiting-card">
+          <div class="spinner"></div>
+          <div class="label">Writing your next chapter…</div>
+          <div class="sublabel">Usually takes 60-90 seconds. Up to 2 minutes.</div>
+          <div class="waiting-progress"><div class="waiting-progress-fill" id="waitProg"></div></div>
+        </div>
+      `;
+      navEl.innerHTML = `<a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a>`;
+
+      // Animate progress bar over 120s
+      let start = Date.now();
+      const cap = 120000;
+      const progEl = document.getElementById("waitProg");
+      const tick = setInterval(() => {
+        const pct = Math.min(100, ((Date.now() - start) / cap) * 100);
+        if (progEl) progEl.style.width = pct + "%";
+        if (pct >= 100) { clearInterval(tick); onTimeout(); }
+      }, 500);
+
+      // Subscribe to new chapter insert
+      const channel = supabase
+        .channel(`chapter-next-${storyId}-${chapterN + 1}`)
+        .on("postgres_changes", {
+          event: "INSERT",
+          schema: "public",
+          table: "chapters",
+          filter: `story_id=eq.${storyId}`,
+        }, async (payload) => {
+          if (payload.new?.chapter_number === chapterN + 1) {
+            clearInterval(tick);
+            await logEvent("chapter_ready_in_app", { story_id: storyId, chapter_number: chapterN + 1 });
+            supabase.removeChannel(channel);
+            optionsEl.innerHTML = `
+              <div class="waiting-card" style="background: rgba(95, 210, 143, 0.08); border-color: rgba(95, 210, 143, 0.3);">
+                <div class="label" style="color:#b6f0c8">Your next chapter is ready!</div>
+                <a class="nav-btn primary mt-16" style="display:inline-block;margin-top:14px" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}">Read Chapter ${chapterN + 1} →</a>
+              </div>
+            `;
+          }
+        })
+        .subscribe();
+
+      function onTimeout() {
+        supabase.removeChannel(channel);
+        optionsEl.innerHTML = `
+          <div class="waiting-card">
+            <div class="label">This is taking longer than usual.</div>
+            <div class="sublabel">We'll email you when your chapter is ready. You can also check back later.</div>
+            <button class="nav-btn primary mt-16" style="margin-top:14px" id="checkNowBtn">Check now</button>
+          </div>
+        `;
+        document.getElementById("checkNowBtn").addEventListener("click", async () => {
+          const { data: c } = await supabase
+            .from("chapters")
+            .select("chapter_number")
+            .eq("story_id", storyId)
+            .eq("chapter_number", chapterN + 1)
+            .maybeSingle();
+          if (c) {
+            window.location.href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}`;
+          } else {
+            document.getElementById("checkNowBtn").textContent = "Not ready yet — try again soon";
+          }
+        });
+      }
+    }
+
+    function renderNavButtons(n, total, allChapters) {
+      const hasPrev = n > 1;
+      const hasNext = allChapters.some(c => c.chapter_number === n + 1);
+      navEl.innerHTML = `
+        <div class="nav-row">
+          ${hasPrev ? `<a class="nav-btn" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${n - 1}">← Chapter ${n - 1}</a>` : ''}
+          <a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">All chapters</a>
+          ${hasNext ? `<a class="nav-btn primary" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${n + 1}">Chapter ${n + 1} →</a>` : ''}
+        </div>
+      `;
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>

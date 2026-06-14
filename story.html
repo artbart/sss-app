@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Story — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
+  <link rel="manifest" href="https://stuffsosweet.com/site.webmanifest">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="theme-color" content="#4b0018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    .story-wrap { width: 100%; max-width: 720px; padding: 24px 18px 80px; margin: 0 auto; }
+    .back-link {
+      display: inline-block;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-bottom: 14px;
+    }
+    .story-header h1 {
+      text-align: left;
+      font-size: clamp(28px, 5vw, 36px);
+      color: var(--gold);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .story-header .meta {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    .chapter-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      color: inherit;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+    }
+    .chapter-row:hover {
+      background: var(--card-hi);
+      border-color: rgba(240, 212, 140, 0.25);
+      text-decoration: none;
+    }
+    .chapter-info { flex: 1; min-width: 0; }
+    .chapter-num {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .chapter-summary {
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+    .chapter-arrow {
+      flex-shrink: 0;
+      color: var(--very-faint);
+      margin-left: 12px;
+      font-size: 22px;
+    }
+    .chapter-row.unread .chapter-num::before {
+      content: "● ";
+      color: var(--cta);
+    }
+    .next-pending {
+      background: rgba(240, 212, 140, 0.06);
+      border: 1px dashed rgba(240, 212, 140, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar"></div>
+  <div class="story-wrap">
+    <a class="back-link" href="/stories.html">← All stories</a>
+    <div class="story-header">
+      <h1 id="title">Loading…</h1>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div id="chapters"></div>
+  </div>
+
+  <script type="module">
+    import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
+
+    await requireAuth();
+    renderTopbar();
+
+    const params = new URLSearchParams(location.search);
+    const storyId = params.get("id");
+    if (!storyId) { window.location.href = "/stories.html"; }
+
+    await logEvent("story_viewed", { story_id: storyId });
+
+    const titleEl = document.getElementById("title");
+    const metaEl  = document.getElementById("meta");
+    const list    = document.getElementById("chapters");
+
+    const { data: story, error: sErr } = await supabase
+      .from("stories")
+      .select("id, title, status, target_chapter_count, hook, opening_premise")
+      .eq("id", storyId)
+      .single();
+
+    if (sErr || !story) {
+      titleEl.textContent = "Story not found";
+      metaEl.textContent = sErr?.message || "It may have been removed.";
+    } else {
+      titleEl.textContent = story.title || "Untitled story";
+      if (story.hook) metaEl.textContent = story.hook;
+    }
+
+    const { data: chapters, error: cErr } = await supabase
+      .from("chapters")
+      .select("id, chapter_number, summary, mood, key_event, chosen_option, created_at")
+      .eq("story_id", storyId)
+      .order("chapter_number", { ascending: false });
+
+    if (cErr) {
+      list.innerHTML = `<div class="empty">Couldn't load chapters. ${escapeHtml(cErr.message)}</div>`;
+    } else if (!chapters || chapters.length === 0) {
+      list.innerHTML = `<div class="next-pending">Your first chapter is being written. Check back in a minute.</div>`;
+    } else {
+      const total = story?.target_chapter_count || 10;
+      const latest = chapters[0].chapter_number;
+      const nextPending = latest < total && chapters[0].chosen_option != null;
+
+      list.innerHTML = chapters.map(c => {
+        const isLatest = c.chapter_number === latest;
+        const cls = isLatest && c.chosen_option == null ? "chapter-row unread" : "chapter-row";
+        const blurb = c.summary || c.key_event || c.mood || `Chapter ${c.chapter_number}`;
+        return `
+          <a class="${cls}" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${c.chapter_number}">
+            <div class="chapter-info">
+              <div class="chapter-num">Chapter ${c.chapter_number}${isLatest && c.chosen_option == null ? ' — read now' : ''}</div>
+              <div class="chapter-summary">${escapeHtml(blurb)}</div>
+            </div>
+            <div class="chapter-arrow">›</div>
+          </a>
+        `;
+      }).join("");
+
+      if (nextPending) {
+        list.insertAdjacentHTML("afterbegin",
+          `<div class="next-pending">Your next chapter is being written. Check back in a minute.</div>`);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
