@@ -373,13 +373,16 @@
 
         if (!res.ok || !data.story_id) {
           let msg = data.error || "Couldn't start your story.";
+          let detail = data.detail || "";
           if (data.subscription_status && data.subscription_status !== "active") {
             msg = "Your subscription isn't active right now. Reactivate to start a new story.";
+            detail = "";
           }
           document.getElementById("root").innerHTML = `
             <div class="start-card">
               <h2 style="font-size:22px;font-weight:400;margin-bottom:8px;">Couldn't start your story</h2>
               <p class="lede">${escapeHtml(msg)}</p>
+              ${detail ? `<p style="font-family:Arial,sans-serif;font-size:12px;color:var(--very-faint);margin-bottom:12px;">${escapeHtml(detail)}</p>` : ""}
               <a class="btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/stories.html">← Back to stories</a>
             </div>
           `;
