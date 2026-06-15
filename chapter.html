@@ -211,6 +211,58 @@
 
     if (story) document.getElementById("storyTitle").textContent = story.title || "";
 
+    // ===== Reading-position memory (localStorage) =====
+    // Save scroll Y debounced; restore on open. Skip restore when arriving fresh
+    // from a "Read Chapter N+1" hand-off (user always wants to start at top).
+    const POS_KEY = `pos:${storyId}:${chapterN}`;
+    const POS_INDEX_KEY = "pos:_recent";
+    const POS_MAX = 40;
+    const camefrom_fresh = new URLSearchParams(location.search).get("fresh") === "1";
+
+    function rememberPos(key) {
+      try {
+        const idx = JSON.parse(localStorage.getItem(POS_INDEX_KEY) || "[]")
+          .filter(k => k !== key);
+        idx.unshift(key);
+        while (idx.length > POS_MAX) {
+          const dead = idx.pop();
+          localStorage.removeItem(dead);
+        }
+        localStorage.setItem(POS_INDEX_KEY, JSON.stringify(idx));
+      } catch (_) {}
+    }
+
+    // Restore after prose render — give the browser a tick to lay out
+    if (!camefrom_fresh) {
+      window.requestAnimationFrame(() => {
+        try {
+          const saved = parseInt(localStorage.getItem(POS_KEY) || "0", 10);
+          if (saved > 100) {
+            window.scrollTo({ top: saved, behavior: "auto" });
+          }
+        } catch (_) {}
+      });
+    }
+
+    // Save on scroll (debounced 600ms after motion stops)
+    let posSaveTimer = null;
+    window.addEventListener("scroll", () => {
+      clearTimeout(posSaveTimer);
+      posSaveTimer = setTimeout(() => {
+        try {
+          const y = window.scrollY;
+          if (y > 100) {
+            localStorage.setItem(POS_KEY, String(y));
+            rememberPos(POS_KEY);
+          } else {
+            // Cleared back to top — forget the position
+            localStorage.removeItem(POS_KEY);
+          }
+        } catch (_) {}
+      }, 600);
+    }, { passive: true });
+    
+
     if (!chapter || !chapter.text) {
       labelEl.textContent = "This chapter hasn't been written yet.";
       navEl.innerHTML = `<a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a>`;
@@ -337,7 +389,7 @@
             optionsEl.innerHTML = `
               <div class="waiting-card" style="background: rgba(95, 210, 143, 0.08); border-color: rgba(95, 210, 143, 0.3);">
                 <div class="label" style="color:#b6f0c8">Your next chapter is ready!</div>
-                <a class="nav-btn primary mt-16" style="display:inline-block;margin-top:14px" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}">Read Chapter ${chapterN + 1} →</a>
+                <a class="nav-btn primary mt-16" style="display:inline-block;margin-top:14px" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}&fresh=1">Read Chapter ${chapterN + 1} →</a>
               </div>
             `;
           }
@@ -361,7 +413,7 @@
             .eq("chapter_number", chapterN + 1)
             .maybeSingle();
           if (c) {
-            window.location.href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}`;
+            window.location.href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}&fresh=1`;
           } else {
             document.getElementById("checkNowBtn").textContent = "Not ready yet — try again soon";
           }
