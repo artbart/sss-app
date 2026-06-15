@@ -49,12 +49,17 @@ export async function getSession() {
 // Always uses an absolute URL so relative-path interpretation can't bounce
 // the user to the marketing site if the call happens from a weird state.
 export async function signOut(redirect = "https://stuffsosweet.com/") {
-  await logEvent("logout");
-  await supabase.auth.signOut();
-  // Default destination is the public marketing site — friendlier "post-logout" surface
-  // than dropping the user on the app's sign-in form. Pass an explicit URL to override.
+  // Fire-and-forget the analytics ping so a slow/failed POST can't block logout
+  try { logEvent("logout"); } catch (_) {}
+  // Clear the Supabase session — but never let a failure here trap the user
+  try { await supabase.auth.signOut(); } catch (e) { console.warn("[signOut] supabase.auth.signOut threw, continuing anyway:", e); }
+  // Default destination is the public marketing site (stuffsosweet.com), NOT
+  // app.stuffsosweet.com — the marketing site is the friendlier post-logout surface
+  // (shows brand + value prop + quiz CTA) vs. the app's empty sign-in form.
   const target = redirect.startsWith("http") ? redirect : `https://stuffsosweet.com${redirect}`;
-  window.location.href = target;
+  console.info("[signOut] redirecting to", target);
+  // .replace() instead of .href so the just-signed-out page doesn't end up in back history
+  window.location.replace(target);
 }
 
 // Page guard: redirect to / if not logged in.
