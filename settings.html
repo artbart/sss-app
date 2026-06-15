@@ -13,20 +13,265 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Stuff So Sweet">
   <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    .settings-wrap { width: 100%; max-width: 600px; padding: 24px 18px 80px; margin: 0 auto; }
+    .settings-wrap h1 { text-align: left; font-size: clamp(26px, 5vw, 32px); margin-bottom: 24px; }
+    .back-link {
+      display: inline-block;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-bottom: 14px;
+    }
+    .section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .section h2 {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--gold);
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label {
+      display: block;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .field-readonly {
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      color: var(--faint);
+    }
+    .radio-row {
+      display: block;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .radio-row:hover { background: rgba(255,255,255,0.08); }
+    .radio-row.selected {
+      background: rgba(240, 212, 140, 0.08);
+      border-color: rgba(240, 212, 140, 0.45);
+    }
+    .radio-row input[type="radio"] { display: none; }
+    .radio-row .radio-title {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .radio-row.selected .radio-title { color: var(--gold); }
+    .radio-row .radio-desc {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      line-height: 1.4;
+    }
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .check-row input { margin-top: 4px; accent-color: var(--cta); }
+    .save-row { display: flex; gap: 10px; }
+    .save-status {
+      margin-top: 14px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      min-height: 18px;
+      transition: opacity 0.3s;
+    }
+    .save-status.ok { color: #8eff6d; }
+    .save-status.err { color: var(--err); }
+
+    .danger-zone {
+      margin-top: 24px;
+      padding: 18px;
+      background: rgba(0,0,0,0.18);
+      border: 1px dashed rgba(255,255,255,0.10);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .danger-zone p { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); margin-bottom: 12px; }
+  </style>
 </head>
 <body>
   <div id="topbar"></div>
-  <main class="center">
-    <div class="card">
-      <h1>Settings</h1>
-      <p class="lede">Coming in the next update.</p>
-      <a class="btn-secondary btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/stories.html">← Back to stories</a>
+  <div class="settings-wrap">
+    <a class="back-link" href="/stories.html">← All stories</a>
+    <h1>Settings</h1>
+
+    <form id="settingsForm">
+      <div class="section">
+        <h2>Your account</h2>
+
+        <div class="field">
+          <label class="field-label">Email</label>
+          <div class="field-readonly" id="emailDisplay">…</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="displayName">Display name <span style="color:var(--very-faint)">(optional)</span></label>
+          <input class="input" type="text" id="displayName" placeholder="What should we call you?" maxlength="60">
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Chapter notifications</h2>
+        <p class="field-label" style="margin-bottom: 14px;">How should we deliver your chapters?</p>
+
+        <label class="radio-row" data-pref="email_full_story">
+          <input type="radio" name="notification_preference" value="email_full_story">
+          <div class="radio-title">Send the full chapter in my inbox</div>
+          <div class="radio-desc">Read every chapter right in your email, with option buttons to pick what happens next. (Default.)</div>
+        </label>
+
+        <label class="radio-row" data-pref="email_link_only">
+          <input type="radio" name="notification_preference" value="email_link_only">
+          <div class="radio-title">Just notify me — I'll read in the app</div>
+          <div class="radio-desc">A short email when your next chapter is ready, with a button to open it here.</div>
+        </label>
+
+        <label class="radio-row" data-pref="in_app_only">
+          <input type="radio" name="notification_preference" value="in_app_only">
+          <div class="radio-title">No emails — I'll check the app</div>
+          <div class="radio-desc">We won't send anything to your inbox. New chapters appear here when ready.</div>
+        </label>
+
+        <div class="field" style="margin-top: 18px;">
+          <label class="check-row">
+            <input type="checkbox" id="marketingOptIn">
+            <div>
+              <div style="font-family:Arial,sans-serif;font-size:14px;color:var(--text);">Send me occasional updates</div>
+              <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--faint);">New features, story drops, special offers. Separate from chapter delivery.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <button type="submit" class="btn" id="saveBtn">Save changes</button>
+      </div>
+      <div class="save-status" id="saveStatus"></div>
+    </form>
+
+    <div class="danger-zone">
+      <p>Signing out only removes this device. Your stories stay safe.</p>
+      <button type="button" class="btn btn-secondary" id="signOutBtn2" style="width:auto;padding:10px 22px;">Sign out</button>
     </div>
-  </main>
+  </div>
+
   <script type="module">
-    import { requireAuth, renderTopbar } from "/assets/lib.js";
-    await requireAuth();
+    import { requireAuth, supabase, renderTopbar, signOut, logEvent } from "/assets/lib.js";
+
+    const session = await requireAuth();
     renderTopbar();
+    await logEvent("app_open", { metadata: { page: "settings" } });
+
+    const emailDisplay = document.getElementById("emailDisplay");
+    const displayNameInput = document.getElementById("displayName");
+    const marketingOptIn = document.getElementById("marketingOptIn");
+    const form = document.getElementById("settingsForm");
+    const saveBtn = document.getElementById("saveBtn");
+    const saveStatus = document.getElementById("saveStatus");
+
+    emailDisplay.textContent = session.user.email;
+
+    // Load current user profile
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("display_name, notification_preference, marketing_email_opt_in")
+      .eq("id", session.user.id)
+      .maybeSingle();
+
+    if (error) {
+      saveStatus.textContent = "Couldn't load your settings: " + error.message;
+      saveStatus.className = "save-status err";
+    } else if (user) {
+      displayNameInput.value = user.display_name || "";
+      marketingOptIn.checked = !!user.marketing_email_opt_in;
+      const pref = user.notification_preference || "email_full_story";
+      const radio = document.querySelector(`input[name="notification_preference"][value="${pref}"]`);
+      if (radio) {
+        radio.checked = true;
+        radio.closest(".radio-row").classList.add("selected");
+      }
+    }
+
+    // Highlight selected radio
+    document.querySelectorAll(".radio-row").forEach(row => {
+      row.addEventListener("click", () => {
+        document.querySelectorAll(".radio-row").forEach(r => r.classList.remove("selected"));
+        row.classList.add("selected");
+        const input = row.querySelector("input[type=radio]");
+        if (input) input.checked = true;
+      });
+    });
+
+    // Save
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving…";
+      saveStatus.textContent = "";
+
+      const newPref = document.querySelector('input[name="notification_preference"]:checked')?.value || "email_full_story";
+      const updates = {
+        display_name: displayNameInput.value.trim() || null,
+        notification_preference: newPref,
+        marketing_email_opt_in: marketingOptIn.checked,
+      };
+
+      const { error: updateErr } = await supabase
+        .from("users")
+        .update(updates)
+        .eq("id", session.user.id);
+
+      if (updateErr) {
+        saveStatus.textContent = "Couldn't save: " + updateErr.message;
+        saveStatus.className = "save-status err";
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save changes";
+        return;
+      }
+
+      // Log if notification preference changed
+      if (user && user.notification_preference !== newPref) {
+        await logEvent("notification_preference_changed", {
+          metadata: { from: user.notification_preference, to: newPref },
+        });
+      }
+
+      saveStatus.textContent = "Saved ✓";
+      saveStatus.className = "save-status ok";
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save changes";
+
+      // Fade message after a few seconds
+      setTimeout(() => { saveStatus.textContent = ""; saveStatus.className = "save-status"; }, 3000);
+    });
+
+    document.getElementById("signOutBtn2").addEventListener("click", () => signOut("/"));
   </script>
 </body>
 </html>
