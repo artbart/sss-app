@@ -45,11 +45,14 @@ export async function getSession() {
   return data.session || null;
 }
 
-// Sign the user out and redirect.
-export async function signOut(redirect = "/") {
+// Sign the user out and redirect to the app's sign-in page.
+// Always uses an absolute URL so relative-path interpretation can't bounce
+// the user to the marketing site if the call happens from a weird state.
+export async function signOut(redirect = "https://app.stuffsosweet.com/") {
   await logEvent("logout");
   await supabase.auth.signOut();
-  window.location.href = redirect;
+  const target = redirect.startsWith("http") ? redirect : `https://app.stuffsosweet.com${redirect}`;
+  window.location.href = target;
 }
 
 // Page guard: redirect to / if not logged in.
