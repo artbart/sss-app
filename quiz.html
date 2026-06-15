@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Start a new story — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="theme-color" content="#4b0018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    .quiz-wrap { width: 100%; max-width: 520px; padding: 24px 18px 100px; margin: 0 auto; }
+    .quiz-back {
+      display: inline-block;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-bottom: 14px;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: var(--very-faint);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .progress-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cta), var(--gold));
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .quiz-title {
+      font-size: clamp(22px, 4.5vw, 26px);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      margin-bottom: 22px;
+      text-align: left;
+    }
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+      font-family: Georgia, serif;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+    .opt:hover {
+      background: var(--card-hi);
+      border-color: rgba(240, 212, 140, 0.3);
+      transform: translateY(-1px);
+    }
+    .opt.selected {
+      background: rgba(240, 212, 140, 0.10);
+      border-color: rgba(240, 212, 140, 0.45);
+    }
+    .opt-emoji { font-size: 22px; line-height: 1; flex-shrink: 0; }
+    .opt-text { flex: 1; }
+    .opt-check {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: bold;
+    }
+    .opt.selected .opt-check {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #1a0008;
+    }
+    .yn-row { display: flex; gap: 10px; margin-top: 8px; }
+    .yn-row .opt { flex: 1; justify-content: center; text-align: center; }
+
+    .continue-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px;
+      background: linear-gradient(to top, var(--bg-bottom) 70%, rgba(26,0,8,0));
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+    }
+    .continue-bar .btn { width: 100%; max-width: 450px; }
+
+    .start-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 28px 24px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .working-card {
+      text-align: center;
+      padding: 36px 20px;
+    }
+    .working-card .spinner { margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+  <div id="topbar"></div>
+  <div class="quiz-wrap">
+    <a class="quiz-back" href="/stories.html">← Back to stories</a>
+    <div id="root"></div>
+  </div>
+  <div id="continueArea"></div>
+
+  <script type="module">
+    import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
+
+    const session = await requireAuth();
+    renderTopbar();
+    await logEvent("app_open", { metadata: { page: "quiz" } });
+    await logEvent("quiz_started", { metadata: { source: "app" } });
+
+    // ===== Question schema — only the 15 fields generate-chapter actually uses =====
+    const QUESTIONS = [
+      { key: "character", type: "single",
+        title: "Who do you picture?",
+        options: ["🔥 Him", "🌙 Her", "💞 Both", "✨ Either", "🔮 Something else"] },
+
+      { key: "feeling", type: "single",
+        title: "How do you want tonight to feel?",
+        options: [
+          "🌐 Locked eyes across a dark room",
+          "🕯 Candlelight and whispered promises",
+          "😈 Her voice telling you what to do",
+          "🤗 Her hands taking their time",
+          "🥰 Laughter that turns into a kiss",
+        ] },
+
+      { key: "fantasy", type: "single",
+        title: "What fantasy keeps you up at night?",
+        options: [
+          "🏞 A stranger in a hotel room. No names",
+          "🤴 She's on her knees worshipping you",
+          "👁 Someone watching. And you like it",
+          "🐍 A creature that isn't human",
+          "👥 More than one",
+          "🤫 A forbidden affair",
+          "💄 Pinned down",
+          "🎭 Roleplay",
+          "🎲 Surprise me",
+        ] },
+
+      { key: "power", type: "single",
+        title: "In the heat of it, who has the power?",
+        options: [
+          "👑 You. Always you",
+          "💥 Both of you. Fighting for it",
+          "🤝 Neither leads. You just move together",
+          "🥰 You give it up willingly",
+          "⚔ She takes it. You don't resist",
+          "🌀 Depends on the night",
+          "🤷 I don't know yet. That's the thrill",
+        ] },
+
+      { key: "start", type: "single",
+        title: "How does it start between you two?",
+        options: [
+          "💛 Best friends who finally cross the line",
+          "🥲 Total strangers. Instant chemistry",
+          "⏳ Slow burn. Every glance counts",
+          "🗡 A world with different rules",
+          "🖤 She takes charge. You let her",
+        ] },
+
+      { key: "missing", type: "single",
+        title: "Is something missing? Or do you just want more?",
+        options: [
+          "🤫 I have it. I want more of it",
+          "🍓 Something's been missing for a while",
+          "🔐 I just want something that's mine",
+          "🌱 I'm rediscovering what I like",
+          "🥷 I want things I can't ask for in real life",
+          "🙊 I'd rather not say",
+        ] },
+
+      { key: "romance_type", type: "single",
+        title: "What type of romance draws you in?",
+        options: [
+          "🎯 Wanted. Like I'm the only one in the room",
+          "💎 Powerful. Like nothing can touch me",
+          "🦋 Free. No rules, no overthinking",
+          "🦦 Close to someone. Even if they're fictional",
+          "🔓 Seen. Like someone finally gets me",
+        ] },
+
+      { key: "experience", type: "single",
+        title: "What would you live through in a story?",
+        options: [
+          "💘 A connection that cuts deep",
+          "🤫 A night that leaves you breathless",
+          "💋 Someone who worships every inch of you",
+          "🚫 Something you'd never do in real life",
+          "🌌 A world nothing like this one",
+        ] },
+
+      { key: "reason", type: "single",
+        title: "Why does this feel like exactly what you need right now?",
+        options: [
+          "😮‍💨 I need to decompress",
+          "💔 My love life needs... something",
+          "⏰ I never get time for just me",
+          "🦋 I want to feel something in my body again",
+          "😏 I just like good stories. No deep reason",
+          "🤷‍♀️ Honestly? Not sure. I just ended up here",
+        ] },
+
+      { key: "spicy_trigger", type: "multi",
+        title: "When you read something spicy, what pulls you in?",
+        options: [
+          "🧠 Every thought, every sensation. Like it's happening to me",
+          "⚡ Get to the good part. Fast",
+          "💬 What she says. The words do it for me",
+          "🔥 Scenes so vivid I feel them in my body",
+          "🏞 Disappearing into a world that isn't mine",
+          "🤫 The thrill of reading something I probably shouldn't",
+          "🤷 Just curious. I want to see what this is",
+        ] },
+
+      { key: "intense", type: "yesno",
+        title: "Do you want your story to include unexpected, emotionally intense moments?" },
+      { key: "explicit", type: "yesno",
+        title: "Would you like fully explicit content if the story calls for it?" },
+      { key: "explore", type: "yesno",
+        title: "Are you open to exploring different fantasies and storylines over time?" },
+      { key: "relationship", type: "yesno",
+        title: "Are you currently in a relationship?" },
+    ];
+
+    let step = 0;
+    const answers = {};
+
+    function render() {
+      const total = QUESTIONS.length;
+      const root = document.getElementById("root");
+      const continueArea = document.getElementById("continueArea");
+
+      if (step >= total) { renderSubmitting(); return; }
+      const q = QUESTIONS[step];
+
+      const head = `
+        <div class="progress-meta">
+          <span>Question ${step + 1} of ${total}</span>
+          <span>${Math.round(((step) / total) * 100)}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(step / total) * 100}%"></div></div>
+        <h2 class="quiz-title">${escapeHtml(q.title)}</h2>
+      `;
+
+      if (q.type === "single") {
+        root.innerHTML = head + q.options.map((opt, i) => {
+          const emoji = opt.split(" ")[0];
+          const text = opt.substring(opt.indexOf(" ") + 1);
+          return `<div class="opt" data-i="${i}"><div class="opt-emoji">${emoji}</div><div class="opt-text">${escapeHtml(text)}</div></div>`;
+        }).join("");
+        continueArea.innerHTML = "";
+        root.querySelectorAll(".opt").forEach(el => {
+          el.addEventListener("click", () => {
+            answers[q.key] = q.options[parseInt(el.dataset.i, 10)];
+            step++; render();
+          });
+        });
+      } else if (q.type === "multi") {
+        const selected = new Set(answers[q.key] || []);
+        root.innerHTML = head + q.options.map((opt, i) => {
+          const emoji = opt.split(" ")[0];
+          const text = opt.substring(opt.indexOf(" ") + 1);
+          const cls = selected.has(opt) ? "opt selected" : "opt";
+          const tick = selected.has(opt) ? "✓" : "";
+          return `<div class="${cls}" data-i="${i}"><div class="opt-emoji">${emoji}</div><div class="opt-text">${escapeHtml(text)}</div><div class="opt-check">${tick}</div></div>`;
+        }).join("");
+        continueArea.innerHTML = `<div class="continue-bar"><button class="btn" id="ctaContinue" ${selected.size === 0 ? "disabled" : ""}>Continue</button></div>`;
+        root.querySelectorAll(".opt").forEach(el => {
+          el.addEventListener("click", () => {
+            const opt = q.options[parseInt(el.dataset.i, 10)];
+            if (selected.has(opt)) selected.delete(opt); else selected.add(opt);
+            answers[q.key] = [...selected];
+            render();
+          });
+        });
+        document.getElementById("ctaContinue")?.addEventListener("click", () => {
+          if (selected.size === 0) return;
+          step++; render();
+        });
+      } else if (q.type === "yesno") {
+        root.innerHTML = head + `
+          <div class="yn-row">
+            <div class="opt" data-v="yes"><div class="opt-text"><strong>Yes</strong></div></div>
+            <div class="opt" data-v="no"><div class="opt-text"><strong>No</strong></div></div>
+          </div>
+        `;
+        continueArea.innerHTML = "";
+        root.querySelectorAll(".opt").forEach(el => {
+          el.addEventListener("click", () => {
+            answers[q.key] = el.dataset.v;
+            step++; render();
+          });
+        });
+      }
+    }
+
+    function renderSubmitting() {
+      document.getElementById("continueArea").innerHTML = "";
+      document.getElementById("root").innerHTML = `
+        <div class="start-card working-card">
+          <div class="spinner"></div>
+          <h2 style="font-size:22px;font-weight:400;margin-bottom:6px;">Starting your new story…</h2>
+          <p class="lede">This takes about a minute. We'll take you to it as soon as it's ready.</p>
+        </div>
+      `;
+      submit();
+    }
+
+    async function submit() {
+      await logEvent("quiz_completed", { metadata: { source: "app", question_count: 15 } });
+      try {
+        const url = "https://gmhbcxylqubhxozomhlt.supabase.co/functions/v1/start-authenticated-story";
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`,
+            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaGJjeHlscXViaHhvem9taGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTk5OTksImV4cCI6MjA5MjczNTk5OX0.GAM73P5X7fT1BIziTfvqUpFT2W_W5EtFb5Gze5cIFfY",
+          },
+          body: JSON.stringify({
+            answers: {
+              ...answers,
+              device_type: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
+              user_agent: navigator.userAgent,
+              landing_page: location.href,
+            },
+          }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.story_id) {
+          let msg = data.error || "Couldn't start your story.";
+          if (data.subscription_status && data.subscription_status !== "active") {
+            msg = "Your subscription isn't active right now. Reactivate to start a new story.";
+          }
+          document.getElementById("root").innerHTML = `
+            <div class="start-card">
+              <h2 style="font-size:22px;font-weight:400;margin-bottom:8px;">Couldn't start your story</h2>
+              <p class="lede">${escapeHtml(msg)}</p>
+              <a class="btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/stories.html">← Back to stories</a>
+            </div>
+          `;
+          return;
+        }
+
+        // Redirect to the new story (chapter 1 is being generated; story.html will
+        // show the "first chapter being written" banner until it lands)
+        window.location.href = `/story.html?id=${encodeURIComponent(data.story_id)}`;
+      } catch (e) {
+        console.error(e);
+        document.getElementById("root").innerHTML = `
+          <div class="start-card">
+            <h2 style="font-size:22px;font-weight:400;margin-bottom:8px;">Network issue</h2>
+            <p class="lede">${escapeHtml(e.message)}</p>
+            <a class="btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/stories.html">← Back to stories</a>
+          </div>
+        `;
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    render();
+  </script>
+</body>
+</html>

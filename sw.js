@@ -15,6 +15,7 @@ const SHELL = [
   "/story.html",
   "/chapter.html",
   "/settings.html",
+  "/quiz.html",
   "/assets/lib.js",
   "/assets/style.css",
   "/site.webmanifest",
