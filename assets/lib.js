@@ -114,3 +114,13 @@ export function renderTopbar(target = "#topbar") {
   `;
   document.getElementById("signOutBtn")?.addEventListener("click", () => signOut("/"));
 }
+
+/* ===== PWA service worker registration ===== */
+// Fire-and-forget; failures don't block anything.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((e) => {
+      console.warn("[sss-app] SW registration failed:", e);
+    });
+  });
+}

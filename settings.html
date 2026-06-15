@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Settings — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="theme-color" content="#4b0018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Stuff So Sweet">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+  <div id="topbar"></div>
+  <main class="center">
+    <div class="card">
+      <h1>Settings</h1>
+      <p class="lede">Coming in the next update.</p>
+      <a class="btn-secondary btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/stories.html">← Back to stories</a>
+    </div>
+  </main>
+  <script type="module">
+    import { requireAuth, renderTopbar } from "/assets/lib.js";
+    await requireAuth();
+    renderTopbar();
+  </script>
+</body>
+</html>
