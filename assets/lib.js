@@ -48,10 +48,12 @@ export async function getSession() {
 // Sign the user out and redirect to the app's sign-in page.
 // Always uses an absolute URL so relative-path interpretation can't bounce
 // the user to the marketing site if the call happens from a weird state.
-export async function signOut(redirect = "https://app.stuffsosweet.com/") {
+export async function signOut(redirect = "https://stuffsosweet.com/") {
   await logEvent("logout");
   await supabase.auth.signOut();
-  const target = redirect.startsWith("http") ? redirect : `https://app.stuffsosweet.com${redirect}`;
+  // Default destination is the public marketing site — friendlier "post-logout" surface
+  // than dropping the user on the app's sign-in form. Pass an explicit URL to override.
+  const target = redirect.startsWith("http") ? redirect : `https://stuffsosweet.com${redirect}`;
   window.location.href = target;
 }
 
