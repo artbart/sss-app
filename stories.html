@@ -19,6 +19,35 @@
     .stories-wrap h1 { text-align: left; font-size: clamp(26px, 5vw, 32px); margin-bottom: 8px; }
     .stories-wrap .sub { font-family: Arial, sans-serif; font-size: 14px; color: var(--faint); margin-bottom: 24px; }
 
+    .start-new {
+      text-align:center;
+      padding:18px;
+      border:1px dashed rgba(240,212,140,0.4);
+      background:rgba(240,212,140,0.05);
+      transition: opacity 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .start-new .start-new-title {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .start-new .start-new-sub {
+      margin-top: 6px;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: var(--faint);
+    }
+    .start-new.disabled {
+      opacity: 0.55;
+      pointer-events: none;
+      border-color: rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    .start-new.disabled .start-new-title { color: var(--faint); }
+
     .story-card {
       display: block;
       background: var(--card);
@@ -114,8 +143,9 @@
   <div class="stories-wrap">
     <h1>Your stories</h1>
     <p class="sub" id="subline">Loading…</p>
-    <a class="story-card" href="/quiz.html" style="text-align:center;padding:18px;border:1px dashed rgba(240,212,140,0.4);background:rgba(240,212,140,0.05);" id="startNewBtn">
-      <div style="font-family:Arial,sans-serif;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);font-weight:600;">Start a new story →</div>
+    <a class="story-card start-new" href="/quiz.html" id="startNewBtn">
+      <div class="start-new-title">Start a new story →</div>
+      <div class="start-new-sub" id="quotaSub">Loading quota…</div>
     </a>
     <div id="list"></div>
 
@@ -185,6 +215,40 @@
         `;
       }).join("");
     }
+
+    // ===== Monthly story-creation quota indicator =====
+    (async () => {
+      try {
+        const now = new Date();
+        const startOfMonthIso = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)).toISOString();
+        const { count, error: qErr } = await supabase
+          .from("stories")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", session.user.id)
+          .gte("created_at", startOfMonthIso);
+        if (qErr) { console.warn("quota lookup failed:", qErr); return; }
+        const used = count || 0;
+        const limit = 3;
+        const remaining = Math.max(0, limit - used);
+
+        const sub = document.getElementById("quotaSub");
+        const btn = document.getElementById("startNewBtn");
+        if (!sub || !btn) return;
+
+        if (remaining === 0) {
+          // Compute first-of-next-month for the message
+          const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+          const friendly = nextMonth.toLocaleDateString(undefined, { month: "long", day: "numeric" });
+          sub.textContent = `Monthly limit reached. Resets ${friendly}.`;
+          btn.classList.add("disabled");
+          btn.setAttribute("aria-disabled", "true");
+        } else {
+          sub.textContent = `${remaining} of ${limit} stories left this month`;
+        }
+      } catch (e) {
+        console.warn("quota indicator failed:", e);
+      }
+    })();
 
     function escapeHtml(s) {
       return String(s ?? "")
