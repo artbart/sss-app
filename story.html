@@ -28,6 +28,13 @@
       margin-bottom: 8px;
       letter-spacing: -0.01em;
     }
+    .story-header h1.pulse {
+      animation: titlePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes titlePulse {
+      0%, 100% { opacity: 0.45; }
+      50%      { opacity: 1; }
+    }
     .story-header .meta {
       font-family: Arial, sans-serif;
       font-size: 13px;
@@ -126,8 +133,13 @@
     if (sErr || !story) {
       titleEl.textContent = "Story not found";
       metaEl.textContent = sErr?.message || "It may have been removed.";
+    } else if (!story.title) {
+      // Title hasn't been written yet = chapter 1 is still generating.
+      titleEl.textContent = "Your story is being written…";
+      titleEl.classList.add("pulse");
+      metaEl.textContent = "Chapter 1 will arrive in about 3-5 minutes. We'll notify You.";
     } else {
-      titleEl.textContent = story.title || "Untitled story";
+      titleEl.textContent = story.title;
       if (story.hook) metaEl.textContent = story.hook;
     }
 
@@ -140,7 +152,7 @@
     if (cErr) {
       list.innerHTML = `<div class="empty">Couldn't load chapters. ${escapeHtml(cErr.message)}</div>`;
     } else if (!chapters || chapters.length === 0) {
-      list.innerHTML = `<div class="next-pending">Your first chapter is being written. Check back in a minute.</div>`;
+      list.innerHTML = `<div class="next-pending">Chapter 1 will arrive in about 3-5 minutes. We'll notify You.</div>`;
     } else {
       const total = story?.target_chapter_count || 10;
       const latest = chapters[0].chapter_number;

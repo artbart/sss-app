@@ -73,6 +73,21 @@
       letter-spacing: -0.01em;
       line-height: 1.2;
     }
+    .story-title.pulse {
+      animation: titlePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes titlePulse {
+      0%, 100% { opacity: 0.45; }
+      50%      { opacity: 1; }
+    }
+    .story-subline {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-top: -2px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
     .story-meta {
       display: flex;
       align-items: center;
@@ -204,9 +219,16 @@
         const statusBadge = s.status === 'completed' ? ' — completed'
                           : s.status === 'error'     ? ' — issue, contact support'
                           : '';
+        // No title yet = chapter 1 is still generating. Show friendly placeholder
+        // + soft-pulsing animation + time-estimate subline instead of "Untitled story".
+        const inProgress = !s.title;
+        const titleBlock = inProgress
+          ? `<div class="story-title pulse">Your story is being written…</div>
+             <div class="story-subline">Chapter 1 will arrive in about 3-5 minutes. We'll notify You.</div>`
+          : `<div class="story-title">${escapeHtml(s.title)}</div>`;
         return `
           <a class="story-card" href="/story.html?id=${encodeURIComponent(s.id)}">
-            <div class="story-title">${escapeHtml(s.title || "Untitled story")}</div>
+            ${titleBlock}
             <div class="story-meta">
               <span>Chapter ${have} of ${total}${statusBadge}</span>
               <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
