@@ -175,6 +175,14 @@
       <div class="save-status" id="saveStatus"></div>
     </form>
 
+    <div class="section" id="subSection" style="display:none;">
+      <h2>Subscription</h2>
+      <div class="field-readonly" id="subStatusLine" style="margin-bottom:14px;">…</div>
+      <button type="button" class="btn btn-secondary" id="cancelSubBtn" style="width:auto;padding:10px 22px;display:none;">Cancel subscription</button>
+      <button type="button" class="btn" id="reactivateBtn" style="width:auto;padding:10px 22px;display:none;">Reactivate subscription</button>
+      <div class="save-status" id="subStatus"></div>
+    </div>
+
     <div class="danger-zone">
       <p>Signing out only removes this device. Your stories stay safe.</p>
       <button type="button" class="btn btn-secondary" id="signOutBtn2" style="width:auto;padding:10px 22px;">Sign out</button>
@@ -200,7 +208,7 @@
     // Load current user profile
     const { data: user, error } = await supabase
       .from("users")
-      .select("display_name, notification_preference, marketing_email_opt_in")
+      .select("display_name, notification_preference, marketing_email_opt_in, subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
       .eq("id", session.user.id)
       .maybeSingle();
 
@@ -270,6 +278,73 @@
       // Fade message after a few seconds
       setTimeout(() => { saveStatus.textContent = ""; saveStatus.className = "save-status"; }, 3000);
     });
+
+    // ---- Subscription management ----
+    const subSection = document.getElementById("subSection");
+    const subStatusLine = document.getElementById("subStatusLine");
+    const cancelSubBtn = document.getElementById("cancelSubBtn");
+    const reactivateBtn = document.getElementById("reactivateBtn");
+    const subStatus = document.getElementById("subStatus");
+
+    function fmtDate(iso) {
+      if (!iso) return "";
+      try { return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
+      catch (_) { return ""; }
+    }
+
+    function renderSub(u) {
+      if (!u || !u.stripe_subscription_id) { subSection.style.display = "none"; return; }
+      subSection.style.display = "";
+      const end = fmtDate(u.current_period_end);
+      const active = u.current_period_end && new Date(u.current_period_end) >= new Date();
+      if (u.cancel_at_period_end) {
+        subStatusLine.textContent = active
+          ? `Your subscription is set to end on ${end}. You keep full access until then.`
+          : "Your subscription has ended.";
+        cancelSubBtn.style.display = "none";
+        reactivateBtn.style.display = active ? "" : "none";
+      } else if (active) {
+        subStatusLine.textContent = `Active — renews on ${end}.`;
+        cancelSubBtn.style.display = "";
+        reactivateBtn.style.display = "none";
+      } else {
+        subStatusLine.textContent = "No active subscription.";
+        cancelSubBtn.style.display = "none";
+        reactivateBtn.style.display = "none";
+      }
+    }
+
+    async function manageSub(action, btn) {
+      const original = btn.textContent;
+      btn.disabled = true; btn.textContent = "…";
+      subStatus.textContent = ""; subStatus.className = "save-status";
+      const { data, error: fnErr } = await supabase.functions.invoke("cancel-subscription", { body: { action } });
+      if (fnErr || !data || !data.ok) {
+        subStatus.textContent = "Couldn't update your subscription. Please try again.";
+        subStatus.className = "save-status err";
+        btn.disabled = false; btn.textContent = original;
+        return;
+      }
+      const { data: u2 } = await supabase
+        .from("users")
+        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      btn.disabled = false; btn.textContent = original;
+      renderSub(u2);
+      subStatus.textContent = action === "reactivate" ? "Subscription reactivated ✓" : "Cancellation scheduled ✓";
+      subStatus.className = "save-status ok";
+      await logEvent(action === "reactivate" ? "subscription_reactivated" : "subscription_cancel_requested", {});
+      setTimeout(() => { subStatus.textContent = ""; subStatus.className = "save-status"; }, 4000);
+    }
+
+    cancelSubBtn.addEventListener("click", (e) => {
+      if (!confirm("Cancel your subscription? You'll keep full access until the end of your current paid period.")) return;
+      manageSub("cancel", e.currentTarget);
+    });
+    reactivateBtn.addEventListener("click", (e) => manageSub("reactivate", e.currentTarget));
+
+    renderSub(user);
 
     document.getElementById("signOutBtn2").addEventListener("click", () => signOut("/"));
   </script>
