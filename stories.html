@@ -143,6 +143,83 @@
       font-size: 12px;
       color: var(--very-faint);
     }
+    .library-hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(240, 212, 140, 0.3);
+      border-radius: 16px;
+      padding: 18px;
+      color: inherit;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+    }
+    .library-hero:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(240, 212, 140, 0.5);
+      transform: translateY(-1px);
+      text-decoration: none;
+    }
+    .lh-covers {
+      flex-shrink: 0;
+      position: relative;
+      width: 178px;
+      height: 102px;
+    }
+    .lh-covers img {
+      position: absolute;
+      width: 68px;
+      height: 102px;
+      border-radius: 6px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.12);
+      object-fit: cover;
+      background: #2a0810;
+      display: block;
+    }
+    .lh-covers img:nth-child(1) { left: 0;    top: 4px; transform: rotate(-7deg); }
+    .lh-covers img:nth-child(2) { left: 26px; top: 2px; transform: rotate(-3deg); z-index: 1; }
+    .lh-covers img:nth-child(3) { left: 52px; top: 0;   transform: rotate( 0deg); z-index: 2; }
+    .lh-covers img:nth-child(4) { left: 78px; top: 2px; transform: rotate( 3deg); z-index: 3; }
+    .lh-covers img:nth-child(5) { left:104px; top: 4px; transform: rotate( 7deg); z-index: 4; }
+    .lh-text { flex: 1; min-width: 0; }
+    .lh-eyebrow {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .lh-title {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      color: var(--gold);
+      margin: 0 0 6px;
+      letter-spacing: -0.005em;
+    }
+    .lh-sub {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: var(--faint);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .lh-cta {
+      font-family: Georgia, serif;
+      font-size: 14px;
+      color: var(--cta);
+    }
+
+    @media (max-width: 520px) {
+      .library-hero { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .lh-covers { width: 100%; height: 110px; }
+      .lh-covers img:nth-child(1) { left: 0; }
+      .lh-covers img:nth-child(2) { left: 30px; }
+      .lh-covers img:nth-child(3) { left: 60px; }
+      .lh-covers img:nth-child(4) { left: 90px; }
+      .lh-covers img:nth-child(5) { left:120px; }
+    }
     .section-label {
       font-family: Arial, sans-serif;
       font-size: 11px;
@@ -165,9 +242,20 @@
     <div id="list"></div>
 
     <div class="section-label">Now available</div>
-    <a class="coming-card live" href="/library/" style="display:block;color:inherit;text-decoration:none;">
-      <div class="coming-title">Books library →</div>
-      <div class="coming-sub">Read full-length stories. 1 book live.</div>
+    <a class="library-hero" href="/library/">
+      <div class="lh-covers" aria-hidden="true">
+        <img src="https://trippleu.com/wp-content/uploads/2026/06/book_1_cover.webp" alt="">
+        <img src="https://trippleu.com/wp-content/uploads/2026/06/book_foxlight.webp" alt="">
+        <img src="https://trippleu.com/wp-content/uploads/2026/06/penthouse.webp" alt="">
+        <img src="https://trippleu.com/wp-content/uploads/2026/06/drivebay.webp" alt="">
+        <img src="https://trippleu.com/wp-content/uploads/2026/06/after_hours.webp" alt="">
+      </div>
+      <div class="lh-text">
+        <div class="lh-eyebrow">BOOKS LIBRARY</div>
+        <div class="lh-title">5 full-length stories</div>
+        <div class="lh-sub">Shifter romance · Modern romance · Affair · BDSM. ~7 hours of reading.</div>
+        <div class="lh-cta">Open library →</div>
+      </div>
     </a>
 
     <div class="section-label">Coming soon</div>
