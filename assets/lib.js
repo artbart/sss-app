@@ -117,6 +117,7 @@ export function renderTopbar(target = "#topbar") {
       <a class="brand" href="/stories.html">Stuff So Sweet</a>
       <div class="menu">
         <a href="/stories.html">Stories</a>
+        <a href="/library/">Library</a>
         <a href="/settings.html">Settings</a>
         <button id="signOutBtn" type="button">Sign out</button>
       </div>
