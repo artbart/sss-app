@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foxlight — Stuff So Sweet Library</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    .book-hero { max-width: 720px; margin: 0 auto; padding: 32px 20px 28px; text-align: center; }
+    .book-hero .cover { width: 100%; max-width: 320px; aspect-ratio: 2/3; object-fit: cover; border-radius: 14px; margin: 0 auto 22px; display: block; box-shadow: 0 16px 40px rgba(0,0,0,0.45); }
+    .book-hero h1 { font-family: Georgia, serif; font-size: clamp(32px, 6vw, 44px); color: var(--gold); margin: 0 0 4px; letter-spacing: -0.01em; }
+    .book-hero .author { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 22px; }
+    .book-hero .summary { font-family: Georgia, serif; font-size: 16px; line-height: 1.65; opacity: 0.88; margin: 0 0 24px; text-align: left; }
+    .book-hero .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); margin-bottom: 28px; }
+    .book-hero .begin { display: inline-block; background: var(--cta); color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 14px; font-family: Georgia, serif; font-size: 16px; font-weight: bold; box-shadow: 0 8px 24px rgba(224,75,87,0.28); }
+
+    .toc { max-width: 560px; margin: 36px auto; padding: 24px 28px; background: rgba(255,255,255,0.05); border-radius: 16px; }
+    .toc h2 { font-family: Georgia, serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); font-weight: normal; margin: 0 0 14px; text-align: center; }
+    .toc ol { list-style: none; padding: 0; margin: 0; }
+    .toc li a { display: flex; align-items: baseline; gap: 10px; padding: 9px 4px; color: inherit; text-decoration: none; font-family: Georgia, serif; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color 0.15s; }
+    .toc li:last-child a { border-bottom: none; }
+    .toc li a:hover { color: var(--gold); }
+    .toc-num { color: var(--faint); font-variant-numeric: tabular-nums; min-width: 24px; }
+
+    .chapter { max-width: 640px; margin: 0 auto; padding: 56px 22px 28px; }
+    .ch-header { text-align: center; margin-bottom: 32px; }
+    .ch-num { font-family: Arial, sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--faint); margin-bottom: 8px; }
+    .ch-title { font-family: Georgia, serif; font-size: clamp(24px, 4vw, 32px); color: var(--gold); font-weight: normal; margin: 0; letter-spacing: -0.005em; }
+    .ch-body { font-family: Georgia, serif; font-size: 17px; line-height: 1.75; color: rgba(255,255,255,0.92); }
+    .ch-body p { margin: 0 0 18px; }
+    .ch-body em { font-style: italic; color: rgba(255,255,255,0.96); }
+    .ch-body hr.scene-break { border: none; height: 1px; background: rgba(240,212,140,0.18); width: 80px; margin: 32px auto; }
+
+    .book-end { max-width: 560px; margin: 48px auto 80px; padding: 32px 22px; text-align: center; }
+    .book-end .the-end { font-family: Georgia, serif; font-size: 22px; color: var(--gold); letter-spacing: 0.06em; margin: 0 0 26px; }
+    .book-end .back-link { display: inline-block; padding: 12px 26px; border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; color: inherit; text-decoration: none; font-family: Arial, sans-serif; font-size: 14px; }
+
+    @media (max-width: 540px) {
+      .ch-body { font-size: 16.5px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar"></div>
+
+  <main>
+    <section class="book-hero">
+      <img class="cover" src="https://trippleu.com/wp-content/uploads/2026/06/book_foxlight.webp" alt="">
+      <h1>Foxlight</h1>
+      <div class="author">A novella · Stuff So Sweet</div>
+      <p class="summary">When London barrister Iona Calloway inherits her great-aunt Maeve's small Welsh estate after a high-profile case nearly destroys her career, she expects six quiet months in a stone cottage at the edge of the hills — and finds instead a copper-haired groundskeeper who lit the fire before she arrived, an 1763 family compact that cannot be broken without the consent of the female heir of the line, and a creature in the orchard at dusk that looks at her in the long autumn foxlight with eyes the color of amber whiskey. Reynard "Ren" Llwyd is <em>kitsune</em>-blooded — the last fox-shifter of his line, bound to the Calloway estate for one hundred and forty years, who has loved and outlived three of Iona's grandmothers and has waited, with the patience only beings outside a single human lifespan can manage, for her to arrive.</p>
+      <div class="meta">10 chapters · ~21,000 words · ~90 min read · Spicy</div>
+      <a href="#chapter-1" class="begin">Begin reading ↓</a>
+    </section>
+
+    <nav class="toc" aria-label="Table of Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#chapter-1"><span class="toc-num">1.</span> The Cottage</a></li>
+        <li><a href="#chapter-2"><span class="toc-num">2.</span> The Compact</a></li>
+        <li><a href="#chapter-3"><span class="toc-num">3.</span> Foxlight</a></li>
+        <li><a href="#chapter-4"><span class="toc-num">4.</span> The Hedgerow</a></li>
+        <li><a href="#chapter-5"><span class="toc-num">5.</span> The Library</a></li>
+        <li><a href="#chapter-6"><span class="toc-num">6.</span> The Old Wood</a></li>
+        <li><a href="#chapter-7"><span class="toc-num">7.</span> The Hunt</a></li>
+        <li><a href="#chapter-8"><span class="toc-num">8.</span> The Bonfire</a></li>
+        <li><a href="#chapter-9"><span class="toc-num">9.</span> Reynard</a></li>
+        <li><a href="#chapter-10"><span class="toc-num">10.</span> The Estate</a></li>
+      </ol>
+    </nav>
+
+<article class="chapter" id="chapter-1">
+<header class="ch-header"><div class="ch-num">Chapter 1</div><h2 class="ch-title">The Cottage</h2></header>
+<div class="ch-body">
+<p>Iona Calloway got her Audi stuck in mud at the bottom of the lane, and she said the word her mother would have slapped her for, twice, with feeling.</p>
+<p>The lane up to the cottage had been described in her great-aunt Maeve's solicitor's letter as <em>unimproved but passable in dry weather</em>. It had not, today, been dry weather. It had been the soft Welsh August that pretended at rain by spitting at the windscreen for three hours straight, and then committed in earnest in the last quarter-hour, which was the quarter-hour during which she had turned off the A483 and onto whatever this was.</p>
+<p>She got out of the car. The mud took her right boot to mid-calf. The boot was an ankle boot. The boot was no longer an ankle boot.</p>
+<p>"<em>Magnificent</em>," she said.</p>
+<p>The lane went up between two stone walls and a stand of beech that had outlasted the Tudors. She could see, at the top of the rise, the slate roof of the cottage. She could not, from this angle, see anything resembling a tow truck or a sign for one.</p>
+<p>Her phone said: <em>no service</em>.</p>
+<p>She stood in the middle of the mud and reckoned with the dimensions of her week. She had been disbarred from public service in everything but technical name. She had been pilloried in three broadsheets and one of the country's most-read podcasts. She had been advised by her head of chambers to take six months of leave, <em>immediately</em>, and to come back in February with a tan and an answer. She had been left a six-room cottage and a wedge of land in a county she had never visited by an aunt she had met three times.</p>
+<p>She was now standing in mud past her ankles in the rain.</p>
+<p>She was, she thought, broadly speaking, at the bottom.</p>
+<p>She heard a sound up the lane.</p>
+<p>It was the sound of a stone — not a small stone — being set on top of another stone with the considered, unhurried weight of a man who had done it a great many times. She listened. She heard it again. Setting a wall. Repairing a dry-stone wall, which was what people did in this country, apparently, in the rain in August.</p>
+<p>She started up the lane on foot. The mud was reluctant to let her go.</p>
+<p>At the bend in the lane, where a fallen oak had gone half-rotten in a hedge, a man was on the inside of the field on his knees in front of a stretch of fallen stone wall. He had a length of pale wool jumper sleeve pushed up to his elbows. His forearms were tanned to the warm brown of late summer. The hands moving the stones moved them in the small precise way of someone who knew where every stone was meant to go.</p>
+<p>He was wearing — and this offended her, briefly, in the way that any man's wardrobe choice can offend a woman in the wrong moment — a dry, oiled wax jacket against the wall, slate-grey, well-loved. There was a Border collie sitting in the grass two metres from him, watching him work with the patient air of a dog who had been bred to know better than to interrupt.</p>
+<p>Iona stopped.</p>
+<p>"Excuse me," she said.</p>
+<p>The man turned his head.</p>
+<p>The first thing she registered was that his hair was copper. Not red. Copper. The actual metallic colour, gone slightly silver at the temples in a way that placed him somewhere on the late side of thirty-five and the early side of forty. The second thing was that his eyes were the colour of cask-strength single malt. The third thing was that he was smiling at her — slowly, with the small interior amusement of a man who had clocked the boots and decided to be a good sport about it.</p>
+<p>"Lost?" he said.</p>
+<p>"Stuck," she said. "About a hundred metres back. My car."</p>
+<p>He stood. He moved easily, in the way of a man who worked outdoors and slept enough. He came to the wall and stepped over it without breaking stride — one long, fluid movement — and crossed the lane to her.</p>
+<p>"Calloway car?" he said.</p>
+<p>"How did you —"</p>
+<p>"Maeve wrote me three months ago that her great-niece would be coming up." He tilted his head. "Iona, is it."</p>
+<p>"Iona Calloway," she said. Crisply, because crispness was what she had at the moment. "And you are."</p>
+<p>"Ren," he said. "Reynard Llwyd. I look after the property."</p>
+<p>She blinked.</p>
+<p>"I'm sorry?"</p>
+<p>"The estate has a groundskeeper, Miss Calloway. I'm him." His smile widened a fraction. "Has the solicitor not had a chance to brief you?"</p>
+<p>"He sent — a list of names. There was a — yes. A groundskeeper." She had filed it under <em>Welsh inscrutables, to be sorted later</em>. "I thought it was a name on a payroll. I thought you were a — a man with a — riding mower."</p>
+<p>He laughed.</p>
+<p>It was a real laugh. Low and unforced, the kind of laugh that came out of a man who actually thought a thing was funny, not the kind that came out of a man performing politeness at a woman with mud on her boots. He had, when he laughed, very small lines at the corners of his eyes.</p>
+<p>"Forgive me, Miss Calloway. I'm not a man with a riding mower. There is no riding mower. There is, however," he said, looking past her down the lane to where the Audi was sitting at a despondent angle in the mud, "a winch and a Land Rover in the second outbuilding, and there is twenty minutes of work to get you out of there. If you'll come up to the cottage with me and put on something dry, I'll go and get the Rover and have your car at the top of the lane before tea."</p>
+<p>She stood there in the rain.</p>
+<p>She had been on the road since eight in the morning. She had not eaten since a station Cornish pasty at Crewe. Her boots were no longer boots. Her grandmother had once told her, in a French accent that had survived seventy years in England, <em>Iona, ma chère, accept help only from men who do not require thanks</em>. The man in front of her was looking at her with a tilt to his head and an amusement at the corner of his mouth and absolutely no expectation that she would be grateful.</p>
+<p>"All right," she said. "Yes. Thank you."</p>
+<p>She walked with him up the lane. The Border collie fell in behind them at heel without being told. The rain on her shoulders was a Welsh rain, which is a rain that doesn't intend to stop, and she let herself, for a few seconds at the top of the rise where the cottage came into view between the beeches, simply not be a barrister, and simply be a woman who was in the rain in mid-Wales, walking up a lane behind a man in a wax jacket who walked like he had never been in a hurry.</p>
+<p>The cottage was small. Slate roof. Stone walls the colour of pale honey. Roses she could not name growing up the south wall in pink and white. A single chimney, smoking.</p>
+<p>"You've lit the fire," she said.</p>
+<p>"I lit the fire this afternoon." He took a key from his pocket and opened the door — a long iron key on an old ring, the kind that had been a key for two hundred years and would be a key for two hundred more. "The cottage is cold otherwise after rain. Your great-aunt liked to come back to a warm house. I assumed her niece might too."</p>
+<p>He stepped aside.</p>
+<p>She walked into the cottage.</p>
+<p>It smelled of woodsmoke and beeswax and lavender bunched in a glass on the kitchen table. The fire was up in the small stone hearth. A blue enamel kettle was on the hob. There was a single white pillar candle on the windowsill that had been lit recently — the wick still trailing a thin smoke — and a half-empty cup of tea on the table that he had been drinking before, presumably, he had walked down the lane to mend a wall.</p>
+<p>She turned.</p>
+<p>He had not come inside. He was standing on the threshold with his hand on the doorframe and his other hand holding the iron key, which he was offering to her.</p>
+<p>"It's your cottage, Miss Calloway."</p>
+<p>She took the key.</p>
+<p>"Reynard," she said.</p>
+<p>"Yes."</p>
+<p>"How long have you been the groundskeeper here."</p>
+<p>He held her eyes for a half-second longer than was strictly polite.</p>
+<p>"A long time," he said. "We can sort it out properly tomorrow if you like. Welcome home."</p>
+<p>He stepped back. He pulled the door shut behind him.</p>
+<p>She stood in the firelit kitchen of a cottage she had never seen before, holding an iron key, in mud-coated boots, on the first evening of the first holiday she had taken in six years.</p>
+<p>She put down her bag.</p>
+<p>She took off the boots.</p>
+<p>She went to the windowsill and put her finger against the wick of the trailing-smoke candle. It was warm.</p>
+<p>She found in the cupboard above the sink a bottle of single malt that was much better than any whisky she had bought herself in five years, and a tin of biscuits, and a note in her aunt's hand, dated two years before her death, which read in pencil: <em>Iona, ma fille, when you get here, don't be in a hurry to leave. The country knows what it's doing. Drink the whisky.</em></p>
+<p>She poured a finger of the whisky.</p>
+<p>She watched the fire.</p>
+<p>Outside the window, in the deepening dusk, she saw — a quarter mile up the slope, between two beeches, just at the edge of the orchard wall — a flash of copper.</p>
+<p>She watched.</p>
+<p>She did not see it again.</p>
+<p>She drank the whisky.</p>
+<p>The country knows what it's doing, she thought.</p>
+<p>She did not, at the moment, disagree.</p>
+</div></article>
+
+<article class="chapter" id="chapter-2">
+<header class="ch-header"><div class="ch-num">Chapter 2</div><h2 class="ch-title">The Compact</h2></header>
+<div class="ch-body">
+<p>The solicitor's office in Newtown was, like most solicitors' offices in market towns of a certain age, located above a chemist on the high street and reached by a wooden staircase that had been rebuilt at least once and had not, on either occasion, been levelled.</p>
+<p>Mr. Idris Pritchard rose from behind his desk in a brown three-piece suit as old as he was, which was a careful old, and shook her hand.</p>
+<p>"Miss Calloway. A pleasure. Tea?"</p>
+<p>"Thank you, no. I had three at the cottage already."</p>
+<p>He smiled. He had the small, tidy smile of a man who had served the same families for forty years and had no other ambitions.</p>
+<p>"How did you find it?"</p>
+<p>"The cottage? Charming."</p>
+<p>"And Reynard?"</p>
+<p>She considered her answer.</p>
+<p>"He has been," she said, "uncommonly helpful."</p>
+<p>Mr. Pritchard smiled again. He sat. He drew toward him a folder so thick it required both his hands.</p>
+<p>"Yes," he said. "He would be. Now, Miss Calloway. Your great-aunt's affairs are largely simple. The cottage and the thirty-two acres pass to you absolutely. Maeve's investments — there were not many — have been liquidated and the proceeds are in a trust I have set up for you. You'll find the documents at tab six." He patted the folder. "There is, however, one item I must call to your attention. Tab eleven."</p>
+<p>She turned to it.</p>
+<p>It was an agreement — written by hand, in two columns, English on the left and what she recognized as Old Welsh on the right — dated the seventeenth of June, 1763. Witnesses: the parish vicar, the sheriff of Montgomeryshire, and two men whose names she could not parse. Parties: Tomos Calloway, of Calloway House, and Reynard Llwyd, of the Old Wood.</p>
+<p>She read it.</p>
+<p>She read it again.</p>
+<p>She looked up at Mr. Pritchard.</p>
+<p>"Mr. Pritchard."</p>
+<p>"Yes."</p>
+<p>"This says that the Calloway estate has a — a <em>retainer</em> — named Reynard Llwyd, who has been in continuous service to the family since June of 1763."</p>
+<p>"Yes."</p>
+<p>"Mr. Pritchard, that is two hundred and sixty years."</p>
+<p>"Yes."</p>
+<p>"It also says that the <em>current</em> retainer is named Reynard Llwyd."</p>
+<p>Mr. Pritchard, with the patient look of a man who had answered this question, in some form, three times before in his career, folded his hands.</p>
+<p>"It is a family name, Miss Calloway. The Llwyd men have been called Reynard, eldest to eldest, since at least the eighteenth century. There is, at any given time, a Reynard Llwyd. The one your great-aunt employed for the past thirty years is the current one. He inherited the position from his father, who inherited it from his — and so on. The agreement, you understand, is more an undertaking by your family to <em>recognize</em> the Llwyds in their work, in perpetuity, than it is a contract for a particular man." He smiled a small smile. "Welsh families have very long memories about such things. I would not advise you to be modern about it."</p>
+<p>"How is he paid."</p>
+<p>"From a small trust set up by your great-grandfather. It is endowed at a sum sufficient for the position to be paid quarterly without drawing on the rest of the estate. You will not need to write any cheques."</p>
+<p>"And how much is he paid."</p>
+<p>"He is paid," Mr. Pritchard said delicately, "what is needful. He does not require very much."</p>
+<p>"Could I dismiss him."</p>
+<p>Mr. Pritchard looked at her over his half-moon glasses.</p>
+<p>"That is at tab thirteen, Miss Calloway."</p>
+<p>She turned to tab thirteen.</p>
+<p>&gt; <em>No Reynard Llwyd in the line of fathers and sons of that name shall be dismissed from his retainer at the Calloway estate save by the express wish of the female heir of the Calloway line, formally registered with the parish vicar and witnessed at the chapel of St. Beuno at the easternmost boundary of the Calloway lands.</em></p>
+<p>She read it three times.</p>
+<p>"There's a chapel?" she said.</p>
+<p>"A ruin," Mr. Pritchard said. "Twelfth century. It's on the eastern edge of your property. It hasn't had a roof since the eighteenth. The parish vicar would be required to come up to it, in the unlikely event you wished to formally end the retainer. I should add," he said gently, "that no female heir of the Calloway line has done so since the compact was signed. Your great-aunt loved him very much. So did your grandmother. And, I am told, so did your great-grandmother."</p>
+<p>Iona closed the folder.</p>
+<p>She had a Cambridge first and a King's Counsel husband who had walked out three years previously, and a career in criminal defence that had taken her to the highest courts in the country, and she had a clear, professional understanding that what Mr. Pritchard was telling her was a piece of bucolic Welsh charm with which one did not mess on the first week of one's grief leave.</p>
+<p>"How old is he," she said.</p>
+<p>"Miss Calloway?"</p>
+<p>"Reynard. The current one. How old."</p>
+<p>Mr. Pritchard considered this. He looked, briefly, at the ceiling, as if there was an answer pencilled in on a beam somewhere.</p>
+<p>"He has been at the estate, in this incarnation of the position, for approximately thirty years."</p>
+<p>"So he's — what. Sixty?"</p>
+<p>"He does not look it."</p>
+<p>"How old does he look."</p>
+<p>"Late thirties, perhaps. The Llwyds have remarkable bone structure."</p>
+<p>"Mr. Pritchard."</p>
+<p>"Miss Calloway."</p>
+<p>She looked at him.</p>
+<p>He looked at her.</p>
+<p>A small clock ticked on the wall behind him. A pigeon outside the window cooed.</p>
+<p>"You should go and have lunch at the Royal Oak," Mr. Pritchard said. "The lamb is exceptional. I shall have these documents delivered to the cottage by Friday. Take all the time you need."</p>
+<p>She stood. She picked up her gloves. At the door she stopped.</p>
+<p>"Mr. Pritchard."</p>
+<p>"Yes."</p>
+<p>"My great-aunt's last letter to me, six months before she died, said she was leaving me — and I quote — 'the prettiest piece of inheritance I have to give, with a man on it who knows how to keep a wall.' Was she serious?"</p>
+<p>"Quite serious," Mr. Pritchard said, looking at her over his glasses. "Quite serious indeed, Miss Calloway."</p>
+<hr class="scene-break">
+<p>She did not have lunch at the Royal Oak. She bought a pint of milk and a packet of digestives at the petrol station and drove the eight miles back up to the lane.</p>
+<p>The lane was, in afternoon light, dry. There was no mud. There was no rain. She drove the Audi up to the cottage and parked it neatly on the gravel.</p>
+<p>She sat in the car for two minutes with her hands on the wheel.</p>
+<p>The cottage door opened.</p>
+<p>He came out. He was in the same wax jacket. His hair was loose at his collar. He had a basket over one forearm — a small woven basket — and he was carrying it down to the door of the second outbuilding.</p>
+<p>When he saw her, he stopped on the path. He bowed his head fractionally — not a deference, not a flirtation, the small acknowledgment of one neighbour at the gate to another. He went on to the outbuilding.</p>
+<p>She got out of the car. She closed the door.</p>
+<p>"Reynard," she called.</p>
+<p>He turned at the outbuilding.</p>
+<p>"Yes, Miss Calloway."</p>
+<p>"Reynard <em>Llwyd</em>."</p>
+<p>He paused. The pause was a quarter-second too long.</p>
+<p>"Yes, Miss Calloway."</p>
+<p>"How old are you."</p>
+<p>A long, silent beat.</p>
+<p>He set the basket on the bench outside the outbuilding. He came back to her along the path. He stopped about ten feet from her, his hands in his pockets, his face neither amused nor wary. Honest.</p>
+<p>"Older than I look," he said.</p>
+<p>"That isn't an answer."</p>
+<p>"I know."</p>
+<p>"Reynard."</p>
+<p>"Iona," he said, very quietly — the first time he had used her given name — "I have been the man who keeps this property for a long time, and I have known six generations of Calloway women, and I am not going to lie to you about it, but I am also not going to make you take any of it in your first week. Will you let me bring you supper this evening and answer your questions properly then?"</p>
+<p>She looked at him.</p>
+<p>She looked at the cottage. The roses on the south wall. The thread of smoke from the chimney that he must have re-lit while she was in Newtown.</p>
+<p>"Bring it at seven," she said. "I'll find a bottle of wine."</p>
+<p>"Yes, Miss Calloway."</p>
+<p>He took the basket from the bench and went on with his work.</p>
+<p>She went into the cottage. She put the milk in the fridge. She put the digestives in the tin on the dresser. She stood at the window of the kitchen and watched him cross the orchard with the basket in the late, copper light of the afternoon.</p>
+<p>She had not, in three years, looked at a man with the part of her that looked.</p>
+<p>She was looking now.</p>
+<p>She thought, with a clarity that was not unlike the clarity she got at the bar, <em>I am in trouble</em>.</p>
+<p>She had not, until that moment, in a long time, felt that pleased with the world.</p>
+</div></article>
+
+<article class="chapter" id="chapter-3">
+<header class="ch-header"><div class="ch-num">Chapter 3</div><h2 class="ch-title">Foxlight</h2></header>
+<div class="ch-body">
+<p>He brought supper.</p>
+<p>He brought it in a hamper. A real wicker hamper with leather straps, of the kind one's grandmother might have used at Henley if one had had that kind of grandmother, which she had not. Inside: a small terrine wrapped in waxed paper, a half-loaf of bread he had clearly baked that morning, a wedge of Welsh cheese that did not have a label, three plums from the orchard, and a jar of honey.</p>
+<p>He set the table in her kitchen the way a man sets a table who has set the same table over the same six decades for women who had become friends with the rhythm of his hands.</p>
+<p>He poured wine.</p>
+<p>He sat opposite her.</p>
+<p>They ate.</p>
+<p>She did not ask him anything for the first half hour. She did not, in fact, talk to him very much at all. She let him tell her, when she asked, about the cheese, which had come from a small dairy seven miles west; about the bread, which used a starter his grandfather had brought from the village of his birth, which she correctly suspected was not the version of <em>grandfather</em> most people meant; about the honey, which had come from the hives at the back of the second outbuilding, which were Maeve's bees and which had been, in their bee way, mourning her for two summers.</p>
+<p>When the plates were empty, she poured more wine.</p>
+<p>"All right," she said. "Reynard."</p>
+<p>"Yes."</p>
+<p>"You said, this afternoon, that you have known six generations of Calloway women."</p>
+<p>"Yes."</p>
+<p>"In what capacity."</p>
+<p>"Groundskeeper. Friend. Land's witness."</p>
+<p>"Six generations."</p>
+<p>"Six."</p>
+<p>She set her glass down.</p>
+<p>"How long," she said, "have <em>you</em> personally — this skin, this body, this voice — been on this estate."</p>
+<p>He looked at her across the table.</p>
+<p>He had taken off his wax jacket inside the cottage. He was in a grey jumper that had once been a different grey. His hair, untied at the kitchen table, fell forward over one ear when he leaned to fold his napkin. The amber-whisky of his eyes was, in the candlelight she had put on the table, almost gold.</p>
+<p>"I am not going to answer that tonight," he said.</p>
+<p>"Reynard."</p>
+<p>"I will answer it," he said. "I will answer all of it. But not tonight. Not in your first week. There are some things, Miss Calloway, that you need to ask the country first, before you ask me. Will you walk the property tomorrow afternoon, with me, and we will talk?"</p>
+<p>She thought about it.</p>
+<p>"Yes," she said.</p>
+<p>"Good."</p>
+<p>He stood. He cleared his plate to her sink. He washed it in her sink. He dried it on the cloth that had been her great-aunt's, set it on the dresser, and turned.</p>
+<p>"You should walk before tea tomorrow," he said. "The east field. Down the old hedge to the orchard. Not the chapel — not yet. The country is good at that hour."</p>
+<p>"At what hour."</p>
+<p>He smiled.</p>
+<p>"You'll know when you see it."</p>
+<p>He went out.</p>
+<p>He had not, she noticed, eaten the bread.</p>
+<hr class="scene-break">
+<p>The next afternoon she walked.</p>
+<p>She had spent the morning unpacking, which had taken less time than she had thought it would, because she had not brought very much. She had brought black trousers and grey trousers and a great many soft jumpers and three good shirts and the boots she had ruined the day before, which she had cleaned to the best of her ability. She had brought five books: two reread novels, a Hilary Mantel she was not finished with, a Welsh-history primer she had bought at Paddington, and a Donna Tartt she suspected she was bringing because she needed Donna Tartt's company. She had brought her laptop. She had not, deliberately, brought her diary.</p>
+<p>At four she put on a coat.</p>
+<p>She went out the kitchen door and down the slope past the second outbuilding. The afternoon was clean — a pale grey sky breaking up into something gold over the western ridge. She walked the east field along the old hedge that Reynard had described. The grasses were past their summer height. She could hear the bees from the hives behind her, at low evening volume.</p>
+<p>She came around the bend into the orchard.</p>
+<p>The light hit her.</p>
+<p>She stopped.</p>
+<p>She had spent two decades looking at sunsets through tower windows in central London, and she had spent two summers in the Mediterranean and one in Greece, and she had once, in 2012, watched a sunset from the top of a mountain in Slovenia that had made her cry. She had never, ever, seen a light like this.</p>
+<p>It was — <em>copper</em>. It was copper across the whole orchard. The bark of the apple trees had gone copper. The grass had gone copper. The dust she stirred with her boots was a fine copper haze in the air. The sky behind the ridge had gone the precise warm metallic shade of a freshly struck penny. The air was full of a slow, rolling gold. Even the birds in the high hedge across the orchard were copper.</p>
+<p>She stood there in the middle of it.</p>
+<p>She thought: <em>foxlight</em>.</p>
+<p>She did not know where the word had come from. She thought it anyway.</p>
+<p>And then, twenty yards from her, between two of the old apple trees, the fox stepped out into the orchard.</p>
+<p>It was enormous.</p>
+<p>That was the first thing she understood. <em>Gulo gulo</em>'s outsize cousin in her grandmother's hand-illustrated <em>British Mammals</em> could not have stood as large at the shoulder as this fox. It was copper-red — true copper, the colour of the light. Its muzzle was dusted with silver. Its eyes, looking at her across the long grass, were the colour of amber whiskey.</p>
+<p>It did not run.</p>
+<p>She did not run either.</p>
+<p>She stood very, very still in the middle of the orchard in the unmoving copper light, and the fox looked at her, and she looked at the fox, and the world held its breath.</p>
+<p>She lifted her hand. Slowly. Carefully. The hand of a barrister who had once cross-examined a man into tears and the hand of a woman who had not, in three years, been touched by anything more demanding than her own dog. She held the hand out, low, palm down, and she felt, somewhere in the small interior of herself, a sentence assemble that she did not say:</p>
+<p><em>I see you.</em></p>
+<p>The fox tilted its head.</p>
+<p>Then it turned. It moved — fluid, easy, the way water moves through a culvert — and it slipped between the apple trees and over the orchard wall and was gone into the long grass on the other side without making any sound at all.</p>
+<p>She stood in the orchard until the copper light had begun to deepen toward blue.</p>
+<p>She walked back to the cottage.</p>
+<p>She did not see him in the yard.</p>
+<p>She went inside. She put on the kettle. She poured a finger of her great-aunt's whisky in the wrong glass on purpose — the heavy crystal one Maeve had kept on the dresser for Christmas — and she sat down at the kitchen table and put her hand over her mouth and laughed once, soundlessly, with the small disbelief of a woman whose grown-up life had taken an unaccountable left turn.</p>
+<p>The knock came at the kitchen door at ten past seven.</p>
+<p>She did not get up.</p>
+<p>The knock came again.</p>
+<p>She crossed the kitchen and opened the door.</p>
+<p>He was on the step. He had a small basket over one forearm. In it: three pears from the orchard, perfectly ripe, the skins gone bronze in the kitchen lamplight.</p>
+<p>He looked at her.</p>
+<p>She looked at him.</p>
+<p>For a long beat, neither of them spoke.</p>
+<p>His eyes, in the kitchen light, were the amber-whisky of his eyes. The amber-whisky of an animal's eyes. The amber-whisky of an animal she had seen, a few hours earlier, in copper light, in her orchard, between two apple trees, looking back at her across the long grass with exactly that look.</p>
+<p>"Thank you for the pears, Reynard," she said.</p>
+<p>"You're welcome, Miss Calloway."</p>
+<p>"Did you have a nice afternoon."</p>
+<p>"I did."</p>
+<p>"Tomorrow," she said. "We walk."</p>
+<p>"Yes."</p>
+<p>He gave her the basket. He did not come inside. He turned and went down the path. He did not look back.</p>
+<p>She closed the door.</p>
+<p>She stood in the kitchen with three pears in a basket and an empty whisky glass and the kettle whistling.</p>
+<p>She thought, with the small clean clarity she had felt at the bar:</p>
+<p><em>I have been very lonely. And I have just stopped being.</em></p>
+<p>She did not, that night, sleep very much.</p>
+<p>When she did sleep, briefly, in the small hour before dawn, she dreamed of an orchard full of copper light, and a creature in the grass that looked at her, and turned, and walked away, and turned, and walked away, and turned —</p>
+<p>— and came back to her, slowly, in the long grass, and lay down at her feet, and put its great heavy head against her palm.</p>
+</div></article>
+
+<article class="chapter" id="chapter-4">
+<header class="ch-header"><div class="ch-num">Chapter 4</div><h2 class="ch-title">The Hedgerow</h2></header>
+<div class="ch-body">
+<p>He came at two.</p>
+<p>She had spent the morning at the kitchen table doing what she had not done in eight weeks — she had read a novel cover to cover, slowly, without checking her phone. The novel was <em>The Goldfinch</em>, which she had not been able to finish in 2014. She finished it now. She closed it and went out into the yard and watched the bees come back from the orchard with their afternoon weight on them. She was, for the first time in any recent memory, a woman simply standing in a yard.</p>
+<p>He came up the lane at two on the dot. He was in a darker jumper than yesterday's. He had a walking stick in his hand — a stick of the kind one only owned if one had cut it oneself from a hedge. He whistled twice between his teeth and the Border collie from the wall came running across the yard from somewhere she had not seen.</p>
+<p>"Ready?" he said.</p>
+<p>"Ready."</p>
+<p>They walked.</p>
+<p>He took her south first, around the back of the cottage to the apiary, where he showed her each of the seven hives and named them. <em>Maeve. Aurora. The Old Lady. The Yellow One. Honey. Sister. Nine.</em> The seventh had been Maeve's favourite. He told her about Maeve's relationship with the bees, which had been the kind of relationship one's grandmother had with one's least likable cousin — affectionate, patient, occasionally exasperated.</p>
+<p>He took her east next. They walked the old hedgerow that had been the boundary between the cottage land and the smaller field that had been let to a neighbouring farmer since 1948. He named the plants in the hedge. <em>Hawthorn. Blackthorn. Hazel. Elder. Sorrel. Self-heal.</em> He named the birds that nested in it. <em>Blue tit, dunnock, wren, three pairs of long-tailed tits.</em> He named the shrew that lived under the elder root and that he had not, he said, named because he was not on personal terms with her.</p>
+<p>She laughed.</p>
+<p>She had not laughed in five days.</p>
+<p>He took her further east still. The hedgerow ended at a stile. They crossed into the lower pasture. She could see, half a mile across the field, the outline of a building among the yew trees on the rise.</p>
+<p>"The chapel," she said.</p>
+<p>"The chapel."</p>
+<p>"Mr. Pritchard mentioned it."</p>
+<p>"Did he."</p>
+<p>"He said it is where I would have to go if I wanted to break the compact."</p>
+<p>He stopped on the path.</p>
+<p>He looked at her in the afternoon light, which was honest light, not the magical copper of the orchard but the ordinary good light of a Welsh September afternoon. His face was, in this light, the face of an ordinarily handsome man who happened, for reasons no one had explained, to be unusually still about the eyes.</p>
+<p>"And do you want to break the compact, Iona Calloway."</p>
+<p>"No," she said. "I haven't read it carefully enough. I have only read it well enough to know I haven't read it carefully enough. I am a barrister. I do not break compacts I have not read."</p>
+<p>He gave her a look. Half-amused, half something else.</p>
+<p>"What is in your mouth that you are not saying."</p>
+<p>She thought about it.</p>
+<p>"Mr. Pritchard would not tell me how old you are. I asked him three different ways."</p>
+<p>"He doesn't know."</p>
+<p>"And how old are you."</p>
+<p>He looked at her for a long beat.</p>
+<p>"At the chapel," he said. "I will tell you at the chapel."</p>
+<p>"That is theatrical."</p>
+<p>"It is necessary."</p>
+<p>"All right."</p>
+<p>They walked.</p>
+<p>It was a quarter-hour to the chapel. They did not, on the way, talk very much. The dog ranged in the long grass at the field edge, flushing larks. The wind moved in the upper limbs of the yew trees on the rise.</p>
+<p>The chapel was, in the seventh year of its eighth century, very small.</p>
+<p>It was a single low room of dressed stone, the walls fallen to about waist height on three sides and to almost ground level on the fourth. The slate floor was still mostly intact, weathered in eight hundred years of rain. The altar stone — pale limestone, a slab of it nearly the length of a man — was still in place at the east end, where the altars had always been. Above it, where the wall had been highest, there was a small empty arch where a single window had been, looking east, framing now only a small piece of sky and the upper boughs of the largest yew.</p>
+<p>The yews around the chapel were ten of them. The youngest was, by his telling, four hundred years old. The oldest was perhaps eleven hundred. They stood at irregular intervals on the rise, and their roots had grown into the foundations of the chapel and were holding what remained of it together.</p>
+<p>"It was built," he said quietly, "by a monk called Beuno, who came up here from the south because the country was wild and he wanted to be alone with God. He was not, I'm told, alone for long. The country tended to bring company to the men who came to be alone in it."</p>
+<p>"Did it."</p>
+<p>"Yes."</p>
+<p>"Reynard."</p>
+<p>He turned to her.</p>
+<p>She had walked in among the yews and stopped just inside the chapel, on the slate flagstone of the old nave, with her hand resting on the cold pale stone of the altar.</p>
+<p>"Tell me what you are," she said.</p>
+<p>He came in.</p>
+<p>He stood across the altar from her in the long shaft of late-afternoon light that came through the empty east-window arch and fell across the slate between them. His face was very still. His eyes had gone — she could not have said how — a fraction darker. As if pupil and iris had begun the slow consolidation she had seen in the orchard.</p>
+<p>"What I am," he said, "is what your family has had on this land for a very long time. My great-grandfather came from the Old Wood — you would call him a fox, in his shape. He was not entirely a fox. The men in my line have looked, in our human shape, the way I look. We have lived longer than men do, but not as long as the old stories say. I am, in your reckoning, one hundred and forty-one years old. I have outlived your great-great-grandmother, who was the woman with whom my grandfather signed the compact. I have outlived your great-grandmother, who was my friend. I have outlived your grandmother, whom I loved. I have outlived your great-aunt Maeve, who was the kindest person I have known. I am, on this side of the country, the last of my line. There may be one or two of us left in Argyll, or in Cumbria. I haven't smelled a kit of mine in fifty years."</p>
+<p>He had not moved.</p>
+<p>"What you saw in the orchard yesterday was me."</p>
+<p>The wind moved very softly in the yews.</p>
+<p>She stood at the altar with her palm on the cold pale limestone of it, and she looked at him across the slate floor, and she thought about all the things she had spent the last twenty years of her life being trained to do with hard surprising information. She had been trained to fold it, mostly. To set it aside on a shelf in her mind. To address it once she had the rest of the brief.</p>
+<p>She did not do that this time.</p>
+<p>She walked round the altar.</p>
+<p>She walked the short distance across the slate to him.</p>
+<p>She put her hand on his cheek.</p>
+<p>She had not, in any of her ordinary life, touched a man's face on the way to a kiss. She had married a man and divorced a man and slept with two other men since the divorce, and she had not, in any of those encounters, made the small interior decision to put her hand on a man's face and let it stay there for a beat before her mouth followed.</p>
+<p>She let it stay there for a beat.</p>
+<p>"Iona," he said. His voice had gone low.</p>
+<p>"Be quiet, Reynard."</p>
+<p>She kissed him.</p>
+<p>He held very still.</p>
+<p>She had thought, in the small fraction of a second in which she had committed to it, that he would meet her — that there would be the moment in which a man stops being held and starts being kissed back. He did not. He held still. He did not pull away — his mouth was warm under hers, and she could feel his breath against her lower lip, and she could feel the small high pulse at his throat which her thumb had come to rest against — but he did not move.</p>
+<p>She pulled back six inches.</p>
+<p>She looked at him.</p>
+<p>His eyes were dark, very dark. They were the eyes of the fox in the orchard, in human shape.</p>
+<p>"Why didn't you kiss me back."</p>
+<p>"Iona Calloway." His voice was very low. "If I kiss you back here, in this chapel, on this altar floor, in this light — if I kiss you back at all, I will not be able to stop. I have known your women for six generations. I have not wanted any of them the way I want you. If you are kissing me because you are bored, or because the country has done something to you, or because you are running from London —"</p>
+<p>"I am running from London," she said. "I am running from a profession that has chewed me to the bone. I am bored. The country has done something to me. All of that is true. I'm also" — she breathed — "looking at you."</p>
+<p>"Yes."</p>
+<p>"Reynard."</p>
+<p>"Yes."</p>
+<p>"Be sure of <em>me</em> before <em>I</em> do that again."</p>
+<p>He breathed out.</p>
+<p>He put his hand, very slowly, on the side of her face. Mirror to her own. The flat of his palm warm against her cheek. He looked at her in the long copper afternoon light coming through the empty arch.</p>
+<p>"I am sure," he said.</p>
+<p>"All right."</p>
+<p>She kissed him again.</p>
+<p>This time he kissed her back.</p>
+<p>It was not a long kiss. It was a slow, careful, certain kiss — his mouth opening under hers, his hand sliding from her cheek to the back of her head, his other hand finding the small of her back through the wool of her coat. He did not crowd her. He did not hurry. He kissed her with the patience of a creature who had outlived several wars and who knew that a kiss was a thing that had to be tended, on the first time, as one would tend any small fire one had just struck.</p>
+<p>When she pulled back, he let her.</p>
+<p>"Not yet," she said. Her voice surprised her — it came out steadier than she felt. "Tonight or tomorrow or this week, but not in a chapel. Take me back to the cottage, Reynard."</p>
+<p>He nodded.</p>
+<p>He picked up his stick.</p>
+<p>They walked back along the hedgerow in the deepening copper light, the dog ranging ahead. She did not take his arm. She walked beside him. The space between them on the path was, by midway through the field, only a few inches.</p>
+<p>At the cottage door she stopped.</p>
+<p>"Thank you for showing me," she said.</p>
+<p>"You're welcome, Miss Calloway."</p>
+<p>She looked at him.</p>
+<p>"Don't call me Miss Calloway."</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>He took her hand. He brought it to his mouth — old-fashioned, deliberate, the courtesy of a man from a century in which men had paid such courtesies — and pressed a kiss to the inside of her wrist, where the pulse was.</p>
+<p>She felt it in the small of her back.</p>
+<p>"Sleep," he said. "Tomorrow, when you have decided, find me."</p>
+<p>He left her at the door.</p>
+<p>She went inside.</p>
+<p>She closed the door.</p>
+<p>She stood in the kitchen with her hand pressed against the inside of her wrist, where the heat of his mouth was still.</p>
+<p>She did not sleep.</p>
+<p>In the small hours of the morning, in the dark of the cottage, with the fire down to coals, she sat at the kitchen table in her nightgown and a wool throw and a glass of her great-aunt's whisky in her hand, and she thought about her ex-husband, who had not, in twelve years of marriage, ever kissed her like that.</p>
+<p>She thought about herself.</p>
+<p>She thought about the orchard.</p>
+<p>In the morning, when the sun came up, she dressed.</p>
+<p>She put on her boots.</p>
+<p>She walked across the wet grass to the second outbuilding.</p>
+<p>She knocked on the door.</p>
+<p>He opened it.</p>
+<p>"Iona," he said.</p>
+<p>"I've decided."</p>
+</div></article>
+
+<article class="chapter" id="chapter-5">
+<header class="ch-header"><div class="ch-num">Chapter 5</div><h2 class="ch-title">The Library</h2></header>
+<div class="ch-body">
+<p>He did not take her in the outbuilding.</p>
+<p>That was the first thing he made clear, and he made it clear with a hand on her wrist and a small steady look that was the look of a man who knew the difference between <em>now</em> and <em>here</em>.</p>
+<p>"Come to the cottage," he said. "I will not have you the first time in a workshop."</p>
+<p>She laughed once. It was a high small laugh — half a release of a tension she had not realized she was holding.</p>
+<p>"All right."</p>
+<p>He picked up an oilcloth bundle from the workbench — she did not, at the time, ask what was in it — and he closed the outbuilding door behind him, and they walked together across the wet grass to the cottage. The morning was a quiet one. The mist had not yet quite lifted off the orchard. Somewhere on the slope above the apiary, a wren was unkind to a chaffinch.</p>
+<p>She opened the cottage door and he came in behind her and she closed it, and she stood at the kitchen table with her hands flat on the wood and her back to him for a long moment, gathering herself.</p>
+<p>She had not, three years ago, expected to be gathering herself in a Welsh cottage at half past eight in the morning, to be taken by a man one hundred and seven years older than she was, who could, when the country wanted it of him, be a fox.</p>
+<p>She turned around.</p>
+<p>He was standing in the doorway of the kitchen with the bundle still under his arm and his coat still on and his hair loose at his collar, watching her with a stillness that was, she now understood, neither the stillness of a careful man nor the stillness of a wary one. It was the stillness of a creature who had practised, since childhood, the discipline of not moving until he was sure he would be welcomed.</p>
+<p>"Take your coat off," she said.</p>
+<p>He took his coat off. He set the bundle on the dresser. He hung the coat on the hook by the door.</p>
+<p>"Now mine," she said.</p>
+<p>He came to her.</p>
+<p>He undressed her coat — slowly, careful with the buttons, watching her face for permission at each one. The wool fell open under his hands. He lifted it off her shoulders. He hung it on the second hook by the door.</p>
+<p>She was, under the coat, in a long fawn jumper and grey trousers and her boots.</p>
+<p>"The library," she said.</p>
+<p>"What."</p>
+<p>"There's a library at the end of the corridor. With a fire in it. I lit it last night. I want you to take me there."</p>
+<p>He gave her a small, surprised look. Then a small, slow smile.</p>
+<p>"Yes, Iona."</p>
+<p>He took her hand. He led her down the corridor to the small back room at the rear of the cottage that her great-aunt had used as a library. The fire was nearly out. He knelt at the hearth and built it up with his back to her, in the small deft way he did such things, and when the flames had begun to climb he stood and turned around.</p>
+<p>She had been watching him at the fire.</p>
+<p>She had unbuttoned her own jumper.</p>
+<p>His eyes went, then, the way they had gone in the chapel — dark, dark, with the slow consolidation of the pupil into the iris. He breathed out — a long, slow breath — and crossed the room to her.</p>
+<p>He kissed her.</p>
+<p>This time it was not careful.</p>
+<p>He kissed her with the appetite of a creature who had been hungry for a very long time and was, for the first time in his life, being asked to eat. He kissed her with his mouth open against hers, with his hand in her hair, with his other hand at the small of her back, pulling her in against the length of his body. She could feel him through her trousers and his — the hard urgent shape of him pressed against her belly — and she made a small surprised sound in her throat, and the surprise of it broke whatever last fraction of restraint he had been holding.</p>
+<p>He undressed her at the library hearth.</p>
+<p>He took her time about it.</p>
+<p>He undid each button of her shirt with his thumb and his forefinger and pressed his mouth to the new piece of skin each button uncovered — collarbone, then the hollow between, then the slope of her left breast. He undid the front clasp of her bra and pushed it back over her shoulders and dropped it on the rug and put his mouth on her nipple, and the heat of it ran down her spine into the back of her knees. She put her hand in his copper hair and held him there.</p>
+<p>"Oh," she said. Quietly. The sound of a woman who had not, in two and a half years, been touched at the throat of her ribs by a man who knew how to do it.</p>
+<p>He undid the button of her trousers. He pushed them down her legs and knelt in front of her on the rug. He kissed the inside of her left thigh. The inside of her right. He hooked his thumbs into the waistband of her underwear and drew them, slowly, down over her hips.</p>
+<p>"Iona," he said. Very quietly. Looking up at her.</p>
+<p>"Yes."</p>
+<p>"You are beautiful."</p>
+<p>"Reynard —"</p>
+<p>"You are very, very beautiful."</p>
+<p>He put his mouth on her.</p>
+<p>She put her hand on the mantel to steady herself.</p>
+<p>He took her time about that too. He did not, in the manner of younger men, set about a job. He set about a study. He held her hips in his hands and put his mouth against the soft heat of her like a man at a feast he had been promised long ago and not been able to come to, and he ate her slowly, slowly, with the patient adoration of a creature who had decided he would not be rushed about this. He learned her with his tongue. He learned what made her catch her breath. He learned what made her hand tighten in his hair. He learned what made her press forward, helpless, against his mouth, and he gave her that, again, and then again, and then again.</p>
+<p>She came against his mouth standing at the hearth. She came hard. Her knees gave a little and his hands at her hips held her up. She had a hand in his hair and a hand on the mantel and her head dropped back, and the sound she made was not a sound she would have recognized as her own, two years ago, in another life.</p>
+<p>He rose to his feet, slowly, still holding her hips.</p>
+<p>He pressed his forehead against hers.</p>
+<p>"Bed," she said. Hoarse. "Or — the rug. I don't —"</p>
+<p>"The rug."</p>
+<p>He laid her down on the long wool rug in front of the fire.</p>
+<p>He undressed.</p>
+<p>She watched him.</p>
+<p>His body in the firelight was the body she had glimpsed under the wax jacket in the outbuilding and the body that had moved like a fox in the long grass of the orchard, and seen close, naked, kneeling above her on the rug, it was — what it was, was <em>alive</em>. He was lean and built for movement, and there was a pale fine scar across his left ribs that she would, later, ask about, and a small set of three parallel scars at the inside of his hip that she would not, and he was — quite plainly, urgently, after his time at the hearth — <em>very</em> ready for her.</p>
+<p>She made an involuntary sound at the sight of him.</p>
+<p>He gave her a small fierce smile.</p>
+<p>"You don't have to —"</p>
+<p>"Reynard. Come here."</p>
+<p>He came.</p>
+<p>He came down on her on the rug, careful of his weight, propped on his forearms above her. He kissed her — the heat of her own pleasure still in his mouth. He pressed his hips against hers. She lifted her knees around him. He slid his hand down between them, finding her, sliding two fingers along the slick of her, watching her face as he did it.</p>
+<p>"You are <em>wet</em>," he said. Almost wondering.</p>
+<p>"You did that."</p>
+<p>"I —"</p>
+<p>"Reynard. <em>Now</em>."</p>
+<p>He laughed — a low, hoarse laugh — and he pressed forward into her, slowly. She gasped — not in pain, in the simple animal fullness of being met after a long time — and he pressed forward more, watching her face, taking it slowly until he was all the way inside her, and then he held still, with his forehead against hers, and breathed.</p>
+<p>"Iona Calloway."</p>
+<p>"Yes."</p>
+<p>"I have wanted to do this since I saw you in the lane."</p>
+<p>"I know."</p>
+<p>He began to move.</p>
+<p>He moved slowly at first. Long, deep, careful strokes. He kissed her at the throat where her pulse beat. He kissed her at the corner of her mouth where she would lift her head to meet his. He had, with his hand braced beside her head on the rug, a long fine forearm that she ran her hand up and down, watching the way the muscle flexed in his shoulder as he moved.</p>
+<p>She came again with him inside her — not as hard as the first time, but slower, longer, building from the deep place at the base of her where the second one always lived. She buried her face in his shoulder when it took her. He whispered her name against her hair.</p>
+<p>He took her again, slower still. He took her until she had stopped being afraid of being seen. He took her until she had started, against the wool of the rug, to make noise — not the polite noises a woman made when she was being a polite lover but the full, helpless, half-laughing sounds of a woman who had not been thoroughly pleasured in years and was, in this exact instant, being thoroughly pleasured by a man who would not be hurried about it.</p>
+<p>He came, finally, with her — her ankles locked at the small of his back, his hand braced on the floor beside her head, his mouth open against her shoulder. He shuddered. He held still. He breathed.</p>
+<p>After a long minute he rolled, carefully, to lie beside her on the rug. He pulled her against him. He drew the wool throw from the library chair over both of them.</p>
+<p>She put her face against his chest.</p>
+<p>She breathed.</p>
+<p>She listened to his heart, which was faster than a man's heart had a right to be, settle.</p>
+<p>"Reynard."</p>
+<p>"Yes."</p>
+<p>"What did you bring in the bundle."</p>
+<p>He laughed. Lazily, his eyes closed.</p>
+<p>"Pears."</p>
+<p>She started to laugh and could not stop. She laughed until her ribs hurt. He pulled her tighter against him, his hand at the back of her neck, and laughed with her — quietly, into her hair.</p>
+<p>"Pears," she said. "You brought me <em>pears</em>."</p>
+<p>"I always bring you pears, Iona."</p>
+<p>She lifted her head.</p>
+<p>She looked at him in the firelight.</p>
+<p>She thought of the orchard, and the chapel, and her great-aunt Maeve's whisky in the cupboard, and the cottage waiting at the top of the lane in the rain, and the man on his knees in front of a stretched stretch of dry-stone wall with a Border collie at his side, in the very first hour she had been here.</p>
+<p>"All right," she said. "I'll take the pears."</p>
+<p>She put her head back on his chest and listened to his heart.</p>
+<p>She had been very lonely. She had stopped being.</p>
+<p>Outside the library window, the morning was breaking properly. The mist had lifted from the orchard. A wren was, again, unkind to a chaffinch on the slope above the apiary.</p>
+<p>She slept against his shoulder.</p>
+<p>He did not.</p>
+<p>He lay with her against him in the firelight of the library, with a wool throw across them, with his hand in her hair, with his eyes open, watching the late morning come through the window — a creature who had outlived three women he had loved, who had not been touched by anyone since the last of them, and who was, now, looking at the ceiling of a small cottage library in mid-Wales, in the second decade of the twenty-first century, having just been let into a woman's bed for the first time in thirty-one years.</p>
+<p>He did not, that morning, sleep.</p>
+<p>He breathed.</p>
+<p>He breathed, and breathed, and let himself, very slowly, begin to believe it.</p>
+</div></article>
+
+<article class="chapter" id="chapter-6">
+<header class="ch-header"><div class="ch-num">Chapter 6</div><h2 class="ch-title">The Old Wood</h2></header>
+<div class="ch-body">
+<p>He came to the cottage every day after that.</p>
+<p>That is not, precisely, what happened — he had always come to the cottage every day, because his work was on the property and the cottage was the place where the property's keys and supplies and kettle were — but it is the only sentence that captures the shape of the change. He came to the cottage every day, and he did not leave at dusk, and he did not pretend to live in the outbuilding any more. He left, at first, after midnight, walking back across the orchard to whatever bed he had been keeping in the second outbuilding for the last thirty years. Within a week he was not leaving at all.</p>
+<p>She had not asked him to stay. He had not asked permission. It had simply happened — the way certain weather happens, the way certain seasons settle in — that on a Friday morning in the second week of September she woke at six and put on the kettle in the cottage kitchen and looked back at the bedroom door and saw him there in the slant of grey light, half-leaning against the doorframe in a pair of her great-aunt's old flannel pyjama trousers that had been folded in a drawer and that he had, somewhat to her surprise, fitted into, watching her with the slow, settled look of a man who had decided, the night before, to begin spending his mornings in her kitchen.</p>
+<p>She poured him a cup of tea.</p>
+<p>He drank it.</p>
+<p>The Border collie sat between them at the table, perfectly upright, looking gravely from one of them to the other as if attending the meeting at which the new arrangement would be ratified.</p>
+<p>"Bea," Reynard said to her quietly, scratching behind the dog's ear. "Yes. Iona is now also pack. Yes."</p>
+<p>"What does Bea say."</p>
+<p>"Bea has been waiting for you for three years."</p>
+<p>"Has she."</p>
+<p>"She has."</p>
+<p>Bea, hearing her name twice in a sentence neither of which had ended in <em>out</em> or <em>biscuit</em>, sighed and lay down on Iona's foot.</p>
+<p>This is how the days went.</p>
+<p>She wrote in the mornings, on the laptop, at the kitchen table, with a cup of tea at her elbow. She did not write briefs. She wrote — to her surprise — something she had not written in fifteen years. She wrote a long piece about the trial that had ended her career. She wrote it the way she had been afraid to write it. She wrote it for herself.</p>
+<p>He worked the property in the mornings. Stone walls. Fencing. The apple harvest had begun — the orchard was heavy with early bramleys — and he picked them in shallow wooden trugs and laid them out in the second outbuilding on slatted shelves. By the middle of the second week the outbuilding smelled like the inside of an autumn.</p>
+<p>He came in for lunch.</p>
+<p>They ate at the kitchen table. He cut bread and cheese. He told her things — about the property, about the village, about a hare that had been on the south field at dawn, about the man at the post office who was, this week, in a mood. He never told her about himself. He never told her about the long lives behind him. She did not ask, in the first week. She did, by the second.</p>
+<p>She asked at the kitchen table on a Tuesday afternoon, with rain at the window and the kettle on.</p>
+<p>"Reynard."</p>
+<p>"Yes."</p>
+<p>"Your wife. Did you have one."</p>
+<p>He set down his cup of tea.</p>
+<p>He took a long breath.</p>
+<p>"In a manner of speaking," he said. "I had a — I had a <em>partner</em>. In the older sense of the word. Her name was Mair. She was kitsune-blooded, like me, from a line that had been in the Brecon hills since the Romans. We were together for forty-six years. She died of nothing — of age — in 1972. She would have been about ninety-five in the year she died, which is old for our kind."</p>
+<p>"I'm sorry."</p>
+<p>"It was a long time ago."</p>
+<p>"And after."</p>
+<p>He looked at her over his cup.</p>
+<p>"After," he said, "I have, by my reckoning, been alone for fifty-three years. Until the morning of the twenty-fourth of August, when a London barrister got her Audi stuck at the bottom of my lane."</p>
+<p>She put her hand across the table.</p>
+<p>He took it.</p>
+<p>He turned it over and kissed the inside of her wrist where the pulse beat, the same place he had kissed her on her first evening, in the doorway, before any of this had been certain.</p>
+<hr class="scene-break">
+<p>On a Thursday afternoon, she asked him to shift.</p>
+<p>He had been telling her — at her request, over dinner — about the difference between his form and the form of an ordinary red fox. He was bigger. He was stronger across the shoulders. He moved in winter at temperatures that an ordinary fox would not survive. His coat, he said, was redder, with more silver in it as he aged. He could move very quietly — more quietly than any natural fox.</p>
+<p>She listened.</p>
+<p>She said: "Will you show me. In daylight. In the orchard."</p>
+<p>He looked at her for a long time.</p>
+<p>"Yes," he said. "If you want."</p>
+<p>"I want."</p>
+<p>They walked out to the orchard after lunch. The orchard was, in the early afternoon, half-shadow. The apple trees were heavy. He stood ten paces from her in the long grass and he took off his shirt, and his belt, and his trousers, and he stood for a moment in his bare feet on the grass — long, lean, the pale fine scar at his ribs and the three small scars at his hip in the daylight, the copper of his hair in the wind — and he gave her one small look across the grass, and he shifted.</p>
+<p>It was less like a transformation than like a folding-up. The shape of him — the long man's frame — <em>folded</em>, downward, inward, <em>back</em> into something smaller and lower, and where there had been a man there was, now, a fox. Copper. Silver at the muzzle. Larger than any natural fox. Looking at her across the long grass with eyes the colour of amber whiskey.</p>
+<p>She did not move.</p>
+<p>He came across the grass to her.</p>
+<p>He did not approach her at the run. He came at a slow, deliberate walk — paws nearly silent in the long grass, ears forward, tail low — and he stopped a foot from her and sat. He looked up at her.</p>
+<p>She knelt.</p>
+<p>She put out her hand.</p>
+<p>He pressed the great heavy bone of his head against her palm.</p>
+<p>She put her other hand into the soft red fur of the ruff at his neck. He closed his eyes against her palm. She could feel, under the fur, the muscle of his shoulder. She could feel the slow steady beat of his heart against her wrist. She could feel — she would never have believed this, before this autumn — a small low contented sound in his chest, like a cat that has been brought home.</p>
+<p>She bent her face into his ruff.</p>
+<p>"Reynard," she said. "Oh. My God."</p>
+<p>She held him for a long minute in the long grass of the orchard.</p>
+<p>After a while he stepped back. He looked at her once more — the same intelligent, watching, amber-whisky gaze — and he padded a few paces into the long grass, and he folded <em>back</em> upward, into the man, and he stood there, naked in the afternoon light, with his clothes on the ground at his feet and his copper hair loose at his shoulders, and he looked at her with an expression that was, by then, no longer wary.</p>
+<p>She crossed the grass to him.</p>
+<p>She kissed him in the orchard.</p>
+<p>She took him there — without dressing him first, without ceremony, simply taking him by the hand and walking him backwards into the long grass at the orchard wall, where he laid her down on her coat and undressed her and made love to her at the foot of the apple trees in the long afternoon light, slowly, slowly, his mouth on her at the inside of her thigh and his hand at her breast and his copper hair falling forward into her eyes as he came down to her.</p>
+<p>She came on his fingers first — bracing on her elbows in the long grass, the apples above her shaking in a small wind — and then on his mouth, watching his hair brush the inside of her thigh, and then with him inside her, slowly, deeply, the long apple boughs above them framing the sky. The grass smelled of bruised wormwood. The bees were back from their afternoon work. He held her face in both of his hands as he came, his amber eyes very wide.</p>
+<p>Afterwards they lay in the grass for a long time, the wool of her coat under them, the apples shaking in the small wind. He drew her against him and put her head on his shoulder.</p>
+<p>"I have lived a long time," he said quietly, into her hair, "and I have not, in any of it, had a woman take me in an orchard in the afternoon."</p>
+<p>She laughed.</p>
+<p>"You're welcome."</p>
+<p>"Iona Calloway."</p>
+<p>"Yes."</p>
+<p>"Stay."</p>
+<p>She turned her face up to his.</p>
+<p>"For how long."</p>
+<p>"All of it. Whatever you have. Stay."</p>
+<p>She did not answer at once.</p>
+<p>She lay there in the long grass of an orchard in mid-Wales with the apples shaking in a small September wind and the man one hundred and seven years older than she was naked beside her with his arms around her, and she watched the way the light came through the apple leaves, copper and green and gold, and she thought, with a clarity she had not felt in three years:</p>
+<p><em>I am going to.</em></p>
+<p>She kissed him at the throat.</p>
+<p>"All right," she said. "I'll stay. I haven't decided yet how, but I'll stay."</p>
+<p>"Good."</p>
+<hr class="scene-break">
+<p>She wrote her chambers that evening. She told them she was extending her leave by three months. The clerk wrote back to say that this was acceptable, and that her name had been mentioned twice that day in the papers in an entirely different context, and that perhaps, on reflection, six months might be the better answer.</p>
+<p>She wrote back: <em>Six months it is.</em></p>
+<p>She walked out into the orchard after dark.</p>
+<p>The Hunter's Moon was up. The apple trees stood ink-black against the silver. From the cottage door behind her, the firelight was a small warm rectangle on the gravel.</p>
+<p>She thought — for the first time in her career — that she was happy.</p>
+<p>She did not, in that moment, know that the man asking questions in the village had arrived that afternoon.</p>
+<p>She did not, at the moment, know about the man in the village at all.</p>
+<p>She walked back to the cottage. She bolted the kitchen door.</p>
+<p>She went to bed.</p>
+<p>He came to her in the dark and held her, and she slept against him with his mouth at her shoulder, and outside in the orchard the silver moon climbed.</p>
+</div></article>
+
+<article class="chapter" id="chapter-7">
+<header class="ch-header"><div class="ch-num">Chapter 7</div><h2 class="ch-title">The Hunt</h2></header>
+<div class="ch-body">
+<p>She heard about the man in the village on a Saturday morning at the post office.</p>
+<p>She had walked down — the two miles, in the bright cold light of an October morning — to collect a parcel that her sister Helena had sent. Helena had sent her, in a small brown box, a wool hat, a packet of expensive coffee, and a card in Helena's perfectly italic hand which read <em>I worry that you are smoking again. Don't smoke. Iona, the cottage looks lovely in the pictures. Are you ever coming back to London. xxx Hel.</em></p>
+<p>The postmistress, Mrs. Davies, was the kind of postmistress who knew everything that happened in the village before it happened. She gave Iona her parcel and the card and the change for a book of stamps Iona had not yet asked for, and then she leaned on her counter and said, with the small, settled satisfaction of a woman who had a good piece of news to part with:</p>
+<p>"You'll have heard about the gentleman at the Oak."</p>
+<p>"What gentleman."</p>
+<p>"At the Oak. Three nights now. He's been buying drinks for the older men. Asking questions."</p>
+<p>"What questions."</p>
+<p>Mrs. Davies tilted her head fractionally. The tilt of a woman who was about to share an opinion she had already formed.</p>
+<p>"He's a historian, he says. From up north. Working on some book about <em>the old wood families</em>, he says." She paused. "I myself thought it was a bit of an odd line of inquiry for the Royal Oak on a Tuesday. But you know what tourists are."</p>
+<p>Iona kept her face very still.</p>
+<p>"What does he look like."</p>
+<p>"A bit dark. Tall. About sixty, perhaps. A fancy coat. Drives a Land Rover Defender that's been kept too clean for a Defender." Mrs. Davies set Iona's stamps in front of her. "He asked," she added, with the small careful neutrality of a woman who had not been born yesterday, "after the Calloway family. He asked after your great-aunt Maeve. He asked, particularly, about a man called Llwyd."</p>
+<p>The cold in Iona's stomach was very precise.</p>
+<p>"What did the men at the Oak tell him."</p>
+<p>"Nothing useful," Mrs. Davies said. "I asked them last night. He's been buying drinks for the foolish ones and the foolish ones don't <em>know</em> anything because they aren't worth telling. But he's been buying drinks for the <em>right</em> ones this morning, I am told, and you should know about it before he comes up the lane."</p>
+<p>Iona looked at her.</p>
+<p>Mrs. Davies looked back at her — a level, steady, <em>welcome-to-the-village</em> look, the look of a woman who had served Maeve Calloway behind that counter for forty years.</p>
+<p>"Thank you, Mrs. Davies."</p>
+<p>"Take your stamps, dear."</p>
+<p>She took her stamps.</p>
+<p>She walked the two miles back to the cottage at a pace that surprised her.</p>
+<hr class="scene-break">
+<p>He was at the second outbuilding mending a hayfork when she came up the lane.</p>
+<p>She did not run. She walked across the gravel to him, and she stood in the doorway of the outbuilding, and she watched him for a moment in the small clean morning light. His sleeves were rolled. His copper hair was tied back at the nape with a piece of leather thong. He was, she realized, beautiful in the way that men ten years younger than his apparent age were beautiful — but with the small interior settledness of a man who had outlived too many years to be vain about it.</p>
+<p>He looked up.</p>
+<p>He saw her face.</p>
+<p>He set down the hayfork.</p>
+<p>"Iona."</p>
+<p>"There's a man in the village."</p>
+<p>He went very still.</p>
+<p>"What kind of man."</p>
+<p>"Tall. About sixty. Asking questions about the Calloways. Asking, particularly," she said, "about a man called Llwyd."</p>
+<p>He closed his eyes.</p>
+<p>He did not open them for a long moment.</p>
+<p>When he did, the eyes that looked at her were not the amber-whisky eyes she had become used to seeing across the kitchen table. They were the dark eyes of the fox — pupil and iris consolidated, watching her, intelligent and afraid.</p>
+<p>"What does he look like."</p>
+<p>"Dark. Tall. About sixty. A Land Rover Defender kept too clean. Mrs. Davies's words."</p>
+<p>"Mrs. Davies told you."</p>
+<p>"She did."</p>
+<p>"Bless Mrs. Davies."</p>
+<p>She walked to him.</p>
+<p>She took his face in her hands.</p>
+<p>"Reynard."</p>
+<p>"Yes."</p>
+<p>"What is this."</p>
+<p>He breathed out. He covered her hands with his own.</p>
+<p>"This," he said, "is the second time in two hundred years that a man of his line has come up this valley looking for me. The first time was 1893. My grandfather — the Reynard before my father — was hunted by a man named Adlard. Adlard killed him in the chapel ruin. He took, before he left, a piece of skin. The men of his line have, since then, kept a — a kind of relic. A piece of my grandfather's tail."</p>
+<p>She felt the cold in her stomach again.</p>
+<p>"Why."</p>
+<p>"Because we are rare," he said quietly, "and we have been hunted, my line, for as long as my line has existed. There are families in this country — small, old families — who have hunted our kind since the Old Wood was old. They are not gentle men. They do not, usually, come for sport. They come because they believe — wrongly, but firmly — that the small specific gland under our chins, when taken from a living animal, makes a tincture that prolongs human life. They are wrong. The tincture does nothing. Six of my uncles died of that wrongness in the nineteenth century."</p>
+<p>She held his face.</p>
+<p>"What do we do."</p>
+<p>"We prepare. He will come up the lane within the next two or three days. I cannot stop him coming. He has the right to drive any lane that touches public road. But I can —" his jaw worked — "we can prepare for him. There is a place I would like you to know, on the property. A place I have used before. There is also" — he looked at her — "a question I had not, until now, expected to have to ask you."</p>
+<p>"What question."</p>
+<p>"Will you fire a rifle, if it comes to it."</p>
+<p>She looked at him.</p>
+<p>She thought of the orchard in copper light, and Bea at her foot under the kitchen table, and the cottage door opening to a man with pears in a basket, and the long apple boughs over them at the back of the orchard wall in the afternoon, and the wool throw across them in the library on the rug at the hearth.</p>
+<p>"Yes," she said. "I will fire a rifle, if it comes to it."</p>
+<p>He closed his eyes once.</p>
+<p>"All right," he said. "Then come with me. I will show you the place. And I will show you Maeve's rifle."</p>
+<hr class="scene-break">
+<p>Maeve's rifle was an old .303 Lee-Enfield in a cedar case under the floor of the second outbuilding, which Iona had not known had a removable section of floor. There were also, in the case, two boxes of ammunition that had been kept dry and oiled and that he had, he told her, fired into a sandbank twice a year for the last thirty years to keep his eye in.</p>
+<p>The place he showed her was a small dry hide in a fold of the hillside behind the orchard — a hollow where two thorn hedges met above an old, half-collapsed shepherd's cabin. From it, you could see the cottage. You could see the chapel ruin a half-mile across the eastern field. You could not be seen from either.</p>
+<p>He took her through what he wanted her to do. He took her through it twice. He took her through the rifle — sighting it, cycling the bolt, the shape of the trigger pull — twice more. By midafternoon she could load it and shoulder it without thinking about it.</p>
+<p>She did not, that day, fire it.</p>
+<p>That afternoon they went back to the cottage and she made him bread and butter and tea, and he ate three slices in silence, and at the end of it she leaned her forehead against his at the kitchen table and said: "Reynard."</p>
+<p>"Yes."</p>
+<p>"Don't do anything brave."</p>
+<p>He laughed — a small, real, half-broken laugh.</p>
+<p>"I will try not to."</p>
+<p>"Promise me."</p>
+<p>"I promise you."</p>
+<p>That night, the third night of the hunter's presence in the village, he came to her in her bed with a different intensity. He did not, that night, take his time. He was hungry — animal hungry — in a way she had not yet seen in him. He kissed her at the throat in a way that scraped, very lightly, twice, with the edges of his teeth, and the second scrape held, faintly, longer than was perfectly safe. He apologized into her shoulder afterward — <em>I'm sorry, I'm sorry</em> — and she put her hand at the back of his head and pulled him into her and said <em>Don't be sorry. Take me again.</em></p>
+<p>He took her again.</p>
+<p>He took her three times that night.</p>
+<p>He took her once more at dawn, in the half-light, slowly, deliberately, with his forehead against hers and his hand at her cheek the whole time. He had not slept. She had only slept in pieces.</p>
+<p>When she lay against his chest after, listening to his heart, he said — very quietly, almost a whisper:</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>"If anything happens to me. The compact ends with my death, by the terms of it. You will not be bound to anything. There is a small reserve in an account in Newtown — Mr. Pritchard has the details — that has been kept for the next Reynard. It can be used by you for the property at your discretion. There is no next Reynard. You will not have to do anything. Do you understand."</p>
+<p>"Reynard."</p>
+<p>"Iona. Do you understand."</p>
+<p>"I understand. Stop."</p>
+<p>"All right."</p>
+<p>She kissed his throat. She put her hand over his heart.</p>
+<p>She lay there with him in the grey dawn and listened to his breathing slow toward sleep — finally — and she thought, with a clarity she had once thought she had lost:</p>
+<p><em>I am not going to lose you.</em></p>
+<p>She did not, in the years to come, ever lose him.</p>
+<p>But she did not know that yet.</p>
+<p>She lay against his shoulder in the dawn and watched the small grey light come up over the orchard.</p>
+</div></article>
+
+<article class="chapter" id="chapter-8">
+<header class="ch-header"><div class="ch-num">Chapter 8</div><h2 class="ch-title">The Bonfire</h2></header>
+<div class="ch-body">
+<p>The Samhain bonfire at Bryn Llannan happened on the night of the thirty-first of October, in the lower field behind the chapel of St. Tudur, and it had — by long village tradition — three hundred years of woodsmoke on it before the first match was struck.</p>
+<p>Iona had not, in her London life, gone to a Samhain bonfire.</p>
+<p>She went to this one.</p>
+<p>She went because Reynard had said: "We should go. He will be at it. He will expect me to keep you away from it. I would rather he saw me there with you, on village ground, in front of two hundred people. He will not do anything in front of two hundred people."</p>
+<p>She had thought about it.</p>
+<p>"All right."</p>
+<p>They dressed for it. She wore a heavy wool dress and her wool coat and her good boots. He wore a dark wool jacket she had not seen him in before — slightly older than was fashionable, slightly newer than was strange — and a soft grey scarf that had been her great-aunt's, that she had pressed on him at the door.</p>
+<p>They walked down to the village together in the early dark.</p>
+<p>The fire was already lit when they got there. It had been built on the lower field — a tall, careful pile of pine and ash and oak, three storeys high, the work of the village men over a week. It was, when she came around the gate, the largest fire she had ever stood near. The villagers were gathered around it in a wide ring — fifty or sixty people, by her count, then sixty more — drinking from cups of mulled cider that Mr. Probert had brought down from the Oak in a great pewter cauldron. There were children up to half-past-nine on the green, throwing apples at the smaller bonfire that had been built for them; there was, on a long trestle table, a Samhain feast of village bread and village butter and a great earthenware pot of barley stew. There was, on the gate at the far edge of the field, an enormous straw figure on a pole that the older men of the village had, since June, been dressing in old clothes — the <em>coelcerth</em>, the bonfire-effigy, which would, at midnight, be set into the fire.</p>
+<p>She held Reynard's arm.</p>
+<p>He had not, in their walk down, looked at her face once.</p>
+<p>He looked, instead, at the firelight on the other faces.</p>
+<p>She felt him stiffen at her arm before she saw the man.</p>
+<p>The hunter was at the cider table.</p>
+<p>He was, she had to give Mrs. Davies that, exactly as described. Tall, about sixty, dark hair gone silver at the temples and brushed back without grease, a long charcoal coat that had been cut by someone in London. He was speaking to Mr. Probert at the cauldron, and Mr. Probert was, in the small careful way of village publicans, smiling with his teeth.</p>
+<p>The hunter looked up.</p>
+<p>Across the firelight, his eyes met Reynard's.</p>
+<p>She felt, in Reynard's forearm under her hand, the way an animal goes still before a fight.</p>
+<p>The hunter — for it was a fight, she understood — broke the look first. He smiled. He came around the cider table, holding a pewter cup in his hand, and he crossed the ring of villagers to where she and Reynard stood by the trestle of bread, and he stopped six feet from them.</p>
+<p>He was, on the close approach, taller than she had thought. He had eyes the colour of cold tea.</p>
+<p>"Miss Calloway," he said. "I had hoped to meet you in the village this week. Maxwell Adlard. I am writing — a small project — on the old families of the marches. Forgive the intrusion."</p>
+<p>He extended a hand.</p>
+<p>She did not, for a half-second, take it.</p>
+<p>She took it.</p>
+<p>"Mr. Adlard."</p>
+<p>His hand was very dry and very cold. He held hers a fraction longer than was necessary.</p>
+<p>"Your great-aunt was a friend of my mother's," he said. "Briefly. Decades ago. I had hoped to come up to the cottage."</p>
+<p>"My great-aunt died two years ago, Mr. Adlard."</p>
+<p>"Yes." A small inclination of his head — a beat of sympathy that did not, she thought, particularly believe in itself. "I'm sorry. It is the family — the long story of it — that I am gathering, for the book." He paused. He turned his head fractionally toward Reynard. "And you, sir. We have not been introduced."</p>
+<p>"Reynard Llwyd," Reynard said. His voice was perfectly even.</p>
+<p>Adlard looked at him.</p>
+<p>He looked at him for a long, slow beat, in which she felt — with the clarity she had not felt in any cross-examination — the precise size of the recognition that passed between them in the half-second.</p>
+<p>He did not, externally, show it.</p>
+<p>"Llwyd," he said. He smiled. He had been beautiful, when he was younger. "An old name in this part of the country. You'll be a relative of the family that have looked after the Calloway property, I take it."</p>
+<p>"In a manner of speaking."</p>
+<p>"I would very much like to come up and speak with you both, in the cottage, in the next week. There is a — a small piece of the family's history I would like to confirm."</p>
+<p>"You are welcome at the cottage, Mr. Adlard," Iona said.</p>
+<p>She said it because she did not, at that moment, know what else to do, and because all of her training as a barrister had taught her that you give an aggressor the appointment that gives you, not him, the framing of the room.</p>
+<p>"You are welcome," she said again, "the day after tomorrow. Two o'clock. I shall ask Mr. Probert at the Oak to send up a cake."</p>
+<p>Adlard looked at her.</p>
+<p>He had, somewhere behind his careful courtesy, the small flicker of a man who had walked into a room expecting to dictate the rules and had been told the rules had already been written. He smiled, finally — a real smile this time, brief, the smile of a hunter who had been outmanoeuvred at the gate and respected, briefly, the manoeuvre.</p>
+<p>"That is gracious of you, Miss Calloway. The day after tomorrow. Two o'clock."</p>
+<p>He inclined his head. He turned. He moved back through the ring to the cider table, where he continued his interrupted conversation with Mr. Probert as if nothing had happened.</p>
+<p>Reynard, under her hand on his forearm, breathed out — long, slow.</p>
+<p>"Iona."</p>
+<p>"What."</p>
+<p>"That was extraordinary."</p>
+<p>"I will tell you later. Don't move."</p>
+<p>They stayed at the bonfire.</p>
+<p>They stayed for another hour, because to leave at once would have been to give Adlard the satisfaction of having driven them off. She drank a cup of cider. She spoke to Mrs. Davies, who knew everything that had just happened on the field, and who said nothing about it, and who pressed her hand at parting. She watched the children carry the <em>coelcerth</em> down from the gate at midnight and lower it onto the fire — the great straw figure in its old clothes going up in a sheet of flame that the village let out their breath at, the way villages had let out their breath at this fire for three hundred years.</p>
+<p>She did not look once at Adlard, who was, throughout the hour, on the other side of the fire, drinking cider, watching.</p>
+<p>She and Reynard walked home up the lane in the small hours after midnight.</p>
+<p>She did not, on the walk up, take his arm. They walked in the silence of two people who had decided something but had not, yet, said it.</p>
+<p>At the cottage door he stopped.</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>"I would not, on any other night, ask you a question this stark."</p>
+<p>"Ask."</p>
+<p>"He is going to come up the lane at two on the day after tomorrow. He will not come alone. He will come with at least one other man — there is always a second hand on these — and he will not, when he comes, have any intention of leaving the cottage at the same time he arrives. Do you understand."</p>
+<p>"I understand."</p>
+<p>"He will want to take a piece of me. He will, if you are in the way of it, take a piece of you. He will say it was self-defence, or an accident, or a tragic disappearance, and the men who keep his account in London will write the right letter to the right office and there will not be any further inquiry. I know this because the men of his line have done it before. They have, in the last hundred years, killed four men of my line and one woman of yours."</p>
+<p>She did not, for a long moment, breathe.</p>
+<p>"Maeve."</p>
+<p>"No. Maeve died of her own age. The woman of your line they killed was your great-grandmother, Eira, in 1934. They told the village that her car had gone off the road at Aberystwyth in fog. I buried her."</p>
+<p>She closed her eyes.</p>
+<p>She opened them.</p>
+<p>"He is not going to take a piece of you," she said.</p>
+<p>"Iona —"</p>
+<p>"He is not going to take a piece of me. He is not going to take a piece of you. I am going to be in the hide above the chapel field. I am going to have the Lee-Enfield. I am going to be there before he comes up the lane. We are going to send him to the chapel ruin. He will not go anywhere else, because that is the only place on the property his line will let him walk to. I am going to fire when you tell me to fire."</p>
+<p>He looked at her.</p>
+<p>In the moonlight at the cottage door he looked at her, and his face — the face she had come to know in firelight and in candlelight and in the long copper light of orchard afternoons — was, in this moment, the face of a creature who had outlived his own people and his own century and his own losses and who was, looking at her, considering the small impossibility of being saved by a woman.</p>
+<p>"Iona Calloway."</p>
+<p>"Yes."</p>
+<p>"Take me to bed."</p>
+<p>She took him to bed.</p>
+<p>She undressed him at the foot of the bed without ceremony — pulling the dark wool jacket off his shoulders, the linen shirt over his head, the trousers down. She undressed herself. She lay down on the bed and pulled him down on top of her with both hands at his shoulders.</p>
+<p>He made love to her that night with a thoroughness that was, at its centre, a <em>claim</em>. He held her face in both his hands while he was inside her and he watched her face with the unblinking, unhurried gaze of a creature who had decided he would, in fact, ask for a future. He did not look away. He did not, this time, close his eyes when he came.</p>
+<p>He marked her, in the closing minutes, at the shoulder.</p>
+<p>Not by accident. Not in passion. He put his mouth to the place where her shoulder met her neck and he set his teeth against the skin and he held — without breaking — for a long, deliberate breath. Two ovals of pressure. A claim that was not blood. The grammar of his species said <em>mine</em>.</p>
+<p>She put her hand at the back of his head and held him there.</p>
+<p>"I know," she whispered. "I know."</p>
+<p>He stayed marked-against her for a long, slow minute, breathing.</p>
+<p>When he lifted his head, she lifted hers, and she set her own teeth — gentle, slow, deliberate — against the place at his shoulder where the long pale scar from his ribs ran up to meet the line of his collarbone.</p>
+<p>She did not break the skin.</p>
+<p>She held.</p>
+<p>She held for the same long, slow breath he had held against her.</p>
+<p>When she let go, the mark on his skin was the small pink shape of her teeth. It would, in the morning, be visible. It would, in three days, be gone.</p>
+<p>It was, in this moment, the answer to the question he had asked.</p>
+<p>"Mine," she said. Quietly. Against his throat.</p>
+<p>He breathed out a sound that was almost a sob.</p>
+<p>He held her.</p>
+<p>He held her until she slept — finally — with her head against his shoulder and his hand at the small of her back.</p>
+<p>He did not, that night, sleep at all.</p>
+</div></article>
+
+<article class="chapter" id="chapter-9">
+<header class="ch-header"><div class="ch-num">Chapter 9</div><h2 class="ch-title">Reynard</h2></header>
+<div class="ch-body">
+<p>He did not come up the lane.</p>
+<p>He came up the eastern field.</p>
+<p>She had spent the morning of the second of November doing the small, careful preparations she and Reynard had agreed on, and at ten she had walked to the hide above the chapel field and settled in. The Lee-Enfield was loaded. She had two further clips of ammunition in the inside pocket of her coat. She had a thermos of tea. She had Bea, who had refused to be left at the cottage, lying along her hip in the long grass of the hollow with her great head on her paws.</p>
+<p>At twelve, she heard the engine.</p>
+<p>She had not expected it from the east. She had expected it on the lane. She brought the rifle up to the ready and braced her elbows in the grass and watched.</p>
+<p>The Land Rover came across the eastern field — slowly, deliberately, the wheels finding the tractor tracks of the September harvest — and stopped at the gate to the chapel field. Two men got out. The first was Adlard. The second was a younger man — late thirties, broad through the shoulders, the kind of professional muscle one bought in a city when one's work required one not to do it oneself. They were both, she could see through the rifle's scope, carrying small dark packs over one shoulder. The young man had a rifle of his own at his hip.</p>
+<p>She did not move.</p>
+<p>They did not see her in the hollow. They would not — that was the point of a hide.</p>
+<p>Adlard pointed across the chapel field at the ruin on the rise. He said something. The young man nodded. They both started across the field on foot toward the ruin.</p>
+<p>She let them get a hundred paces from the gate.</p>
+<p>Then she breathed out — slowly — and squeezed her radio twice. It was an old GP radio that Reynard had given her from the outbuilding, set to the frequency of his own. Two squeezes meant <em>they have come the eastern way. They are crossing toward the chapel.</em></p>
+<p>The radio at her belt, after a beat, gave a single short reply chirp. <em>Understood. I will draw them in.</em></p>
+<p>She waited.</p>
+<p>She watched.</p>
+<p>At the halfway point across the field, Adlard stopped. He raised a hand. He had heard something. He had felt — perhaps — the small change in the air that always happened in the country when something was about to.</p>
+<p>From the long grass of the chapel field, fifty yards from the men, a fox stood up.</p>
+<p>He was enormous. Copper red. Silver at the muzzle. He was, against the long grass of the field in the noon light, exactly what a creature of legend was supposed to be — a thing that was almost too beautiful, at this distance, to fire a rifle at.</p>
+<p>The young man raised his rifle in one fluid motion.</p>
+<p>Adlard raised a hand to stop him.</p>
+<p>Adlard wanted the kill himself.</p>
+<p>That was the moment Iona had not, until it happened, understood that she had been waiting for.</p>
+<p>She set her bead, in the scope, on the centre of the young man's chest.</p>
+<p>Adlard slung his pack to the ground.</p>
+<p>He drew, from inside it, a pistol — a long-barrelled antique she did not, at this distance, recognize the make of — and he raised it across the long grass at the fox.</p>
+<p>The fox did not run.</p>
+<p>The fox stood his ground.</p>
+<p>The fox was, she understood, deliberately <em>holding</em> him.</p>
+<p>She fired.</p>
+<p>The Lee-Enfield kicked. The shot went where she had put it — into the centre of the young man's chest. He went down without a sound.</p>
+<p>Adlard did not turn at the shot.</p>
+<p>Adlard fired the antique pistol.</p>
+<p>The fox fell.</p>
+<p>Iona — her hands had stopped shaking the moment the first shot left the barrel — cycled the bolt, found Adlard in the scope as he was lowering the pistol, and, with the small dispassionate clarity she had not, before this morning, known she had:</p>
+<p>She fired.</p>
+<p>The shot went through Adlard's throat.</p>
+<p>He went down.</p>
+<p>She did not move. She held the rifle on him in the scope for a long beat to be sure. He did not move. The antique pistol was on the grass beside him. The pack was open.</p>
+<p>She came up out of the hide.</p>
+<p>She ran.</p>
+<p>She ran across the chapel field with the rifle at her hip and Bea pacing her at her heel. The grass was, for a hundred yards, the hardest grass she had ever moved through. She did not look at the men.</p>
+<p>She came to the fox.</p>
+<p>He had been hit in the side and again in the hind leg. He was breathing — shallowly, raggedly, but breathing. He was, in his red copper coat with the silver at his muzzle, very still.</p>
+<p>She put down the rifle.</p>
+<p>She knelt.</p>
+<p>"Reynard."</p>
+<p>He looked at her. The amber-whisky eyes were open. His ribs moved in and out, jerkily.</p>
+<p>"Reynard, <em>Reynard Llwyd</em>," she said — using his full name, his line-name, the name that bound him to the country and to her — "you do not get to die here. Not today."</p>
+<p>He blinked.</p>
+<p>He shifted.</p>
+<p>It was a difficult shift, this time. She watched the body of the fox try, then try again — the long form folding upward, unfolding, the shape of a man trying to come back through. It took, in the end, almost a minute. When he was a man, finally — naked, bleeding from the wound at his side and from the deeper wound at his hip where the second shot had gone — he was nearly unconscious.</p>
+<p>She did not, at that moment, have any reasonable belief that she could carry him.</p>
+<p>She picked him up anyway.</p>
+<p>She was a hundred and thirty pounds. He was about a hundred and seventy as a man. She got him into her arms — half-fireman's, half-bridal — and she stood, and she walked.</p>
+<p>She walked the half-mile back to the cottage with him in her arms across the eastern field and through the long grass of the orchard. She did not, in any honest reckoning, possess the strength to do that. She did it anyway. Bea ran ahead at the gate of the apiary and barked once, sharply, in case the cottage was in any doubt that they were coming.</p>
+<p>At the cottage door she set him down on the slate of the threshold and unbolted the door with one hand. She got him onto the rug in the library.</p>
+<p>She field-dressed his wounds.</p>
+<p>She did it the way her great-aunt's old country doctor had taught her one summer when she was twelve and had spent two weeks at the cottage and had been allowed to assist him at three calls. She washed the wound at his side with the iodine from the cupboard. She packed the deeper wound at his hip with cotton wadding and bound it tight. She got him to drink a half-cup of cool water and another quarter-cup of the great-aunt's whisky, which her great-aunt had once said was for emergencies, and which she had once been told would clean a clean wound at need.</p>
+<p>He stayed conscious. Only just. His eyes followed her hands.</p>
+<p>He whispered something against her wrist as she leaned over him to bind the hip. She bent down to hear him.</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>"You came up the field."</p>
+<p>"I did."</p>
+<p>"You told me you wouldn't —"</p>
+<p>"I told you," she said, "that I would not lose you. I did not tell you what I would or would not do. You are a barrister, Reynard, you should have read the small print."</p>
+<p>He laughed — a tiny, broken laugh — and closed his eyes.</p>
+<p>She sat with him on the rug in the firelight of the library for the next four hours. She rebound the hip at three. She got him to drink broth at five. By six he was, against all the reasonable prognosis of the situation, paler but conscious. By seven he was speaking. By nine she had got him onto the bed in the bedroom and he was asleep against her shoulder.</p>
+<p>She lay awake.</p>
+<p>She did not look out the window once.</p>
+<p>She did not, that night, sleep.</p>
+<hr class="scene-break">
+<p>In the morning she went out to the eastern field with Bea and the rifle.</p>
+<p>The bodies were where she had left them.</p>
+<p>She buried them in a place that had been a hollow under the old yews behind the chapel — a place where the ground was soft and where the roots of two of the oldest yews would, in their slow yew way, take care of the rest. She dug for three hours. She did not, by the end of it, recognize the back of her own hands.</p>
+<p>She covered both men.</p>
+<p>She took the antique pistol and the young man's rifle to the apiary and put them in a sack and put the sack into the empty seventh hive — the <em>Nine</em> — that Maeve had not used in three years. She locked the hive.</p>
+<p>She drove the Land Rover, with the engine running on low petrol, six miles east into the next valley and down a logging track to a place where the track ended at a swollen brook in flood. She rolled the Defender into the brook. The water took it the rest of the way down to a culvert in which it lodged. She walked back to the cottage in the rain in seven hours.</p>
+<p>When she came in at dusk, Reynard was sitting up in the bed, drinking a cup of tea.</p>
+<p>He looked at her face.</p>
+<p>He set down the cup.</p>
+<p>"Iona."</p>
+<p>"I'm fine."</p>
+<p>She crossed the bedroom to him, in her muddy clothes and her wet hair and the boots she had ruined for the second time in three months, and she sat on the bed and put her arms around him without speaking.</p>
+<p>He held her.</p>
+<p>He held her for a long time.</p>
+<p>After a while, he said quietly, into her hair: "There is one more thing the men of his line will try. They will, in a few weeks, when he doesn't come back, send a man to the village. The man will ask questions. He will look at us. He will not, if we are careful, find anything." He paused. "But we will need to be careful for two or three years. The country here will know what we did. The country here will keep our counsel. The world out there will not, immediately, forget Maxwell Adlard. We will be — quiet. Together. Here. For a while."</p>
+<p>"All right."</p>
+<p>"Iona —"</p>
+<p>"Reynard. Lie down."</p>
+<p>He lay down.</p>
+<p>She undressed in the bedroom in silence. She set the muddied clothes in a heap by the door. She crawled into the bed beside him in the long flannel nightgown that had been her great-aunt's. She put her face against his shoulder. His arm came around her.</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>"You used my name."</p>
+<p>"In the field."</p>
+<p>"Yes."</p>
+<p>"Did it matter."</p>
+<p>He was quiet for a long time.</p>
+<p>"It mattered," he said.</p>
+<p>She did not, that night, ask him to elaborate.</p>
+<p>She put her hand over his heart.</p>
+<p>She listened to it beat.</p>
+<p>She slept.</p>
+<p>She slept, finally, very deeply.</p>
+<p>In her dream, she was in the orchard in copper light, and a creature came out of the long grass, and put its great heavy head against her hand, and stayed.</p>
+</div></article>
+
+<article class="chapter" id="chapter-10">
+<header class="ch-header"><div class="ch-num">Chapter 10</div><h2 class="ch-title">The Estate</h2></header>
+<div class="ch-body">
+<p>She wrote her resignation in the third week of November.</p>
+<p>She wrote it at the kitchen table at the cottage in mid-morning, with the kettle on and Bea asleep on her foot and the first frost of the year glittering on the orchard wall outside the window. She wrote it very plainly. She had been at the Inner Temple for fourteen years. She had reached a point in her career at which the continuation of it required either an apology she would not give or a return to a profession she had stopped believing in. She would, with respect, not be returning to chambers. She would retain her bar admission. She would, in due course, set up a small consulting practice from her residence in mid-Wales advising on civil and criminal procedure to country solicitors who did not, by long-standing arrangement, have ready access to senior counsel.</p>
+<p>She read the letter back.</p>
+<p>She thought, briefly, of the man in the white Stanford office in Andrea's story.</p>
+<p>She thought of the fact that the Calloway women had not, in five generations, lived in a city for more than five years at a stretch.</p>
+<p>She signed the letter.</p>
+<p>She walked it down to the village post office. Mrs. Davies took it from her without comment. Mrs. Davies, by this point in November, had said exactly two further sentences about the gentleman at the Oak who had inquired after the Calloway family. The first sentence, in the second week of November, had been: <em>I take it the gentleman has gone on with his trip</em>. The second, in the third week, had been: <em>Quite right, dear. We had wondered.</em></p>
+<p>Mrs. Davies took the letter.</p>
+<p>"To London," she said.</p>
+<p>"To London."</p>
+<p>"And after, Miss Calloway."</p>
+<p>"After," Iona said, "I'm staying."</p>
+<p>Mrs. Davies inclined her head a small careful inch.</p>
+<p>"Welcome home, dear."</p>
+<p>She walked back up the lane in the cold sun.</p>
+<p>She found him at the second outbuilding, working at a long pine workbench in the open door, planing the haft of a new tool — the maul she had taken to the chapel field in her arms — back to working shape. He looked up.</p>
+<p>"You sent it?"</p>
+<p>"I sent it."</p>
+<p>He set down the plane.</p>
+<p>He came to her.</p>
+<p>He put his hands at her waist and his forehead against hers. He had recovered well — the hip was, by the third week, a thin pink line; the side had been the wound that would, he said, leave a scar the rest of his long life. He smelled, in the cold November air, like cedar and like the smoke of the bonfire and like the faint, almost-not-there scent that he had been smelling more like in the last three weeks, which was the scent of a creature who had decided to allow himself to be where he was.</p>
+<p>"Iona Calloway."</p>
+<p>"Yes."</p>
+<p>"You are staying."</p>
+<p>"I am staying."</p>
+<p>"For how long."</p>
+<p>"As long as you'll have me."</p>
+<p>He laughed once — a real, low laugh — and lifted her against him in the doorway of the outbuilding and held her there with her feet barely on the slate, and kissed her at the corner of her mouth and at the line of her jaw and finally at her mouth itself, slowly, in the cold sun.</p>
+<p>When he set her down, he held her face in his hands.</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>"As long as you'll have <em>me</em>."</p>
+<p>"Then a long time, Reynard."</p>
+<p>"A long time."</p>
+<hr class="scene-break">
+<p>The snow came at the end of November.</p>
+<p>It came at night, very quietly, the way the first snows did in this country. She woke to a different quality of grey in the bedroom window and the small white edge of it on the inside of the sill where the cold had reached around the frame. She lay against him for a long time before she got up. She watched the white light of the snow come up across the ceiling.</p>
+<p>He woke under her hand.</p>
+<p>"Snow," he said. Sleepily.</p>
+<p>"Snow."</p>
+<p>"Come and see it with me."</p>
+<p>They went out, in the early morning, in coats and boots over their flannel. The orchard was a different orchard. The chapel ruin, half a mile across the field, had a perfect cap of white on the altar stone. The hedgerow was a single white line. Bea, in the snow, was a small black-and-white shape moving in long arcs of joy.</p>
+<p>They walked out to the orchard wall.</p>
+<p>He stopped her there.</p>
+<p>"Iona."</p>
+<p>"Yes."</p>
+<p>"I want to ask you something I have not asked you yet."</p>
+<p>She looked at him.</p>
+<p>"Ask."</p>
+<p>He put one hand into the pocket of his coat.</p>
+<p>He brought out a small object wrapped in a fold of old linen. He unfolded the linen. In his palm was a ring — a thin band of pale gold, plain, an old-fashioned hand-finished ring of the kind that had been made by a country jeweller in a small town in another century. There was, set into it at the centre, a single fox-coloured cabochon of amber.</p>
+<p>"This was my mother's," he said. "She gave it to me before she died. She told me I might know, one day, when to give it to someone. I have not, in all the time since, known. I know today."</p>
+<p>She did not, for a moment, breathe.</p>
+<p>"Reynard."</p>
+<p>"You don't have to say yes. I will not be hurt. I will not be — anything. The compact already binds me. I am asking you for a separate thing. I am asking you for a life. I am asking you whether you will have me, by the small particular custom of your people and not the long heavy custom of mine, as your husband."</p>
+<p>She put both her hands over her mouth.</p>
+<p>She stood in the snow at the orchard wall in mid-Wales and looked at the man who was one hundred and seven years older than she was, holding a ring his mother had given him on her deathbed, asking her to marry him in the modern way, on the second day after the first snow of the year.</p>
+<p>She laughed once.</p>
+<p>She laughed once because it was, in her brain, the only response available to the size of the moment — and the laugh broke at the end, into something that was almost a small sob, and she put her arms around his neck and held him hard, in the cold morning, in the snow, and she said into his shoulder:</p>
+<p>"<em>Yes</em>. Yes. You absurd, beautiful, ancient, <em>ridiculous</em> man — yes, Reynard. Yes."</p>
+<p>He held her up off the ground for a long, slow moment in the snow at the orchard wall.</p>
+<p>He put her down.</p>
+<p>He took her hand. He drew off her old wedding band — the thin gold of her great-aunt's that she had taken to wearing, in the past month, as a kind of habit — and slid the amber ring onto her finger in its place. The amber, in the snow-light, was the colour of the foxlight she had seen in this orchard on her first proper afternoon at the cottage.</p>
+<p>She put her hand against his cheek.</p>
+<p>"Reynard Llwyd," she said.</p>
+<p>"Yes."</p>
+<p>"Take me home."</p>
+<p>He took her home.</p>
+<hr class="scene-break">
+<p>Three years later, in the third winter after the morning at the orchard wall, in the small private register office at Newtown, Iona Calloway became Iona Llwyd in the eyes of the British state, with Mr. Idris Pritchard standing as witness in his old brown three-piece suit and Mrs. Davies sitting beside Helena in the second row with her hat very straight.</p>
+<p>She did not, in the years that followed, return to London for more than three days at a time.</p>
+<p>She did not, in the years that followed, ever stop walking the property in the late afternoon when the light went copper.</p>
+<p>She did not, in the years that followed, ever again wonder whether she had given up the right thing for the wrong thing or the wrong thing for the right thing.</p>
+<p>She wrote, in her sixth year at the cottage, a book — privately published, in an edition of three hundred copies, available by post only to those who knew of it — about the long history of an unimportant family in an unimportant valley in mid-Wales. She did not mention Reynard's name. He read it. He sat by the fire and read it through in one evening and looked at her, over the top of it, in the lamplight, and said: "Iona Calloway."</p>
+<p>"Yes."</p>
+<p>"You are a remarkable woman."</p>
+<p>She kissed him.</p>
+<hr class="scene-break">
+<p>She kept the cottage.</p>
+<p>She kept the orchard.</p>
+<p>She kept the seven hives, which had, by the spring of the second year, recovered from their two summers of mourning.</p>
+<p>She kept Bea, who lived to the very large age of fifteen, and who was buried in the small grove of yews behind the chapel ruin, beside the place where she had, on the second of November in Iona's first autumn at the cottage, lain along Iona's hip in the hollow above the chapel field with her great head on her paws.</p>
+<p>She kept Reynard.</p>
+<p>In the years after, on certain late autumn evenings when the foxlight came up across the orchard and the air went copper, a creature would step out of the long grass between two of the apple trees, and stop, and look at the figure of a woman who was sitting on the bench by the cottage door with a glass of her great-aunt's whisky in her hand — and the woman would, without thinking, stretch her hand out across the grass.</p>
+<p>The creature would come to her.</p>
+<p>The creature would press its great heavy head against her open palm.</p>
+<p>And then, when the woman was ready, the creature would shift back — slowly, in the easy folding-up that she had grown, over years, to be able to watch without flinching — into the long lean man she had married, naked in the snow or in the grass or in the rain, depending on the season, and he would smile, and come to her, and pick up his clothes from the bench beside her, and say: <em>Good evening, Iona.</em></p>
+<p>And she would say: <em>Welcome home, Reynard.</em></p>
+<p>And the country would go on doing what the country had always done.</p>
+<p>The foxlight would go on falling on the orchard.</p>
+<p><em>~ end Chapter 10 ~</em></p>
+</div></article>
+
+    <footer class="book-end">
+      <div class="the-end">~ The End ~</div>
+      <a class="back-link" href="/library/">← Back to Library</a>
+    </footer>
+  </main>
+
+  <script type="module">
+    import { requireAuth, renderTopbar, logEvent } from "/assets/lib.js";
+    await requireAuth();
+    renderTopbar();
+    logEvent("book_opened", { book_id: "foxlight" });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Across the Driveway — Stuff So Sweet Library</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="stylesheet" href="/assets/style.css">
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    .book-hero { max-width: 720px; margin: 0 auto; padding: 32px 20px 28px; text-align: center; }
+    .book-hero .cover { width: 100%; max-width: 320px; aspect-ratio: 2/3; object-fit: cover; border-radius: 14px; margin: 0 auto 22px; display: block; box-shadow: 0 16px 40px rgba(0,0,0,0.45); }
+    .book-hero h1 { font-family: Georgia, serif; font-size: clamp(32px, 6vw, 44px); color: var(--gold); margin: 0 0 4px; letter-spacing: -0.01em; }
+    .book-hero .author { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 22px; }
+    .book-hero .summary { font-family: Georgia, serif; font-size: 16px; line-height: 1.65; opacity: 0.88; margin: 0 0 24px; text-align: left; }
+    .book-hero .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); margin-bottom: 28px; }
+    .book-hero .begin { display: inline-block; background: var(--cta); color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 14px; font-family: Georgia, serif; font-size: 16px; font-weight: bold; box-shadow: 0 8px 24px rgba(224,75,87,0.28); }
+
+    .toc { max-width: 560px; margin: 36px auto; padding: 24px 28px; background: rgba(255,255,255,0.05); border-radius: 16px; }
+    .toc h2 { font-family: Georgia, serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); font-weight: normal; margin: 0 0 14px; text-align: center; }
+    .toc ol { list-style: none; padding: 0; margin: 0; }
+    .toc li a { display: flex; align-items: baseline; gap: 10px; padding: 9px 4px; color: inherit; text-decoration: none; font-family: Georgia, serif; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color 0.15s; }
+    .toc li:last-child a { border-bottom: none; }
+    .toc li a:hover { color: var(--gold); }
+    .toc-num { color: var(--faint); font-variant-numeric: tabular-nums; min-width: 24px; }
+
+    .chapter { max-width: 640px; margin: 0 auto; padding: 56px 22px 28px; }
+    .ch-header { text-align: center; margin-bottom: 32px; }
+    .ch-num { font-family: Arial, sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--faint); margin-bottom: 8px; }
+    .ch-title { font-family: Georgia, serif; font-size: clamp(24px, 4vw, 32px); color: var(--gold); font-weight: normal; margin: 0; letter-spacing: -0.005em; }
+    .ch-body { font-family: Georgia, serif; font-size: 17px; line-height: 1.75; color: rgba(255,255,255,0.92); }
+    .ch-body p { margin: 0 0 18px; }
+    .ch-body em { font-style: italic; color: rgba(255,255,255,0.96); }
+    .ch-body hr.scene-break { border: none; height: 1px; background: rgba(240,212,140,0.18); width: 80px; margin: 32px auto; }
+
+    .book-end { max-width: 560px; margin: 48px auto 80px; padding: 32px 22px; text-align: center; }
+    .book-end .the-end { font-family: Georgia, serif; font-size: 22px; color: var(--gold); letter-spacing: 0.06em; margin: 0 0 26px; }
+    .book-end .back-link { display: inline-block; padding: 12px 26px; border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; color: inherit; text-decoration: none; font-family: Arial, sans-serif; font-size: 14px; }
+
+    @media (max-width: 540px) {
+      .ch-body { font-size: 16.5px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar"></div>
+
+  <main>
+    <section class="book-hero">
+      <img class="cover" src="https://trippleu.com/wp-content/uploads/2026/06/drivebay.webp" alt="">
+      <h1>Across the Driveway</h1>
+      <div class="author">A Summer · Stuff So Sweet</div>
+      <p class="summary">Cassie Reeves is thirty-eight years old, sixteen years into a marriage that has, in the last three years, quietly stopped being a marriage. Her husband Brett — a Boston litigator — has not touched her in eleven months. Her twin sons are at sailing camp. When the worst heatwave in a decade hits Greenwich and the power goes out across the cul-de-sac for fifty-eight hours, she finds herself the only adult on Cherry Lane except David Avery, the architectural historian who lives across the driveway with his constantly-traveling cardiologist wife and their two young children. They have been neighbors for seven years. By the fourth night, in her pool at midnight, the small box each of them had been keeping closed for a decade comes off. A literary romance about two grown people who fall in love in the wrong order, and the bittersweet adult choice they make six weeks later.</p>
+      <div class="meta">10 chapters · ~27,000 words · ~110 min read · Very spicy</div>
+      <a href="#chapter-1" class="begin">Begin reading ↓</a>
+    </section>
+
+    <nav class="toc" aria-label="Table of Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#chapter-1"><span class="toc-num">1.</span> The Heatwave</a></li>
+        <li><a href="#chapter-2"><span class="toc-num">2.</span> The Patio</a></li>
+        <li><a href="#chapter-3"><span class="toc-num">3.</span> The Pool at Midnight</a></li>
+        <li><a href="#chapter-4"><span class="toc-num">4.</span> The Garage</a></li>
+        <li><a href="#chapter-5"><span class="toc-num">5.</span> The Hotel</a></li>
+        <li><a href="#chapter-6"><span class="toc-num">6.</span> The Pattern</a></li>
+        <li><a href="#chapter-7"><span class="toc-num">7.</span> The Heart</a></li>
+        <li><a href="#chapter-8"><span class="toc-num">8.</span> The Wife</a></li>
+        <li><a href="#chapter-9"><span class="toc-num">9.</span> The End</a></li>
+        <li><a href="#chapter-10"><span class="toc-num">10.</span> Across the Driveway</a></li>
+      </ol>
+    </nav>
+
+<article class="chapter" id="chapter-1">
+<header class="ch-header"><div class="ch-num">Chapter 1</div><h2 class="ch-title">The Heatwave</h2></header>
+<div class="ch-body">
+<p>The power goes out at twelve past two.</p>
+<p>I am, when it goes out, in the kitchen of my house in a tank top and an old pair of cutoff denim shorts and my hair piled up on top of my head with a chopstick I have not, in three years, used for any other purpose. I am making myself a glass of iced coffee that I do not, in any honest reckoning, need. It is ninety-four degrees outside. It is, I would have to admit if pressed, ninety-one degrees in the kitchen. The kitchen has central air. The central air has, since June, been working at the upper edge of what was promised at the install.</p>
+<p>The fan above the stove dies first. Then the lights. Then the small whirring of the fridge.</p>
+<p>I stand in the small silence of the kitchen with the iced-coffee glass in my hand and look at the ceiling and say, with the tired clean clarity of a woman who has spent forty-eight hours managing twin sixteen-year-olds and a husband leaving for Aspen at five in the morning, "<em>Of course you have.</em>"</p>
+<p>I check my phone.</p>
+<p>Eversource has, in the small bored corporate way of a utility company, sent me a text. <em>We are aware of an outage in your area. Estimated restoration: 9pm tonight.</em></p>
+<p>The estimated restoration is, of course, a lie.</p>
+<p>I know, in some small interior part of myself, that it is a lie because — in the seven years I have lived on this cul-de-sac — outages on Cherry Lane have never been restored before forty-eight hours. There is something about the way the grid feeds our six houses. It has been, in our previous outages, a small and increasingly tense joke between Bob Marland next door and my husband Brett, who is, today, not on Cherry Lane but in Aspen.</p>
+<p>I check the temperature again.</p>
+<p>Ninety-five outside. Ninety-two in.</p>
+<p>I take a long sip of the iced coffee.</p>
+<p>I think, with the small clean clarity I have learned to apply, in the last twenty months, to the small failures of my domestic life: <em>all right. Phase one.</em></p>
+<p>Phase one is: get the chicken out of the freezer and into a cooler with ice. Phase one is: get the milk into the cooler too. Phase one is: open all the windows in the house, downstairs first, then upstairs, in the proper rotation. Phase one is: turn off the central air at the breaker so it does not, when the power comes back, surge and trip. Phase one is, then, when phase one is done, to go out to the pool and float in it, in the only floatable in the garage, for an hour, while I do not text Brett about it.</p>
+<p>I do all of these things.</p>
+<p>The pool is the one good thing about this part of phase one. The pool is — I should be clear — Brett's pool. He had it dug in 2021 with a small inheritance from his uncle. He told me at the time it was for the boys. It is, in any honest reckoning, also for me. He swims in it three times a year. I swim in it three times a week.</p>
+<p>I am in the pool, on the long pink rubber flamingo with the half-deflated head, in the second hour, when I hear the gate at the far end of the property open.</p>
+<p>I lift my head.</p>
+<p>It is, across the lawn, David Avery.</p>
+<p>He is, when I see him, in a white linen shirt rolled to his elbows and a pair of grey cotton shorts. He has, with him, his daughter Iris — who is, this summer, seven — in a small navy swimsuit with a sunhat on her head, and his son Sam — who is ten, and who has the gangly knees of a ten-year-old boy who has had a big summer. They are both carrying small towels. Iris is holding a small purple watering can.</p>
+<p>He stops at the gate.</p>
+<p>He sees me on the flamingo.</p>
+<p>He has, I notice, the small careful pause of a man who has not, in their seven years of being neighbours, ever once come into my yard without a previous text.</p>
+<p>"Cassie."</p>
+<p>I sit up on the flamingo.</p>
+<p>This is, by the way, a more difficult manoeuvre than I would have, twenty seconds ago, given it credit for.</p>
+<p>"David."</p>
+<p>"Are we — I am very sorry. The power is out at our house. The kids are very hot. I — Mira is in Singapore, and I — would you mind, terribly, if Iris and Sam used your pool for an hour. I will, of course, sit with them. I won't —"</p>
+<p>He stops.</p>
+<p>He is — and I notice this with the small editorial clarity of a woman who has, in seven years, watched him do many small managed things across the driveway — <em>flustered</em>. David Avery is not, in my limited experience of him, a flustered man. He is, in any given small interaction at the mailbox, a man with the careful settled posture of a man who has decided to be unflappable about everything his life is going to throw at him.</p>
+<p>He is, today, flustered.</p>
+<p>I am, today, in the pool on a pink flamingo in a green-bikini-top and cutoff denim shorts that, when wet, have stopped being shorts and started being something closer to a small denim <em>idea</em>.</p>
+<p>I get off the flamingo.</p>
+<p>I do this with as much grace as one can get off a flamingo.</p>
+<p>I walk across the pool to the steps.</p>
+<p>I climb out.</p>
+<p>He is, when I climb out, looking very specifically at a point on the lawn three feet to my left.</p>
+<p>"David."</p>
+<p>"Cassie."</p>
+<p>"Of course they can use the pool. Of course. Hello, Iris. Hello, Sam."</p>
+<p>Iris, who is seven, waves vigorously. Sam, who is ten, says — with the careful courtesy of a boy who has been raised by Mira Avery, world-class cardiologist who travels three weeks of every month — "Hi, Mrs. Reeves. Thank you so much."</p>
+<p>"You are very welcome, Sam."</p>
+<p>I do not, while I am saying this, look at David.</p>
+<p>I do not look at David because, at the moment I climbed out of the pool with the cutoff shorts plastered to my hips and the green bikini top — which has, in the time I was on the flamingo, gone slightly transparent — I caught, in my peripheral vision, the small careful interior gathering-of-self of a man who had been about to look at me directly and had, in the half-second, decided very firmly not to.</p>
+<p>I have not, in eleven months, been not-looked-at in that particular way.</p>
+<p>I have, in eleven months, not been looked at <em>at all</em>.</p>
+<p>The small interior of the not-looking is, I notice, more attention than I have had from any man in our seven-year tenure on Cherry Lane.</p>
+<p>I wrap a towel around my waist.</p>
+<p>I gesture at the pool.</p>
+<p>"Come in. You have it for the afternoon. There are sodas in the cooler in the garage — the cooler with the blue lid — and I have, in the small fridge in the cabana, two unopened boxes of those popsicles Iris likes. The watermelon ones."</p>
+<p>Iris's face — which had been holding the small composed sad face of a seven-year-old in a power outage — undid itself into the entire small unedited joy of a child who has just learned about watermelon popsicles.</p>
+<p>"Cassie."</p>
+<p>I look at David.</p>
+<p>He looks at me.</p>
+<p>He has, this time, looked at me. Not at the bikini, not at the cutoffs, not at any small part of me. At my face.</p>
+<p>"You don't have to —"</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"It is the middle of a heatwave. Your children are hot. My boys are at sailing camp until Sunday. Brett is in Aspen. I have, in this house, by myself, a pool, two boxes of popsicles, an inflatable flamingo, and approximately ninety-six unbroken minutes before sundown that I do not need anyone for. Take the pool. Take the popsicles. Take the cabana. I am going to sit on the patio under the umbrella and read a book. I am offering this to you with no strings attached and no calculation involved and I am going to be, in the next sixty seconds, indignant if you turn me down."</p>
+<p>He looks at me.</p>
+<p>His face, when I have said all of that, has been doing — I noticed this clearly — a small careful thing. It has been deciding, behind the small unflustered surface, whether the offer is, in fact, what it sounds like. He has been weighing the seven years of Cherry Lane and the seven years of seventeen real conversations and the small interior fact, which I knew without his telling me, that he had not, in those seven years, ever once been in my pool. He has been weighing the small specific information — gathered, I would later understand, from years of mailbox encounters — that I am Cassie Reeves, of Brett-and-Cassie-Reeves, who throw a small Christmas party every December at which he and his wife stand politely with a glass of wine for an hour and then leave.</p>
+<p>He has, in the small fluster of his arrival, been telling himself the offer cannot be what it sounds like.</p>
+<p>He sees, in my face, that it is.</p>
+<p>"All right," he says. "Thank you, Cassie. We will not stay long."</p>
+<p>"Stay as long as you want."</p>
+<hr class="scene-break">
+<p>They stay until eight-thirty.</p>
+<p>I do, in the first hour, sit on the patio under the umbrella with my book. The book is one I have been meaning to read for two months. I do not, in the first hour, read any of it.</p>
+<p>I watch — which I will, later, admit was the truth of the hour — David Avery sit at the edge of the pool in a white linen shirt with his rolled sleeves dipping into the water as he sat at the lip with his bare feet in, watching his two children do every cannonball and splash-game that children do in a pool when their mother is in Singapore and their father has not, in their living memory, used a real pool with them on a real Wednesday afternoon. He laughed at Iris twice. He helped Sam adjust his goggles. He kept, in the small careful way of a parent at someone else's pool, his eye on the deep end at every moment.</p>
+<p>He did not look at me on the patio.</p>
+<p>He did not look, especially, at the green bikini top, which I had — I will be honest about this — taken off in the cabana and replaced with a soft grey t-shirt before coming out.</p>
+<p>He did not, in any of the seven years of Cherry Lane, see me as carefully as he was, in the hour, not seeing me.</p>
+<p>At five, I went into the kitchen — the dark hot kitchen — and made a pitcher of lemonade by torchlight with the lemons that had been on the counter. I brought it out on a tray with five glasses and a stack of paper napkins. I set the tray on the patio table.</p>
+<p>I poured a glass for Iris, and a glass for Sam, and a glass for David, and a glass for myself.</p>
+<p>We drank the lemonade.</p>
+<p>We sat at the patio table — Iris and Sam in their towels, eating their watermelon popsicles, drumming their wet heels against the chair legs — and we talked, the four of us, about the heatwave, and about sailing camp, and about Sam's school, and about Iris's reading list, and about the small Cherry Lane neighborhood gossip that David, who had been the primary parent for the last four years, knew with the small clinical detachment of a man who heard most things from school dropoff lines.</p>
+<p>It was, I realized somewhere in the middle of it, the longest conversation David Avery and I had ever had.</p>
+<p>He looked, in that conversation, at my face every time he spoke to me.</p>
+<p>He spoke to me, in that conversation, the way one speaks to a person.</p>
+<p>Brett had not, in eleven months, looked at me that way at our own kitchen table.</p>
+<p>I drank the lemonade.</p>
+<p>I tried not to think about it.</p>
+<p>At eight, the sun went down. The temperature on the patio came, finally, down to something like merciful. I lit, on the patio table, three citronella candles. We sat under the small flickering of them with the second pitcher of lemonade. Iris fell asleep on her father's lap with a wet hand against the small pulse at his throat. Sam, ten, said in the soft small voice of a tired ten-year-old: "Dad. Are we staying for dinner."</p>
+<p>David looked at me across the table.</p>
+<p>"I have," I said, "a freezer full of chicken that is, by now, definitely defrosted. I have a grill that runs on a gas tank that has nothing to do with the grid. I have, in the pantry, an unopened bag of those soft rolls Iris likes. I have, on the side of the fridge, a sleeve of those popsicles you haven't had yet. If you would like to stay, you should stay. If you would like to go home and sit in your dark hot house in the second night of a heatwave with two tired children, you are also welcome to do that."</p>
+<p>He looked at me.</p>
+<p>He held my eye for a long beat.</p>
+<p>"We will stay," he said. "Thank you."</p>
+<p>We stayed.</p>
+<p>I grilled the chicken on the patio while David put Iris in dry clothes from her bag and got Sam to wash his hands at the outdoor tap. We ate by candlelight at the patio table. The chicken was good. The rolls were good. Iris fell asleep again — for real this time, hard, the way seven-year-olds sleep when they have been swimming for four hours — at her father's elbow at the end of the meal.</p>
+<p>David picked her up.</p>
+<p>He stood at the edge of the patio with his daughter against his shoulder in the dark.</p>
+<p>He said: "Cassie."</p>
+<p>"David."</p>
+<p>"This has been —" He stopped. He looked at me across the candlelight. "Thank you."</p>
+<p>"You're welcome."</p>
+<p>"I would invite you to come over, if I had anything other than a dark hot house to invite you to."</p>
+<p>"I know."</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"Tomorrow."</p>
+<p>"Tomorrow what."</p>
+<p>"Tomorrow, when the power is still out, I am going to come back across the driveway in the afternoon. Sam will be at his friend Jacob's house from noon. Iris will be at her friend Lila's. I will, by three, be on Cherry Lane alone. I am asking you, tonight, whether — when I come back, in the afternoon — you would like company."</p>
+<p>I looked at him.</p>
+<p>I looked at his daughter asleep on his shoulder in the dark.</p>
+<p>I looked at the small careful flicker of the citronella candles between us.</p>
+<p>I said: "Yes, David."</p>
+<p>"All right."</p>
+<p>"Three o'clock."</p>
+<p>"Three o'clock."</p>
+<p>He carried Iris home across the gravel driveway in the dark, with Sam trailing behind him with the sleepy beach bag. The lights at his house were off. The lights at every house on Cherry Lane were off. The only light at all, from any direction, was the citronella candles on my patio, and the moon, and the small interior light inside me that, sometime in the last six hours, had unexpectedly come on.</p>
+<p>I sat at the patio table for a long time after they had gone.</p>
+<p>I drank the second pitcher of lemonade.</p>
+<p>I told myself, in the small careful voice of a woman who had, that afternoon, decided to grill chicken for a man and his two children at an empty house in a heatwave: <em>Cassie. You are forty-eight hours from this becoming a thing you cannot put back in the box.</em></p>
+<p>I told myself: <em>Cassie. You should not let it become a thing.</em></p>
+<p>I told myself: <em>Cassie. You have not been wanted in eleven months.</em></p>
+<p>I told myself: <em>Cassie. You will not, in any sane decision-making, let David Avery come back across the driveway tomorrow afternoon at three o'clock.</em></p>
+<p>I sat at the patio table.</p>
+<p>I did not — I will tell you now, so we can be honest with each other from the start — believe any of the things I had told myself.</p>
+<p>I went to bed at eleven. I lay in the dark hot bedroom in a thin nightgown with the windows open and the small noise of the cul-de-sac at night around me, and I thought about a man in a white linen shirt with the sleeves rolled to his elbows sitting at the lip of my pool with his bare feet in the water and his hand at the small of his daughter's back, and I thought about him looking at my face across the candlelight.</p>
+<p>I did not, that night, sleep very much.</p>
+<p>I was not, when I did sleep, dreaming about my husband.</p>
+</div></article>
+
+<article class="chapter" id="chapter-2">
+<header class="ch-header"><div class="ch-num">Chapter 2</div><h2 class="ch-title">The Patio</h2></header>
+<div class="ch-body">
+<p>He comes at three on the dot.</p>
+<p>I have, by then, been moving around the kitchen of my house in a thin white sundress for forty minutes. I have not eaten lunch. I have, twice, gone into the bathroom upstairs and looked at myself in the mirror in the way I have not, in three years, looked at myself in the mirror. I have, on the second of those times, taken my hair down from the chignon I had been wearing for fifteen years of my life and re-piled it on top of my head in a soft messy bun, and I have, in the small interior way of a woman who is making decisions she does not, yet, admit she is making, dabbed a small amount of perfume — Diptyque Philosykos, the bottle Brett gave me for my thirtieth birthday — at the inside of each wrist.</p>
+<p>I tell myself, in the kitchen at two fifty-five, that this is, in fact, simply hospitality. That this is, in fact, simply being the kind of neighbour I have always wanted to be. That this is, in fact, a small Wednesday afternoon during a heatwave when the only adult on the cul-de-sac who is not me has two children to manage, and that the kind thing — the <em>normal</em> thing — is to be civil.</p>
+<p>I tell myself this in the kitchen at two fifty-five.</p>
+<p>At three I hear the gate.</p>
+<p>I am, when I hear it, at the sink with my hand on the tap. I have, the second before, opened the tap to fill a pitcher. The tap does not produce water because the pump runs on the power that is, on day three of the heatwave, still out. I have, in the small mechanical embarrassment of a woman who has lived in this house for seven years and has never quite remembered which things are gravity-fed and which are not, stood at the sink with my hand on the dry tap for an entire half a second.</p>
+<p>I turn around.</p>
+<p>He is in the door of the kitchen.</p>
+<p>He has, this time, knocked at the screen door instead of the kitchen door. I had not heard the knock because I had heard, against the small Wednesday silence of a cul-de-sac with the grid down, the gate first.</p>
+<p>He says: "Hi."</p>
+<p>He is in a black linen shirt this time. Untucked. The sleeves not rolled. A pair of dark jeans. Loafers without socks. He is — and I notice this, because I am, at this point in my afternoon, a woman who has spent forty minutes thinking about this — clean-shaven. He smells faintly of cedar.</p>
+<p>I say: "Hi."</p>
+<p>He says: "I brought something."</p>
+<p>He has, in his hand, a small bottle of white wine in a small cooler bag with a single ice pack. He has, with his other hand, a brown paper bag from the artisan bakery on Greenwich Avenue — the one with the small ribbon-tied baguette in it that I can see from the angle of the bag.</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"You brought a bottle of wine and a baguette to my house at three on a Wednesday in a heatwave."</p>
+<p>"I did."</p>
+<p>I look at him.</p>
+<p>He looks at me.</p>
+<p>For a long beat, neither of us speaks.</p>
+<p>He sets the wine and the bag on the kitchen counter.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "David."</p>
+<p>He says: "I am, right now, asking you whether what I think this is, is in fact what you also think this is. Because if it is not, I will pour us a glass of wine and we will eat the baguette and I will go back across the driveway at five o'clock and tomorrow morning we will, when we pass at the mailbox, be neighbours of the kind that we have been for seven years. And if it is, I will pour us a glass of wine and we will, very probably, not eat the baguette, and I will spend the rest of my life trying to be careful about what comes after."</p>
+<p>I look at him.</p>
+<p>I look at his face — which is, in the dim hot kitchen, the face of a man who has, in the twenty-four hours since the patio, decided that he is going to be honest about it.</p>
+<p>I think: <em>Cassie. He has given you a way out.</em></p>
+<p>I think: <em>Cassie. He has, by giving you a way out, said the thing it would have been impossible for you to say.</em></p>
+<p>I think: <em>Cassie. Take the way out.</em></p>
+<p>I cross the kitchen to him.</p>
+<p>I do not, when I get to him, kiss him. I do not, when I get to him, touch him. I stop a foot from him at the counter and I look up at him — he is, I notice now, six-two — and I say, in a voice I have not used in some time:</p>
+<p>"It is what you think it is."</p>
+<p>He closes his eyes.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>"Yes."</p>
+<p>"All right."</p>
+<p>"Pour the wine."</p>
+<p>He pours the wine.</p>
+<p>He pours the wine into two of the small good wine glasses I keep in the cupboard above the stove — the ones I have not, in the four years since I stopped having dinner parties, taken down for any purpose. He hands me mine. He does not, in the handing, touch my hand. We are both, in this part of the afternoon, being careful.</p>
+<p>We take the wine outside.</p>
+<p>We sit on the patio under the umbrella. The patio is in the shade, because it is three in the afternoon, and because the sun is at this hour west of the house. The temperature, even in the shade, is ninety-two. We do not, by mutual quiet agreement, comment on the heat.</p>
+<p>We drink the wine.</p>
+<p>We talk.</p>
+<p>We talk for an hour about nothing. He tells me about his thesis advisor, a Dutch architectural historian who in the 1990s had taught him to look at every American mid-century lap pool as a small architectural confession. He tells me about a piece he is writing about the history of the carport. He tells me, in the small careful way of a man telling a woman about himself for the first time, about his mother, who is seventy-six, and who lives in Rhode Island, and who has, in the last year, started forgetting things. I tell him about my mother, who runs a small dance studio in Brooklyn, and who has, in the last year, started reading the <em>New York Review of Books</em>. I tell him, in the small careful way of a woman telling a man about herself for the first time, about a thing I have not told anyone except my college roommate Phoebe — that I had, when I was twenty-six, before the twins, briefly written a small column for <em>Dance Magazine</em>, and that I had stopped because Brett's career had started and there had not been time.</p>
+<p>He listens.</p>
+<p>He listens the way Brett does not, in any of our seven years, listen.</p>
+<p>He listens with the small careful attention of a man who is, in some real way, <em>hearing</em> me.</p>
+<p>I am, by the end of the hour, in a kind of small terror.</p>
+<p>He looks at me across the patio.</p>
+<p>He says: "Cassie."</p>
+<p>"Yes."</p>
+<p>"Are you afraid."</p>
+<p>"Yes."</p>
+<p>"Yes, I am."</p>
+<p>"Of what."</p>
+<p>"Of what we are about to do."</p>
+<p>He looks at me.</p>
+<p>He sets down his glass.</p>
+<p>He says: "Cassie. We do not have to do anything tonight. We do not, in fact, have to do anything ever. I came over today because I had decided, last night, that I was, if you wanted to, going to do whatever you wanted to do. I am, now, sitting on your patio at the end of a glass of wine that has taken us an hour to drink, and I am, somehow, in a slightly different country. I am — I am no longer here only because I had decided. I am here because, sitting at this table looking at you, I have started to understand that I have, in some way, been looking at you across the driveway for seven years and have been, at the same time, telling myself I haven't. And I am terrified, Cassie. I am terrified because if we do, <em>tonight</em>, what we have, sitting on this patio for the last hour, been about to do, neither of us is the same person at eleven o'clock that we were at three. And I am very aware of who I am and who you are and what house I have to walk back to, and what kind of life I have decided to spend the rest of mine in. I am very, very aware. So I want to ask you, very carefully, what you would like to do tonight."</p>
+<p>I look at him.</p>
+<p>I look at this man across the patio table in the dark wood and the candle wax and the small honest hour we have just spent.</p>
+<p>I think — for the first time in three years, with a small clear clarity at the centre of my chest — I think: <em>I am going to do this. I am going to know what it is to be wanted again. I am going to know what it is to be looked at. I am going to know what it is to be in the room. I am going to know what it is to be Cassie. Once. Just for a while. And then I will be Cassie Reeves of Brett-and-Cassie-Reeves again and I will close the box and I will go on. But I am going to do this. I am going to.</em></p>
+<p>I do not say any of that.</p>
+<p>What I say is:</p>
+<p>"Walk me out to the pool. Don't touch me. Not tonight. Tonight I just want to swim with you in the pool in the dark."</p>
+<p>He looks at me.</p>
+<p>He looks at me with the small private gratitude of a man who has, in being asked, been let off a difficult hook.</p>
+<p>He says: "All right."</p>
+<p>"Don't kiss me."</p>
+<p>"I won't."</p>
+<p>"Not tonight."</p>
+<p>"Not tonight."</p>
+<p>We walk down to the pool.</p>
+<p>The pool is the only place on the cul-de-sac that is, by ten at night, cool — the water is the temperature of a tepid bath, after three days of ninety-six-degree air. The deck around it is still warm from the day. The cul-de-sac is dark. There are no streetlights — there are, for that matter, no lights anywhere — because the grid is, on Cherry Lane, still down. The only light is the moon, which is a thin near-new moon, low on the eastern horizon over the maple at the back of my property.</p>
+<p>I undress on the deck.</p>
+<p>I do not, in undressing on the deck, perform for him. I undress with my back to him in the dark. I do not, in undressing, take everything off. I leave on the sport bra and the cotton underwear I had been wearing under the white sundress, because I had, in the morning, made the careful decision not to come down to the pool in lingerie. I am not, even at the moment of doing this, choosing dishonesty. I am, simply, in undressing in front of David Avery for the first time, being a forty-eight-hour-old version of myself who is, at this stage, not ready to be fully unclothed in front of him.</p>
+<p>He undresses too. He undresses without ceremony, behind me, in the dark — I hear, by sound, the linen shirt come off, then the jeans, then the loafers — and he steps to the lip of the pool in his boxer briefs and he goes into the water in a long quiet dive.</p>
+<p>I follow him.</p>
+<p>We swim, in the dark, for a long time. We do not, in the water, touch. We swim in long slow laps with the moon as the only thing in the sky, and the cul-de-sac asleep in the dark, and the gravel of the driveway visible — only just — between the two dark houses.</p>
+<p>After a while, he stops at the deep end.</p>
+<p>He hangs on the lip of the pool with his elbows hooked over the rim.</p>
+<p>He looks at me from across the water.</p>
+<p>I swim, slowly, to the deep end.</p>
+<p>I stop at the lip beside him. I hang on the lip too. Our elbows are six inches apart on the white tile.</p>
+<p>He does not look at me directly. He looks across the lawn at the dark of my house.</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"Tomorrow. The day after that. The next eight days. Until the children come back from camp on Sunday and your sons come back, and Mira comes back on Tuesday."</p>
+<p>"Yes."</p>
+<p>"You will think, tomorrow morning, about what we are doing."</p>
+<p>"I will."</p>
+<p>"You will think very hard."</p>
+<p>"I will."</p>
+<p>"If, when you have thought about it, you want me to come back at three o'clock again, you should text me at noon."</p>
+<p>"All right."</p>
+<p>"If you do not, I won't come."</p>
+<p>"I know."</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"Tomorrow night you will be the one to decide."</p>
+<p>"Yes."</p>
+<p>I do not say, at the deep end of the pool in the dark with my elbows on the tile six inches from his: <em>I have already decided.</em></p>
+<p>I do not need to.</p>
+<p>He, looking very carefully at the dark of my house and not at me, knows that I have.</p>
+<p>He says, very quietly, looking at the dark: "All right."</p>
+<p>We swim, for a while longer, in the dark.</p>
+<p>He gets out at midnight.</p>
+<p>He dresses on the deck with his back to me.</p>
+<p>I get out and dress with my back to him.</p>
+<p>He walks me to the kitchen door, in the dark. We do not — we do not touch. He stops at the door.</p>
+<p>He says: "Goodnight, Cassie."</p>
+<p>I say: "Goodnight, David."</p>
+<p>He goes across the driveway.</p>
+<p>I close the door.</p>
+<p>I stand in the dark hot kitchen with the small interior fact that I have, this evening, decided.</p>
+<p>I climb the stairs.</p>
+<p>I lie down on the bed.</p>
+<p>I do not sleep for two hours.</p>
+<p>In the second hour, I roll onto my side and put my hand, slowly, between my legs, and I think — for the first time in three years — about a man's hand at the small of my back, and a man's mouth at the inside of my thigh, and I am, when I come into the small private quiet of my own bedroom, not thinking about my husband.</p>
+<p>I am thinking about the white linen shirt with the sleeves rolled to the elbows, and the small careful flicker of citronella candles, and the long quiet swim in the dark.</p>
+<p>I sleep, finally, at three.</p>
+<p>In the morning, at noon, I text him.</p>
+<p>I text him: <em>Three.</em></p>
+<p>He texts back, within thirty seconds: <em>Three.</em></p>
+</div></article>
+
+<article class="chapter" id="chapter-3">
+<header class="ch-header"><div class="ch-num">Chapter 3</div><h2 class="ch-title">The Pool at Midnight</h2></header>
+<div class="ch-body">
+<p>He does not, on the second day, come at three.</p>
+<p>He texts me at two forty-five.</p>
+<p>He texts: <em>I am sorry. Iris fell off her bike at Lila's. She is fine — small scrape on the knee. Lila's mother has just called and asked me to come pick her up. I will not, today, be able to come at three.</em></p>
+<p>I read the text in my kitchen.</p>
+<p>I — and I will say this in the small careful clarity of a woman who has, by this point, been waiting for an hour for the first sound of the gate — feel, in the first second, an entire physical disappointment in my body that I had not, before that second, prepared myself for.</p>
+<p>I make myself stop.</p>
+<p>I text back: <em>Take care of her. Of course. I'm sorry.</em></p>
+<p>He texts: <em>Tonight. After they are in bed. I will text you when they have gone down.</em></p>
+<p>I look at the text.</p>
+<p>I think: <em>Cassie. He is asking you whether tonight is, still, on.</em></p>
+<p>I think: <em>Cassie. This is the moment in which you can, with grace, say no. You can text back that you have, in the seven hours since you sent him</em> three <em>at noon, reconsidered. You can text back that you would prefer to not do this. You can text back that you would prefer, on reflection, to be neighbours of the kind you have been for seven years.</em></p>
+<p>I think this for a long minute.</p>
+<p>I text back: <em>Tonight.</em></p>
+<p>He texts back: <em>Tonight.</em></p>
+<p>I put the phone down on the counter.</p>
+<p>I make myself a small dinner of cold leftover grilled chicken and tomatoes from the garden in the small heat of the kitchen. I eat the dinner standing at the counter. I drink, after the dinner, an inch of bourbon out of the glass that has been my husband's for ten years. I put a single ice cube into it. I drink it slowly.</p>
+<p>I tell myself, in the kitchen at six in the small thick heat: <em>Cassie. He is a kind man. He has, today, taken care of his daughter. He is not coming back tonight because he is, somehow, less of a man than he was last night. He is coming back tonight because he is, in fact, exactly the man you decided he was.</em></p>
+<p>I tell myself this and I drink the bourbon and I go upstairs and I take a long cold shower in the dark hot bathroom under a candle, and at eight, when I am clean and dressed in a thin black slip — <em>just</em> a thin black slip, because I have, by then, made the small further decisions of a woman who has decided — I sit on the bed and I wait for the text.</p>
+<p>The text comes at ten forty.</p>
+<p>It says: <em>They are asleep. Are you up.</em></p>
+<p>I text back: <em>Yes.</em></p>
+<p>He texts: <em>Walk down to the pool. I'll come over.</em></p>
+<p>I walk down to the pool.</p>
+<p>The cul-de-sac is, again, dark. The grid has not, on the third night of the outage, come back. The temperature has, by ten forty, dropped to eighty-six. The pool, at this hour, is the temperature of a Mediterranean summer sea. There is, again, only the moon.</p>
+<p>I sit on the edge of the deep end with my feet in the water.</p>
+<p>I hear, at ten forty-six, the gate.</p>
+<p>He comes across the lawn in dark trousers and a dark shirt and his bare feet in the grass.</p>
+<p>He stops at the lip of the pool a foot from where I am sitting.</p>
+<p>He sits down.</p>
+<p>He puts his feet in the water beside mine.</p>
+<p>For a long minute, neither of us speaks.</p>
+<p>He says, then: "Iris is fine."</p>
+<p>"I'm glad."</p>
+<p>"She put a bandage on the knee and rode her own bike home from Lila's because she said she could. She is — she has Mira's surgical decisiveness about minor injuries."</p>
+<p>I laugh.</p>
+<p>The laugh is — I notice — the first thing my body has done, in three years, that I would describe as a <em>release</em>.</p>
+<p>He looks at me.</p>
+<p>He looks at me for a long beat in the moonlight, with his feet in the water beside mine.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He puts his hand over mine on the deck between us.</p>
+<p>The hand is warm. The hand is dry. The hand is large and steady and the hand has, on the inside of the ring finger, the small worn gold of a wedding band that he has not, that day, taken off, and that I do not, in the small honest part of myself, want him to take off, because the band — and we both know this — is the thing that makes what we are about to do <em>what it is</em>.</p>
+<p>I do not pull my hand away.</p>
+<p>I do not, at any point in the next two minutes, pull my hand away.</p>
+<p>He leans down. He kisses my shoulder. He kisses the side of my neck. He kisses the place where my jaw meets my ear. He kisses the corner of my mouth.</p>
+<p>He says, against the corner of my mouth: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He kisses me.</p>
+<p>It is — and I want to be careful about this, because I am, in this part of the book, a writer telling you the truth — it is the kiss of a man who has not, in a very long time, kissed anyone. He kisses me carefully. He kisses me without rush. He kisses me with his hand at the back of my neck and his other hand still on top of mine on the deck, and he kisses me for what feels like a long time before his tongue, very slowly, finds mine, and the kiss — <em>finally</em> — becomes the kind of kiss I have not, in eight years, had from anyone.</p>
+<p>I make a small sound against his mouth.</p>
+<p>It is a sound I have not made, in eight years, against anyone.</p>
+<p>He pulls back six inches.</p>
+<p>He looks at me.</p>
+<p>His eyes — in the moonlight — are dark. The pupils have gone wide. His mouth is, on the lower lip, slightly damp.</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"Not in the pool. Not — not tonight. Not on the first night. I want you, when I have you, to have you somewhere that is not your husband's pool."</p>
+<p>I close my eyes.</p>
+<p>I close them because — even in the small private clarity of the night — the word <em>husband</em> hits me in the breastbone with the small specific force of every honesty I have been keeping carefully outside the room.</p>
+<p>He sees my face.</p>
+<p>He puts his forehead against mine.</p>
+<p>He says, very quietly: "Cassie. I'm sorry. I should not have —"</p>
+<p>"No," I say. "No. You should. You should always. You should never, ever, in this thing, in whatever it is — you should never not say that word. You should never pretend that you are not married. You should never pretend that I am not married. We are. We are going to do this. We are going to do this with the small honest knowledge that we are, both of us, married, and that what we are doing is what we are doing. I do not want to pretend, David. I do not want either of us, in this thing, to pretend."</p>
+<p>He breathes out — long.</p>
+<p>He kisses my forehead.</p>
+<p>He says: "All right."</p>
+<p>"Where do you want me, then."</p>
+<p>He looks at me.</p>
+<p>He says: "Not your bed. Not tonight. The first time, not your bed, and not your house. Not — not where you sleep. I do not want to take you from there. Not yet. Not — not before you've had the chance to take it back."</p>
+<p>I look at him.</p>
+<p>I look at this man — who is, even on the deck of my husband's pool at eleven on the second night of a four-day affair-window we have both, by then, accepted is what we are in — being careful about me. Being kind. Being the version of careful that, somehow, in eleven months of nothing, my own husband has stopped being.</p>
+<p>I say: "The garage."</p>
+<p>He looks at me.</p>
+<p>"Not — not tonight. Tomorrow. I am, in some way I do not know if I can fully say tonight, not ready yet. I want to lie awake tonight with what we just did, and I want to come over to your house in the morning to borrow batteries, and I want it to happen in your garage, fast, against the workbench. And then I want it to happen, in the night, more slowly. And then I want — I want you, tomorrow night, at the small hotel in Stamford. We will book a room. We will make a reservation under a name that is neither of us. We will go to the hotel in the late afternoon. We will spend the whole afternoon there. We will, somewhere in the afternoon, also eat a sandwich. We will — we will do this, properly. With the small honest knowledge of who we are. We will not, in any of it, lie to ourselves about it."</p>
+<p>He looks at me.</p>
+<p>He puts his hand on my cheek.</p>
+<p>He says, very quietly: "Cassie Reeves. You are a serious woman."</p>
+<p>"I am."</p>
+<p>"I will be there at nine in the morning."</p>
+<p>"With the batteries."</p>
+<p>"With the batteries."</p>
+<p>"All right."</p>
+<p>He kisses me one more time.</p>
+<p>The kiss is slow. The kiss is — the kiss is the kind of kiss you give a person when you have agreed to come back tomorrow and do the rest. It does not, the kiss, ask anything more of either of us tonight.</p>
+<p>He gets up.</p>
+<p>He stands at the lip of the pool with his trousers half-wet from sitting at the edge.</p>
+<p>He looks at me.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "Sleep. Tomorrow we begin."</p>
+<p>I say: "Yes."</p>
+<p>He crosses the lawn in the dark and goes through the gate and across the gravel of the driveway to his house. I see him, in the moonlight, at his back door. I see him stop. I see him stand for a long moment with his hand on the doorknob, his back to me, gathering himself before he goes inside to the house he shares with his wife and his children.</p>
+<p>He goes inside.</p>
+<p>I sit at the lip of the pool with my feet in the water for a long time.</p>
+<p>I do not, then, swim. I do not, then, cry. I sit in the moonlight and I think with a small clarity that has been gathering in me since the patio: <em>Cassie. You are about to do a thing that will, in the small bookkeeping of your soul, cost you. Be sure. Be sure. Be sure.</em></p>
+<p>I am sure.</p>
+<p>I get up. I take off the slip on the deck — alone — and I slip into the pool naked. I float in the dark of my husband's pool, on my back, looking at the moon, in the temperature of a Mediterranean sea, for a long, long time.</p>
+<p>I am, finally, a person who has decided.</p>
+<p>I climb out at midnight.</p>
+<p>I put the slip back on, wet, against my body.</p>
+<p>I go inside.</p>
+<p>I go upstairs.</p>
+<p>I lie in the bed in the dark hot bedroom in the wet slip and I do not sleep until two and when I sleep I sleep in the small certain way of a woman who has, against all her training and against all her loyalty and against everything she had been raised to be, finally said <em>yes</em> to herself.</p>
+<p>In the morning, at eight forty-five, I dress in a thin loose pale-blue cotton sundress and a pair of clean white sneakers, and I take my hair down, and I put on a single coat of mascara, and I walk across the gravel of the driveway at nine, and I knock on the back door of David Avery's house.</p>
+<p>He opens the door at the first knock.</p>
+<p>He has a wooden butter knife in his hand from the kitchen — he has, when I knocked, been making breakfast for the kids — and a small smear of jam at the corner of his mouth.</p>
+<p>He looks at me.</p>
+<p>I look at him.</p>
+<p>We stand in the doorway of his back kitchen for a long beat in the morning sun.</p>
+<p>I say: "Hi."</p>
+<p>He says: "Hi."</p>
+<p>I say: "I came to borrow batteries."</p>
+<p>He says: "All right."</p>
+<p>He sets the butter knife on the counter.</p>
+<p>He calls into the next room: "Sam — Iris. I'll be back in a minute. I'm just going to the garage."</p>
+<p>He takes my hand at the back door.</p>
+<p>He leads me down the short corridor to the garage.</p>
+<p>He closes the door behind us.</p>
+<p>We do not, by ten past nine, leave the garage for nineteen minutes.</p>
+</div></article>
+
+<article class="chapter" id="chapter-4">
+<header class="ch-header"><div class="ch-num">Chapter 4</div><h2 class="ch-title">The Garage</h2></header>
+<div class="ch-body">
+<p>The garage smells of cedar shavings and motor oil and the faint sweet rot of a half-finished bottle of WD-40.</p>
+<p>He closes the door behind us. He locks it. He turns. He looks at me.</p>
+<p>For a half-second neither of us moves.</p>
+<p>I cross the four feet to him.</p>
+<p>I put my hands flat against his chest.</p>
+<p>He puts his hands on my hips.</p>
+<p>I lift my face to his.</p>
+<p>He kisses me.</p>
+<p>It is — and I want to say this clearly, because I am, in this minute, a woman with a clear-eyed view of who and what she is being — it is not the careful tender kiss of the pool deck last night. It is the kiss of a man who has, in the eleven hours between last night and this morning, decided he is going to take what has been offered. He kisses me with his hand at the back of my neck and his other hand at the small of my back and his mouth open against mine, and his teeth catch — once — at the corner of my lower lip, and I make a small sound against his mouth that I would not, in any past version of myself, have made before noon.</p>
+<p>He walks me backwards to the workbench.</p>
+<p>The workbench is, I notice without quite registering it, a long wooden bench against the south wall of the garage, lined with neat small jars of nails and screws. There is, at one end, a small metal vise. There is, hanging from a pegboard above it, a row of carefully kept woodworking tools.</p>
+<p>He stops me at the bench.</p>
+<p>He puts his hand at the back of my thigh, above the knee.</p>
+<p>He lifts.</p>
+<p>He lifts me up onto the bench in a single motion — and I have to grab his shoulder, briefly, for balance — and he steps between my knees, and he kisses me again, and this time my dress is up at my hips, and his hand is on the inside of my thigh, and we are, in five seconds of opportunity, no longer two people having a careful first morning meeting in a garage.</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"The kids."</p>
+<p>"Are watching cartoons in the living room. They will not, in the next twenty minutes, come anywhere near this garage. It is — it is the safest twenty minutes of your day."</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"<em>Yes.</em>"</p>
+<p>He kisses me at the throat.</p>
+<p>He kisses me, with his mouth slow, where the pulse is at the side of my neck.</p>
+<p>He pulls the strap of the sundress off my left shoulder. He kisses the place at the top of my collarbone where Brett — twelve years ago, on our honeymoon in Mexico, on the morning of the second day — had said was his favorite part of my body and had not, in any of the twelve years since, said it about again.</p>
+<p>He kisses lower. He kisses to the swell of my breast above the soft cup of the bralette I am wearing. He pushes the bralette down with his thumb. He puts his mouth on my nipple.</p>
+<p>I make a sound.</p>
+<p>The sound is not a sound I have made, in this house, in this marriage, in this life, in eight years.</p>
+<p>He says, against my breast: "Cassie."</p>
+<p>"David."</p>
+<p>"I have wanted to do this for —"</p>
+<p>"I know."</p>
+<p>He kisses lower. He kisses the soft of my stomach above the elastic of the cotton underwear. He kneels — kneels, in his own garage at quarter past nine on a Thursday morning in a heatwave — in front of me on the concrete floor.</p>
+<p>He pushes the cotton underwear down to my thighs.</p>
+<p>He puts his mouth on me.</p>
+<p>I — and I will be honest about this, because there are not very many honest moments left in my life — I make a sound that is more sound than my husband has gotten out of me in seven years. I grab the edge of the workbench with both hands. I put one hand into his hair.</p>
+<p>He is — and I notice this, even at this distance — <em>careful</em>. He is not the kind of man who has done this rarely. He has done this, and he has done it well, and he has, somewhere in the last decade, done it with attention. He learns me with his tongue in the small economical way a man learns when he has only twenty minutes and only ten years of practice. He finds the rhythm I respond to. He keeps it.</p>
+<p>I come on his mouth, on the workbench in his garage, in seven minutes.</p>
+<p>It is — I should be clear — the first orgasm anyone except me has given me in three years.</p>
+<p>He stands up.</p>
+<p>He kisses me — I can taste myself on him — and he unbuckles his belt and pushes his trousers down at his hips and he is — he is <em>very</em> ready for me — and he says, with his forehead against mine:</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"I haven't — I haven't done this in a long time. Tell me if I —"</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"Inside me. Now."</p>
+<p>He pushes into me on the workbench in his garage. He is, I notice, exactly as ready as I am, and the moment of being filled, after eleven months, after three years, after the small starved decade of being touched not enough, is so much that I have to bite the inside of my cheek to stay quiet.</p>
+<p>He moves.</p>
+<p>He moves quickly — there is not, by mutual quiet agreement, any pretense that this is a slow first time. We have agreed that the slow first time is tonight in the hotel in Stamford. This is the garage at nine in the morning, against a workbench, with his children watching cartoons in the next room and his wife in Singapore.</p>
+<p>I wrap my legs around his hips. He braces a hand on the bench beside mine. He moves in long, hard strokes, and I clench my hand in his hair, and he kisses me at the throat to keep me quiet, and I — I, who have not been wanted in three years — bury my face in his shoulder and let him take me, fully, in the small private morning of his own garage.</p>
+<p>He comes inside me — quickly, the way a man comes who has been thinking about this for too long. He shudders. He holds me.</p>
+<p>He breathes against my throat.</p>
+<p>After a long beat he lifts his head.</p>
+<p>He looks at me.</p>
+<p>He puts his hand against my cheek.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>"Yes."</p>
+<p>"That was —"</p>
+<p>"I know."</p>
+<p>"You — God. You are —"</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"Yes."</p>
+<p>He pulls back. He helps me down off the bench. He puts the cotton underwear back into place at my hips and the strap of the dress back up over my left shoulder, and he kisses me — slowly, deliberately, the kind of careful kiss you give a woman after, to tell her that what you just did was not, for you, a thing you do in twenty minutes.</p>
+<p>He finds, on a high shelf above the bench, a small package of nine-volt batteries.</p>
+<p>He puts them in my hand.</p>
+<p>"For the smoke detectors," he says. The corner of his mouth is the corner of a man who has, for the first time in nineteen months, just been wanted.</p>
+<p>I laugh. The laugh — again — is the small private release of a thing that has been in me too long.</p>
+<p>"For the smoke detectors."</p>
+<p>He kisses me at the corner of the mouth.</p>
+<p>He says: "Stamford."</p>
+<p>"Stamford."</p>
+<p>"Six o'clock. The Marriott on Atlantic Street. I will book the room under the name Avery — they will think it is Mira's. She does this when she has medical conferences. The room will be there. You will come up at six. I will be there by five thirty."</p>
+<p>"All right."</p>
+<p>"You will leave by ten. I am sorry — I cannot stay later. Iris is at Lila's again until ten thirty and Sam will be sleeping over at Jacob's. I have to be home by eleven."</p>
+<p>"All right."</p>
+<p>He kisses my forehead.</p>
+<p>He opens the garage door.</p>
+<p>He walks me — through the back corridor of his house, past the small den where Sam and Iris are watching cartoons (they do not even look up at us — I am, in their cartoon attention, just <em>Mrs. Reeves from across the driveway, who lent the batteries</em>) — back to the kitchen.</p>
+<p>He hands me a paper bag from the counter.</p>
+<p>In the paper bag are the batteries, a small wedge of cheese, and a single ribbon-wrapped slice of his daughter's lemon cake from a bakery in town.</p>
+<p>He says, in the small careful voice of a man performing the small careful normalcy of the world: "Tell Brett hello."</p>
+<p>I look at him.</p>
+<p>He looks at me.</p>
+<p>He says, quieter, only to me: "Six."</p>
+<p>I say: "Six."</p>
+<p>I walk across the gravel of the driveway in the morning sun.</p>
+<p>I let myself into my own kitchen.</p>
+<p>I put the paper bag on the counter.</p>
+<p>I stand at the kitchen sink with my hands flat against the cold counter.</p>
+<p>I think — and there is no part of me that is, in this moment, kidding — <em>Cassie. You are going to do this. You are going to do this for six weeks. You are going to do this until Mira comes back from Singapore and Brett comes back from Aspen and the boys come back from camp and the small ordinary rhythm of the cul-de-sac resumes, and then you are going to do this for as long as the small ordinary rhythm of the cul-de-sac, by the small private machinery of two careful adult schedules, allows you to keep doing it. And then, somewhere in the next eight weeks, you are going to put it down. You are going to put it down because you cannot, in any honest accounting of who you are and who he is, do anything else.</em></p>
+<p>I stand in the kitchen.</p>
+<p>I think: <em>Cassie. You are going to spend the rest of your life remembering that, when you were thirty-eight, you decided.</em></p>
+<p>I think: <em>Cassie. You are going to remember that, when you were thirty-eight, you said yes.</em></p>
+<p>I take, slowly, the slice of lemon cake out of the paper bag.</p>
+<p>I unwrap it.</p>
+<p>I eat it standing at the counter.</p>
+<p>It is — and you should know this, because I am going to remember it for the rest of my life — the best slice of lemon cake I have ever eaten.</p>
+<p>At six, I drive to Stamford.</p>
+<p>At eleven, I drive home.</p>
+<p>In between, I become a woman I had, somewhere in the last twenty years, forgotten I was.</p>
+</div></article>
+
+<article class="chapter" id="chapter-5">
+<header class="ch-header"><div class="ch-num">Chapter 5</div><h2 class="ch-title">The Hotel</h2></header>
+<div class="ch-body">
+<p>The hotel in Stamford is — I will be specific — a Marriott on Atlantic Street whose lobby has a small clean two-story atrium, a single grand piano nobody plays, a row of leather club chairs nobody sits in, and a check-in desk staffed by a young man in a black tie who, when I cross the lobby at five fifty-eight in a black wrap dress and dark sunglasses, does not, in fact, look up.</p>
+<p>This is — and I will tell you the truth — the only difficult moment of the day.</p>
+<p>I had thought, in the car on the drive in, that this moment would be the one in which I would, possibly, turn around. The moment of walking through the lobby of a chain hotel on a Thursday at six o'clock to meet a man who is not my husband. I had thought I would stand at the entrance of the lobby and feel, somewhere in my body, the small specific weight of <em>no</em>.</p>
+<p>I did not.</p>
+<p>I walked through the lobby of the Marriott on Atlantic Street at five fifty-eight on a Thursday in July with my dark sunglasses on and my hair down at my shoulders for the first time in fifteen years, and I felt — <em>correctly</em>, by my own audit — only the small clean clarity of a person who has decided. I felt the small specific <em>yes</em> of every step I took toward the elevator.</p>
+<p>I took the elevator to the seventh floor.</p>
+<p>I walked down the hallway to room 712.</p>
+<p>I knocked.</p>
+<p>He opened the door at the first knock.</p>
+<p>He was — he had been there, in fact, since five thirty, exactly as he had said. He had changed into a soft grey linen shirt and dark trousers. He was barefoot. He had, on the small round table by the window, an unopened bottle of cold Sancerre and two glasses and a small dish of olives and a small loaf of bread. He had, on the desk by the bathroom, set down his phone face down — which I noticed, and which I would, later, tell him I had loved him for, because it was the small private decision of a man who had decided he would not check it.</p>
+<p>He stepped aside.</p>
+<p>I came into the room.</p>
+<p>He closed the door.</p>
+<p>He turned.</p>
+<p>He looked at me.</p>
+<p>He said, very quietly: "Cassie."</p>
+<p>I said: "David."</p>
+<p>He crossed the room to me in two long strides.</p>
+<p>He put his hands on my hips, through the wrap of the dress.</p>
+<p>He kissed me.</p>
+<p>It was, this time, the kiss I had agreed I was going to have. The slow kiss. The careful kiss. The kiss of a man who had been waiting for the proper room, with the proper light, and the proper hour, to take a woman in the proper way.</p>
+<p>He undressed me slowly.</p>
+<p>He undid the tie of the wrap dress. He pushed it open. He pushed it off my shoulders. It fell at my feet. I was, under the dress, in a black bra and black underwear I had bought, that morning, at the small boutique on Greenwich Avenue I had not, in three years, gone into. I was, under the underwear, the body of a thirty-eight-year-old woman who had had two children at twenty-two and who had — let me be honest — taken better care of that body, in the seven years since the boys had started school, than I had told anyone I had.</p>
+<p>He looked at me.</p>
+<p>He looked at me for a long beat in the warm late afternoon light coming through the hotel window.</p>
+<p>He said: "Cassie. You are very beautiful."</p>
+<p>"David."</p>
+<p>"You are. I will keep saying it. You are."</p>
+<p>He kissed me.</p>
+<p>He walked me backwards to the bed. He laid me down on it. He stood at the foot of the bed and undressed — the grey linen shirt, the dark trousers, the boxer briefs — and he was, in the late afternoon light, lean and angular and pale at the shoulders and tanned at the forearms and, <em>very</em> clearly, where I had been twelve hours ago — and was again now — for him.</p>
+<p>He came down to me.</p>
+<p>He kissed me at the throat. He kissed me at the small under-curve of my left breast. He undid the front clasp of the bra and pushed it back. He put his mouth on my nipple. He took his time.</p>
+<p>He kissed lower. He hooked his thumbs into the waistband of the black underwear. He drew them slowly down my legs.</p>
+<p>He knelt at the foot of the bed.</p>
+<p>He kissed the inside of my right knee. He kissed the inside of my right thigh. He looked up at me, on the bed, with the small private question in his face that he had asked me in the garage.</p>
+<p>I said, very quietly: "Take your time."</p>
+<p>He took his time.</p>
+<p>He took his time for — I will, later, not be able to say exactly. Twelve minutes. Fifteen. He brought me to the edge of it three separate times and pulled me back. He held me down, with his forearm across my hip, when I tried to writhe. He learned me — <em>really</em> learned me, in the way that the garage had been too fast for — with his tongue and his fingers and his mouth, and he gave me, slowly, the kind of pleasure I had not, in eight years, had given to me by anyone except myself.</p>
+<p>When he finally let me go, I came so hard I made a sound that was, in my own ear, not the sound of a woman of my age. He held me through it. He kissed the inside of my thigh. He rose.</p>
+<p>He braced on his forearm beside my head.</p>
+<p>He looked at me.</p>
+<p>He said: "Cassie."</p>
+<p>"Yes."</p>
+<p>"May I —"</p>
+<p>"David. <em>Now.</em>"</p>
+<p>He pushed into me slowly. He watched my face. He pushed in by inches. He stopped to let me adjust. He pushed in further. He stopped again. He was — in the late afternoon light, with the small careful attention of a man who has, in the small clean clarity of two adults' decisions, <em>time</em> — making sure of every part of it.</p>
+<p>He began to move.</p>
+<p>He moved slowly at first. Long, deep, careful strokes. He kept his weight on his forearm. He kissed me. He kissed me at the corner of my mouth. He kissed me at the throat. He held my hand on the pillow above my head. His other hand, at my hip, kept me steady.</p>
+<p>He brought me to the edge of it once. I came around him. He held still through it. He kissed me at the temple.</p>
+<p>He started to move again.</p>
+<p>The second time he went harder. The bed — the small Marriott bed — moved with each thrust against the wall. He looked at me the whole time. I watched the line of his jaw, the small place at his throat where the pulse beat. He came with me. He buried his face in my hair. He came, with my name in his mouth against my throat.</p>
+<p>He held himself over me on his forearms for a long minute after.</p>
+<p>He kissed me at the temple.</p>
+<p>He rolled, finally, to my side. He pulled me against him. He drew the sheet over us. I put my head on his chest.</p>
+<p>We did not, for a long minute, speak.</p>
+<p>He said, finally, into my hair: "Cassie."</p>
+<p>"Yes."</p>
+<p>"I want to do that for hours."</p>
+<p>I laughed.</p>
+<p>"Then do that for hours, David."</p>
+<p>He did.</p>
+<hr class="scene-break">
+<p>He pushes back from the bed at eight. He pours us each a glass of the Sancerre. He brings them to the bed. We sit naked against the pillows, eating olives and bread, drinking the wine. We talk for a long time. He tells me about Mira. He tells me how she is, professionally — the careful brilliant person she is at work, the seven languages she speaks, the small private way she falls asleep on a plane within four minutes of takeoff. He tells me he still loves her. He tells me, without flinching, that this is, in fact, the truth of the small private problem: that he is not, in this room, with me, because he has stopped loving his wife. He is, in this room, with me, because his wife has not, in the last three years, been <em>here</em>, and he has stopped being able to live inside the size of the silence she has left.</p>
+<p>I tell him about Brett. I tell him about the eleven months. I tell him about the seven years. I tell him about the first time, three years ago, I had thought <em>we are not in love any more.</em> I tell him about the small slow thing of being one of two people in a marriage that is, by mutual indifference, no longer happening.</p>
+<p>We are not — and we say this to each other, clearly, at nine in the small soft light of the room — under any illusion about what we are doing.</p>
+<p>We have, both of us, agreed:</p>
+<p>We are going to do this for six weeks.</p>
+<p>We are going to do this until Mira's next long medical conference is over and Brett's next long deal closing is over and the boys are back from camp and the small ordinary rhythm of the cul-de-sac becomes the small ordinary rhythm again.</p>
+<p>We are going to do this with the small honest knowledge that we will not leave our marriages for this.</p>
+<p>We are going to do this because we have, both of us, been very lonely for very long, and because we are going to keep being very lonely for very long, and because, in some small private way, the six weeks of <em>not</em> being very lonely is — we are agreed, both of us — going to have to be enough.</p>
+<p>I drink the wine. I lean back against him.</p>
+<p>He kisses my hair.</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"Once more, before you go."</p>
+<p>"Once more."</p>
+<p>He takes me again, slowly, in the bed, in the small late evening light. He turns me onto my side, and pulls me back against him, and slides into me from behind, and his hand is at my breast and his other hand is at the soft of my hip and his mouth is at the back of my neck, and he moves slowly, slowly, and I come on his fingers against the soft of myself, and he comes against my back, and we lie like that — the small private spoon of two people who have, somewhere in the room, accidentally fallen in love — for a long beat.</p>
+<p>At ten I get up.</p>
+<p>I shower.</p>
+<p>I dress.</p>
+<p>I cross the room to him on the bed.</p>
+<p>He has, in the small late light of the room, the slow settled face of a man who has, finally, in the small economy of nineteen lonely months, eaten properly.</p>
+<p>I kiss him.</p>
+<p>I say: "Tomorrow night."</p>
+<p>He says: "Tomorrow night."</p>
+<p>I leave the room.</p>
+<p>I take the elevator down.</p>
+<p>I walk through the lobby of the Marriott on Atlantic Street at ten oh six on a Thursday in July with my dark sunglasses on the top of my head and my hair down at my shoulders, and the man at the desk does not, in fact, look up.</p>
+<p>I drive home.</p>
+<p>I drive home on I-95 in the dark, with the small private clarity in my chest of a woman who has, today, decided.</p>
+<p>I pull into the driveway at quarter past eleven.</p>
+<p>David's house is dark.</p>
+<p>His car is in the driveway — he has, in some small private excellence, beaten me home from the hotel by twenty minutes.</p>
+<p>I let myself into my own house.</p>
+<p>I lock the door behind me.</p>
+<p>I go upstairs.</p>
+<p>I stand in the bathroom in front of the mirror for a long minute. I look at the woman in the mirror. She has — and I notice this with the small clean clarity she has, somewhere in the last six hours, come back into her own face with — <em>colour</em> in her face that I have not, in two years, seen.</p>
+<p>She looks at me.</p>
+<p>She does not, for the first time in three years, look afraid.</p>
+<p>I get into the bed.</p>
+<p>I sleep.</p>
+<p>I sleep, for the first time in two years, all the way through to morning.</p>
+<p>In the morning, I wake at seven, and I roll over, and I think — for the first half-second — that David is beside me.</p>
+<p>He is not. He is across the driveway, in his own bed, beside his wife's empty side.</p>
+<p>I tell myself, in the small careful voice of a woman who has agreed to her own conditions:</p>
+<p><em>You will, in eight weeks, put this down.</em></p>
+<p><em>You will, in eight weeks, go on.</em></p>
+<p><em>Until then, Cassie. Have it. Take it. Be in it. You have, for eight weeks, the small private permission of two careful adult decisions.</em></p>
+<p>I get up.</p>
+<p>I make coffee.</p>
+<p>I send him a single text from the kitchen at seven oh nine.</p>
+<p>I text: <em>Last night was —</em></p>
+<p>He texts back, within thirty seconds: <em>I know.</em></p>
+<p>I text: <em>Tonight. After the kids are asleep.</em></p>
+<p>He texts back: <em>Tonight. Mine. Iris and Sam will be at sleepovers. Mira's still in Singapore. The grid is back on. I will make you dinner.</em></p>
+<p>I read the text in my kitchen.</p>
+<p>I think: <em>Cassie. You are about to have eight weeks of the best meals of your life.</em></p>
+<p>I think: <em>Cassie. You are going to remember each one.</em></p>
+<p>I text back: <em>I'll bring the wine.</em></p>
+<p>I drink the coffee.</p>
+<p>I do not, for a long, long minute, move from the kitchen.</p>
+<p>I am, in the small private clarity of the morning, completely awake.</p>
+</div></article>
+
+<article class="chapter" id="chapter-6">
+<header class="ch-header"><div class="ch-num">Chapter 6</div><h2 class="ch-title">The Pattern</h2></header>
+<div class="ch-body">
+<p>We become, over three weeks, a small careful pattern.</p>
+<p>The pattern is — and I want to be clear about this, because the small private machinery of an affair is, in its own way, a serious thing — a thing that requires of two grown people more careful planning than either of us has done about anything in our lives in a decade. We are not, by the second week, casual about it. We are, in fact, almost professional.</p>
+<p>The pattern goes like this.</p>
+<p>The boys are back from sailing camp on the Sunday of the end of the first week. They are, on Mondays through Thursdays, at the small day-program their friends are at — a soccer-and-something-else camp at Bret's old school. They come home at five-thirty. Brett is, after Aspen, back at the law firm for one week, then in Atlanta for another deal closing for the second week. He is, by the third week, in Chicago. He is home on weekends only — Saturday afternoon to Monday morning.</p>
+<p>Mira is back from Singapore on the Tuesday of the second week. She is, by the Wednesday after, back at the hospital for a series of bypass surgeries that keep her in the operating room ten hours a day. She is, in her ordinary working week, <em>gone</em> — she is home, but she is at the hospital. She is in the house in the mornings only, briefly, before David is awake, and at the dinner table with the children on Sundays. She is, on Saturdays, almost-tolerable. On Sundays she is very present. Monday through Friday she is, by David's careful accounting, a small ghost shape in his peripheral vision.</p>
+<p>This is the pattern of the cul-de-sac.</p>
+<p>This is, also, the pattern of how we see each other.</p>
+<p>We see each other on Monday and Tuesday and Wednesday and Thursday nights, after the children are asleep — his on his side of the driveway, mine on mine. At ten-thirty he texts: <em>Now.</em> I cross the gravel of the driveway in a thin cotton robe and shorts and a soft grey t-shirt and bare feet, and I let myself in through his back kitchen door — which he has, by the second week, made a key for me to have — and I find him at the kitchen island with a glass of wine for me already poured. We drink it in the kitchen. We do not, in the first ten minutes, touch each other. We tell each other about our days — he tells me about the small academic paper he is writing about the post-war American carport, I tell him about Owen's tennis match and Felix's small unexpected interest in the history of the Cold War — and then we set down our glasses, and we go upstairs.</p>
+<p>We do not, ever, use his bedroom. The bedroom is, by mutual quiet agreement, the room he shares with Mira. We use the guest room at the end of the hall.</p>
+<p>We have each other in the guest room at the end of the hall every Monday and Tuesday and Wednesday and Thursday night for three weeks.</p>
+<p>We have each other on Friday nights too, when Brett is not back from Chicago until Saturday morning. On Friday nights I cross the driveway at nine-thirty, and he and I have dinner together in his kitchen — he makes it, the kind of dinner Mira does not eat any more because she is too busy, and that I do not eat any more because Brett does not, in fact, like food — and we eat at his kitchen table by candlelight, and we talk for two hours, and we go upstairs, and we have each other in the guest room until midnight.</p>
+<p>I do not, in three weeks, sleep in my bed before one in the morning.</p>
+<p>I am, somehow, less tired than I have been in five years.</p>
+<p>We are — and I am going to tell you the precise small honest truth of this, because there is no point in being a writer about a thing and not telling the truth — we are, in those three weeks, fucking each other like we are both, somehow, twenty-five.</p>
+<p>I had not — I had not understood, in the small frozen decade I had been living in, what my body was still capable of. He has me, in the guest room at the end of the hall, in every position I had once known and a half-dozen I had not. He puts me on my hands and knees on the small antique rug in the guest room and takes me from behind with one hand at the small of my back and the other in my hair. He puts me on my back on the guest bed and goes down on me for half an hour and makes me come three times in succession with his mouth. He has me, against the wall of the guest bathroom on a Wednesday at midnight, with my legs around his hips and my back against the cool tile, with both of us trying not to make any sound that would carry. He puts me on top of him on the small wing-chair in the guest room and lets me ride him at the pace I want to ride him at, and watches my face the whole time, with his hands at my hips and his eyes very dark.</p>
+<p>I, who have not in eight years come more than once in a single encounter, am — in these three weeks — coming three and four and five times a night.</p>
+<p>I am — and I will tell you this clinically, because it is true — <em>bewildered</em> by my own body.</p>
+<p>I had not understood, in the years of careful management of myself, how much I had been turning down. I had not understood that I had been, in the small slow management of a marriage that was not, what it was not, what it was <em>also</em> not, was <em>kind to the body</em> I had been keeping.</p>
+<p>David is kind to my body.</p>
+<p>He is, in some small private way that I cannot quite say to anyone, the first person who has ever been.</p>
+<hr class="scene-break">
+<p>On the Tuesday of the third week, we go away.</p>
+<p>We do it carefully. I tell Brett — who, on the phone from Chicago, is checked-out enough that he barely processes the information — that I am going to a yoga retreat in Hudson for two nights with Phoebe. Phoebe, who is in on it from the second week (I have not, in twenty years of friendship, ever kept anything important from Phoebe, and the cost of the secret of the affair would have killed me) — has agreed to cover for me. She has, by her own small grace, even <em>gone</em> to a yoga retreat in Hudson for two nights, so that if Brett ever asks her about it she will, in fact, have been there.</p>
+<p>David tells Mira — who is in the small mid-week medical conference of the Society of Cardiothoracic Surgery in Vancouver — that he is going to Rhode Island to check on his mother. He has, by his own small grace, set up his sister to actually go to Rhode Island to check on their mother, so that if Mira ever asks, the visit will, in fact, have been made.</p>
+<p>We meet in a small inn in the Catskills on the Tuesday at five.</p>
+<p>The inn is a five-room old farmhouse on a back road outside Hunter Mountain. The room — <em>our</em> room — is on the second floor, under the eaves, with a single old four-poster bed and a small claw-foot tub in the bathroom and a deep window looking out over a pasture with two horses in it.</p>
+<p>We do not, in two nights, leave the inn.</p>
+<p>We eat dinner in the small dining room downstairs. We swim, naked, in the small cold private pond at the back of the property. We lie in the four-poster bed for hours and talk about the lives we used to have — his childhood in Providence, mine in Park Slope, the small specific ways we both decided, at twenty-two, to marry the people we were going to marry. He tells me, on the second night, that he had met Mira at a small medical-school benefit when he was twenty-six and that he had spent the next year writing her three letters a week that she did not, until the third month, return. I tell him about meeting Brett at twenty-two in a coffee shop on Smith Street and how I had thought, on the third date, <em>this is the one</em>, and how I had been, in some way I have not yet metabolized, <em>correct</em> about that — Brett <em>had</em> been the one, for the first twelve years. The marriage we had had was, for the first twelve years, the real thing. I am, I tell him on the second night, mourning a marriage that has — by some small slow weight — already ended, and that has not, by either of our doings, been formally acknowledged as having done so.</p>
+<p>He listens.</p>
+<p>He listens with his hand at the back of my neck and his eyes on mine.</p>
+<p>He says, against my hair, on the second night: "Cassie."</p>
+<p>"Yes."</p>
+<p>"I am — I am in love with you."</p>
+<p>I do not — for a long minute — say anything.</p>
+<p>I had known this, since the first week. I had not, in three weeks, been ready to hear him say it.</p>
+<p>I close my eyes.</p>
+<p>"David."</p>
+<p>"Yes."</p>
+<p>"I know."</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"I am sorry."</p>
+<p>"Don't be sorry."</p>
+<p>"I am, also, not going to leave Mira. I am not — I am not asking you for that. I am not — I do not want you to think I am, in saying this, asking you for anything. I am — I am telling you the small ordinary fact that I am, and that I was going to be unable to live with the small private dishonesty of not saying it. I am not asking you to be in love with me back."</p>
+<p>I open my eyes.</p>
+<p>I look at him in the lamplight of the four-poster bed.</p>
+<p>I say: "David."</p>
+<p>"Yes."</p>
+<p>"I am in love with you too."</p>
+<p>He closes his eyes.</p>
+<p>He puts his forehead against mine.</p>
+<p>He breathes out — long.</p>
+<p>He says, against my mouth: "I am sorry."</p>
+<p>"Don't be sorry."</p>
+<p>"I am — I am so sorry."</p>
+<p>"I know."</p>
+<p>We do not, that night, make love. He holds me. I hold him. We lie in the four-poster bed in the dark of an inn in the Catskills with the small specific weight of two people who have, an hour earlier, said the thing they had agreed they would not say.</p>
+<p>We sleep against each other.</p>
+<p>In the morning, we have each other in the four-poster bed in the long pale early light, slowly, the way we had not, since the third night, had each other. He kisses me at the temple. He says, into my hair: <em>I love you, Cassie. I love you, I love you, I love you.</em> I say it back. I let myself say it.</p>
+<p>We drive home — separately, in two cars, by two different routes — on the Thursday afternoon.</p>
+<p>I pull into the driveway of my house at four-fifteen.</p>
+<p>I see, through the kitchen window, his car in his driveway, already parked.</p>
+<p>I see, through his kitchen window, the small movement of him at his stove, already starting dinner for Sam and Iris, who will be home from camp at five.</p>
+<p>I think: <em>Cassie. You have just said it. Cassie. You have just heard him say it. Cassie. You are, in four weeks, going to have to put this down anyway. Cassie. Cassie.</em></p>
+<p>I go inside.</p>
+<p>I make myself a small dinner of leftover salad and a small piece of fish.</p>
+<p>I eat the dinner standing at the counter, looking out the kitchen window at his kitchen across the driveway.</p>
+<p>I see him, through the window, lift Iris up onto a stool at the kitchen island, and kiss the top of her head, and say something that makes her — even through two panes of glass and forty feet of summer evening — laugh.</p>
+<p>I think: <em>Cassie. You are watching the man you love be a good father to a child that is not yours.</em></p>
+<p>I think: <em>Cassie. You are watching the small specific shape of the life he is going to keep.</em></p>
+<p>I think: <em>Cassie. Eight weeks. Eight weeks. You agreed. You promised yourself. Eight weeks.</em></p>
+<p>I drink, alone, a small glass of wine.</p>
+<p>I go to bed.</p>
+<p>In the night, at twelve, my phone vibrates on the bedside table.</p>
+<p>I pick it up.</p>
+<p>It is a text from David.</p>
+<p>It says: <em>I love you.</em></p>
+<p>I write back: <em>I love you.</em></p>
+<p>I put the phone down.</p>
+<p>I sleep, finally, with the small private weight of a sentence we had agreed not to send each other and that we had, on the Tuesday of the third week, sent.</p>
+</div></article>
+
+<article class="chapter" id="chapter-7">
+<header class="ch-header"><div class="ch-num">Chapter 7</div><h2 class="ch-title">The Heart</h2></header>
+<div class="ch-body">
+<p>The fourth week breaks the rules.</p>
+<p>The rules — by which we had been governing ourselves, by which we had been telling ourselves the affair was a <em>project</em>, by which we had been telling ourselves we were two careful adults — were three: we will not, ever, say it out loud. We will not, ever, leave our marriages for it. We will, at six weeks, put it down. We had broken the first rule in the Catskills. We had, by the Tuesday of the fourth week, made the small private agreement that the second rule was — for the time being — also intact. That left, by the end of the fourth week, the third rule.</p>
+<p>The third rule was the rule I had set, the morning I had decided.</p>
+<p>The third rule was the rule I had told myself to keep at any cost.</p>
+<p>The third rule was the rule that, by the Friday of the fourth week, I was — and I will be honest about this — starting to want to break.</p>
+<hr class="scene-break">
+<p>On the Tuesday of the fourth week he makes me dinner in his kitchen.</p>
+<p>He has — by the small habit of three weeks — gotten very good at the small private machinery of cooking for me. He has learned, in three weeks, which wines I like (the small dry whites from the Loire and the Sancerre he had brought to the Marriott on the first night) and which I do not (the heavy California chardonnays Mira had been collecting for ten years that he could not, on Mira's behalf, afford to open). He has learned what I will eat for dinner late and what I will not. He has learned that if he makes me figs and burrata I will, in the small private clarity of my eyes, look at him in a way that, in the next forty-five minutes, gets us upstairs faster than any other meal he can make.</p>
+<p>He makes me figs and burrata on the Tuesday of the fourth week.</p>
+<p>We eat in the kitchen by candlelight. The kids are at sleepovers — Sam at Jacob's, Iris at Lila's. Mira is — and this is important — at a conference in Boston, an overnight trip, only two hours away, which is, for the first time in six weeks, <em>close</em>.</p>
+<p>We do not talk about it.</p>
+<p>We eat the figs.</p>
+<p>We go upstairs.</p>
+<p>He has me, on the Tuesday of the fourth week, in the guest room at the end of the hall, in the slow careful way of a man who has, in the small accounting of his own week, decided to settle in. He undresses me slowly. He undresses himself. He takes his time about all of it. He kneels at the foot of the guest bed and puts his mouth on me for forty minutes — <em>forty minutes</em>; I, who have, in three weeks, learned a small specific clinical detachment about how long he can do this and still not let me come, am, by the fortieth minute, weeping. He brings me to the edge of it six times. He pulls me back six times.</p>
+<p>He stands up. He kisses me. I can taste myself on him.</p>
+<p>He says: "Cassie."</p>
+<p>"Yes."</p>
+<p>"On your hands and knees."</p>
+<p>I roll over. I get up onto my hands and knees on the guest bed. He kneels behind me. He pushes into me, slowly, in one long unhurried motion, and I make — <em>finally</em> — the sound I have not been allowed to make for forty minutes, and he reaches forward and puts his hand at my throat, lightly, and his other hand at my hip, and he moves.</p>
+<p>He moves slowly. He moves carefully. He moves with the small specific deliberation of a man who, in four weeks, has come to know precisely how I like to be moved against.</p>
+<p>He brings me to come, finally, with his hand at the soft of me from the front and his thrust slow and deep, and I bury my face in the pillow and I sob — <em>sob</em> — through it.</p>
+<p>He keeps moving.</p>
+<p>He brings me to it again, five minutes later, harder. I scream into the pillow. He muffles my sound with his hand.</p>
+<p>He keeps moving.</p>
+<p>He brings me to it a third time, on the third pass, and this time he comes with me — buried, with his face in the small of my neck, with both his hands at my hips, holding me back against him as he goes.</p>
+<p>He stays inside me for a long minute after.</p>
+<p>He pulls out, slowly. He turns me onto my back. He kisses me at the temple. He kisses me at the corner of my mouth. He pulls the duvet up over both of us.</p>
+<p>He puts his face against my hair.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>"Yes."</p>
+<p>"I am — I am going to ask you something I told myself I would not ask you."</p>
+<p>I lift my head.</p>
+<p>I look at him.</p>
+<p>His face — in the small lamplight of the guest room — is the face of a man who has, in the small careful clarity of forty minutes of careful work, lost some piece of his careful management of himself.</p>
+<p>I say: "David."</p>
+<p>"Yes."</p>
+<p>"Don't."</p>
+<p>"Cassie."</p>
+<p>"David. <em>Don't.</em>"</p>
+<p>He looks at me.</p>
+<p>He looks at me for a long, long beat.</p>
+<p>He puts his hand against my cheek.</p>
+<p>He says, very quietly: "All right."</p>
+<p>I close my eyes.</p>
+<p>I close them, <em>hard</em>, because I had — in the half-second of his preamble — heard the question he had been about to ask. I had heard him about to say <em>leave Brett. Leave Brett and let me leave Mira. Leave Brett and let us, in the small impossible courage of two adult people who have, against all rational management, fallen in love, blow up two marriages and become the people we are, by accident, going to be.</em></p>
+<p>He had been about to ask it.</p>
+<p>I had — and the part that breaks me, the part I have been turning around in myself for two weeks — <em>wanted him to ask it</em>.</p>
+<p>If he had asked it, I would, in the small private clarity of the moment, have said yes.</p>
+<p>I would, on the Tuesday of the fourth week, in the guest room at the end of the hall of David Avery's house at twelve eighteen at night, have said yes to leaving my husband.</p>
+<p>I had stopped him because I had known — <em>known</em>, with the small private clarity I had been losing my grip on for two weeks — that if he asked it and I said yes, we would, the next morning, be in the small impossible morning of having actually done it. We would be in the small specific morning of having to tell our spouses. We would be in the small specific evening of having to tell our children. We would be in the small specific year of becoming the small specific kind of people Brett's mother had said, twenty years ago at a Thanksgiving table in Hartford, <em>I don't believe people who do that thing actually believe in love. People who do that thing believe in themselves.</em></p>
+<p>I am not — and I knew this, in the small private clarity I had been losing my grip on — I am not, in this lifetime, going to be the kind of woman who does that thing.</p>
+<p>I am not, in some small private interior way I had been raised to know, equipped for it.</p>
+<p>I would, the morning after I had blown up my marriage for David Avery, <em>survive it</em>, because I am a survivor. I would survive Owen and Felix and the small specific anger of two sixteen-year-old boys who would not, in the way of two sixteen-year-old boys, understand that the marriage had ended long before this. I would survive Brett, who would not even be cruel about it, because Brett is not cruel, and that would make it worse. I would survive the cul-de-sac. I would survive my mother. I would survive Phoebe's small private <em>I told you so</em> delivered to me three years from now in a small private restaurant on Smith Street.</p>
+<p>I would survive it.</p>
+<p>But I would not, after I had survived it, be Cassie.</p>
+<p>I would, somewhere in the small slow accounting of the years after, be a different woman, who looked at the small specific face of the second life she had decided on and would, in the small honest mornings of that second life, not be able to look at it directly.</p>
+<p>I am not, this week — I had, by then, decided — going to do that.</p>
+<p>I had decided this on the Wednesday of the third week.</p>
+<p>I had decided this in the small private clarity of looking at David's kitchen window through my kitchen window and watching him lift his daughter onto a stool at the kitchen island.</p>
+<p>I had decided this <em>because</em> I had watched him lift his daughter onto a stool at the kitchen island and because I had — in the small private clarity of the moment — understood that he was, even more than I was, <em>unable to leave the small specific life he was, on the other side of his driveway, in the small careful management of.</em></p>
+<p>He had two small children.</p>
+<p>He had a wife who had been, for the first ten years of their marriage, the great love of his life.</p>
+<p>He had — in the small accounting I had no business making — a life on the other side of the driveway that he could <em>not</em>, in the small careful clarity of his own moral seriousness, leave.</p>
+<p>He had been about to ask me anyway.</p>
+<p>I had stopped him because — in the small private clarity I had decided on — I had known I could not give him the answer he had been about to ask me to give.</p>
+<hr class="scene-break">
+<p>He looks at me.</p>
+<p>He looks at me in the small lamplight of the guest room.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>I say: "David."</p>
+<p>He says: "I know."</p>
+<p>I say: "I know."</p>
+<p>He puts his face in my hair.</p>
+<p>He cries.</p>
+<p>I have not, in four weeks, seen him cry.</p>
+<p>He cries against my shoulder for a long minute. He cries quietly. He cries with the small careful weight of a man who has, in the small private accounting of his own life, accepted the small specific weight of the conclusion.</p>
+<p>I hold him.</p>
+<p>I hold him with my hand at the back of his neck. I hold him with my other arm around his shoulders. I hold him with the small private weight of a woman who has — <em>finally</em>, in the small private clarity of two grown people who have been brave together — admitted that the third rule was, in fact, the only rule we were going to keep.</p>
+<p>After a long beat, he lifts his head.</p>
+<p>He kisses me.</p>
+<p>He kisses me with his mouth wet from the small specific salt of his own tears. He kisses me with the small specific tenderness of a man who has, in being told no, decided to give me the rest of the time we have, in the small careful clarity of two people who have, by their own quiet decisions, set a deadline.</p>
+<p>He says, against my mouth: "Two more weeks."</p>
+<p>I say: "Two more weeks."</p>
+<p>He says: "Cassie."</p>
+<p>"Yes."</p>
+<p>"I will not, in the two weeks, ask again."</p>
+<p>"I know."</p>
+<p>"I will not, in the two weeks, push you."</p>
+<p>"I know."</p>
+<p>"I will, in the two weeks, love you."</p>
+<p>"I know."</p>
+<p>"Cassie."</p>
+<p>"Yes."</p>
+<p>"You also."</p>
+<p>"I also."</p>
+<p>I kiss him.</p>
+<p>I kiss him slowly.</p>
+<p>I take him again, in the guest bed, on top of him, slowly, in the small lamplight. I take him with my hands flat against his chest, and his hands at my hips, and his eyes — even in the dim — very, very dark. I take him slowly. I take him with the small private clarity of a woman who is, even in the act, mourning the act.</p>
+<p>He comes inside me. I come around him. We hold each other in the guest bed for a long time afterwards.</p>
+<p>I leave at twelve forty-five.</p>
+<p>I cross the driveway in the dark.</p>
+<p>I let myself into my own house.</p>
+<p>I go upstairs.</p>
+<p>I stand in the bathroom in front of the mirror for a long minute.</p>
+<p>I look at the woman in the mirror.</p>
+<p>She is — and I notice this with the small clean clarity she has, in four weeks, regained — <em>changed</em>. Her eyes have, somewhere in the four weeks, become eyes that can be looked into. Her face is the face of a woman who has been, in some real way, <em>seen</em>.</p>
+<p>She looks at me.</p>
+<p>She says, in the small private voice of the small private decisions: <em>Two more weeks.</em></p>
+<p>I say: <em>Two more weeks.</em></p>
+<p>I get into the bed.</p>
+<p>I sleep against the empty side of the bed Brett does not, this week, occupy, and I dream — for the first time in four weeks — of the small specific morning my marriage would be in if I had, in the guest room at the end of the hall, said yes.</p>
+<p>I wake at six.</p>
+<p>I am, in the small private clarity of the morning, still in the marriage I had decided not to leave.</p>
+<p>I will, for the rest of my life, wonder — in the small private hour of every Tuesday in July — whether I had been wrong.</p>
+<p>But I had, in the small clean clarity of the moment, decided.</p>
+<p>And I had, in the small clean clarity of the moment, chosen the woman I am, in the small public truth of my life, going to be.</p>
+</div></article>
+
+<article class="chapter" id="chapter-8">
+<header class="ch-header"><div class="ch-num">Chapter 8</div><h2 class="ch-title">The Wife</h2></header>
+<div class="ch-body">
+<p>Mira comes home, four days early, on the Friday of the fifth week.</p>
+<p>She does not, of course, text him to say she is coming home. She has, in the small careful clarity of the four years he has been the primary parent, stopped texting him about her arrivals. She gets in a car at the airport, she gets out at the house, she comes inside, she goes upstairs, and she takes a shower. Sometimes — by the small private confession of his Friday morning text to me at seven oh four — she comes back down and tells him she is home. Sometimes she goes to bed. Sometimes — twice, in the last year — she has come and gone in eight hours without his understanding she had ever been there.</p>
+<p>She comes home, on the Friday of the fifth week, at four in the afternoon.</p>
+<p>He is, by the small private machinery of the cul-de-sac, <em>with me at the time</em>.</p>
+<p>He is — and I will be honest about how the next hour goes, because there is no version of an affair, however careful, that does not, eventually, depend on the small specific luck of two adult schedules holding — he is in my kitchen. He is in my kitchen because we have, for the first time, decided to do a small risky thing. We have — by the small private clarity of the conversation in the guest bedroom on the Tuesday of the fourth week — agreed that, in our two remaining weeks, we will do, where the small machinery of the cul-de-sac permits, the small ordinary thing we have not, in five weeks, allowed ourselves to do. We will, at four in the afternoon on a Friday, sit in my kitchen, in the small careful clarity of two consenting adults whose spouses are away, and we will have a cup of coffee.</p>
+<p>We are drinking the coffee at the kitchen island.</p>
+<p>I am — I am wearing a thin sleeveless white linen top and faded jeans. He is in a soft grey t-shirt and dark trousers. The boys are at Owen's tennis match in Stamford until six. Brett is in Chicago until Monday. Mira — we have, this morning, confirmed by his looking at her shared calendar — is in Boston until Saturday afternoon.</p>
+<p>We are drinking coffee.</p>
+<p>We are not, in this moment, having sex.</p>
+<p>We are not, in this moment, doing anything other than sitting in my kitchen at four in the afternoon on a Friday, drinking coffee, talking about the small careful question of how we are going to manage the two remaining weeks.</p>
+<p>That is when his phone, on the counter beside the small glass jug of milk, lights up.</p>
+<p>It is a notification from his door camera.</p>
+<p>His Ring doorbell.</p>
+<p>I see it before he does, because the phone is face-up on the counter and I am, at the counter, on the side that can see the screen.</p>
+<p>I see the notification: <em>Movement at front door, Mira Avery.</em></p>
+<p>I do not, for a half-second, breathe.</p>
+<p>I look at the phone.</p>
+<p>I look at him.</p>
+<p>I say, very quickly: "David."</p>
+<p>He looks at the phone.</p>
+<p>He looks at me.</p>
+<p>He says — and I will, for the rest of my life, remember the precise clean professional efficiency of the next thirty seconds — "Backyard. Go now. Use the side gate. Get inside your house. <em>Now.</em>"</p>
+<p>I do not, for half a second, move.</p>
+<p>He says: "<em>Cassie. Go.</em>"</p>
+<p>I go.</p>
+<p>I leave the coffee cup on the counter. I leave the milk on the counter. I leave my phone on the counter. I take, by reflex, only the small house key on the counter. I leave by the kitchen back door — <em>my</em> back door — and I go through the side yard at a small jog. I let myself in through my own side gate into my own backyard. I cross the lawn at a small jog. I let myself into my own house through my own back door.</p>
+<p>I stand in my own kitchen.</p>
+<p>I stand in my own kitchen with my hand against the counter and the small specific weight of an entire physical fear in my body.</p>
+<p>His coffee cup is on the counter.</p>
+<p>His phone is on the counter.</p>
+<p>His coat — he had, in the four o'clock heat, taken it off and laid it on the back of the bar stool — is on the back of the bar stool.</p>
+<p>If she comes over — if, in the next forty minutes, she crosses the driveway and looks in the kitchen window, or rings the doorbell, or asks where her husband is — she will see, on the counter of my kitchen, a man's coffee cup and a man's phone and a man's coat.</p>
+<p>I do not, for a long second, move.</p>
+<p>Then I move.</p>
+<p>I pick up the coffee cup. I rinse it. I put it on the drying rack. I pick up the phone — his phone, the one he has not, in five weeks, looked at while we have been together, on which his daughter's small unread school-pickup texts are blinking — and I put it into my own bag on the counter. I pick up the coat. I hang the coat — slowly, deliberately — on a hook by the back door, the hook that has, for seven years, held Brett's old fall barn jacket, which is, today, in the closet upstairs.</p>
+<p>I do all of this in eighty seconds.</p>
+<p>I stand in the kitchen.</p>
+<p>I look out the window.</p>
+<p>I look at his house across the driveway.</p>
+<p>I see, in his kitchen window, his back. He is — I see, even through two panes of glass and forty feet of summer evening — at his own kitchen counter. He is, I understand, putting away the small evidence of his own afternoon — the second coffee cup, the milk jug — into the dishwasher.</p>
+<p>He turns.</p>
+<p>He sees me through the window.</p>
+<p>He gives me — in the small careful clarity of forty feet of summer evening — one small, professional nod.</p>
+<p>I nod back.</p>
+<p>I see, behind him, the kitchen door open, and Mira come into his kitchen.</p>
+<p>She is — and I will tell you this, because in the small private machinery of an affair the wife is, <em>finally</em>, also a person — Mira is a small narrow elegant woman in her early forties with grey at her temples that has gotten greyer in the seven years I have known her, with the small clinical settled face of a woman who has, in her professional life, learned not to perform her feelings in waiting rooms. She is, on the Friday of the fifth week, in a long grey travel cardigan and white linen trousers and small flat black shoes she has, by the look of it, kicked off at the door. She has come in with the small careful tiredness of a woman who has just got off a plane.</p>
+<p>I watch her cross his kitchen.</p>
+<p>I watch her go to him.</p>
+<p>I watch her put her hand on his cheek and lift her face and kiss him on the corner of the mouth, the way a wife who has been gone for three days kisses a husband she has, despite the small careful management of the years, missed.</p>
+<p>I watch him kiss her back.</p>
+<p>He kisses her back the way a husband kisses a wife who has been gone for three days.</p>
+<p>I look at his face.</p>
+<p>His face — for the second second, only, before it becomes again the small careful face of David Avery — is the face of a man who is, in the small private clarity of being kissed by his wife, both <em>glad to see her</em> and, somewhere in the small interior of himself, <em>also</em> glad to see her.</p>
+<p>I have not, in five weeks, in any of the small private accountings I have made of the affair, understood the precise weight of that until I am, on the Friday of the fifth week, watching him through two panes of glass.</p>
+<p>I have not, in five weeks, fully understood that the small specific thing I had let myself love, in him, was the man who would, on a Friday afternoon, be glad to see his wife.</p>
+<p>I sit down at the kitchen island.</p>
+<p>I put my forehead, for a long minute, against the cold marble.</p>
+<p>I do not cry.</p>
+<p>I do not cry because — and I am, by this point in the year, the kind of woman who knows this about herself — I have come, in five weeks, to be afraid that if I started crying, I would not, in any clean accounting, be able to stop.</p>
+<p>I stand up.</p>
+<p>I make myself a small ordinary dinner of leftover salad and a small piece of fish in the small ordinary kitchen of the house I live in with my husband and our twin sons.</p>
+<p>I eat the dinner standing at the counter.</p>
+<p>I think — and I will tell you the precise clean truth of this — <em>Cassie. The fifth week is over.</em></p>
+<p>I think: <em>Cassie. There is no reason to wait two more weeks now.</em></p>
+<p>I think: <em>Cassie. The third rule has been broken. The second rule, today, almost was. There is no version of these last two weeks that does not, by the small specific machinery of the cul-de-sac, contain another Friday afternoon at four o'clock.</em></p>
+<p>I think: <em>Cassie. End it.</em></p>
+<p>I think: <em>Cassie. End it tomorrow.</em></p>
+<p>I think: <em>Cassie. End it kindly.</em></p>
+<p>I text him, at nine in the evening, when the house is dark and the boys are home from tennis and Brett is in Chicago and Mira is — by the small accounting of his window, which I have been watching since four — at his kitchen island opposite him, eating dinner he has made:</p>
+<p><em>Tomorrow. After Mira leaves for Saturday rounds. Come for a walk with me.</em></p>
+<p>He texts back, twenty minutes later: <em>Yes.</em></p>
+<p>I do not, that night, sleep.</p>
+<p>In the morning, at seven thirty, I see — through the kitchen window — Mira leave the house, in her grey travel cardigan still, with a leather doctor's bag in her hand. She gets into her car. She drives away.</p>
+<p>I see, through the window, David's hand on the upstairs office window's small linen curtain, drawing it back.</p>
+<p>He sees me.</p>
+<p>He nods.</p>
+<p>I nod.</p>
+<p>I put on my walking shoes.</p>
+<p>I cross the driveway.</p>
+<p>I knock on his back door.</p>
+<p>He opens it.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "David."</p>
+<p>He says: "Come in for a minute."</p>
+<p>I come in.</p>
+<p>He closes the door.</p>
+<p>He puts his arms around me.</p>
+<p>He holds me, in his kitchen, for a long minute.</p>
+<p>He says, against my hair: "I know."</p>
+<p>I say: "I know."</p>
+<p>He says: "Today, then."</p>
+<p>I say: "Today."</p>
+<p>He says: "All right."</p>
+<p>We walk, in the small clean clarity of a Saturday morning in late August, in the woods at the back of the small public park on Cherry Lane. We walk for a long time. We walk holding hands, because there is no one on the path at quarter past eight on a Saturday in August. We walk in silence for most of it.</p>
+<p>At the end of the path, at the small open clearing under the maple, he stops.</p>
+<p>He turns to me.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "Tomorrow. One more night. Tonight. Together. As long as we have."</p>
+<p>I say: "Yes."</p>
+<p>He kisses me, in the small clean clarity of the August morning under the maple in the small public park on Cherry Lane.</p>
+<p>He kisses me, for the first time in five weeks, with the small specific weight of a man who is, with the kiss, telling me — <em>I am keeping you, in the small private interior of myself, for the rest of my life.</em></p>
+<p>I kiss him back.</p>
+<p>I kiss him back with the small specific weight of a woman who is, with the kiss, telling him the same thing.</p>
+<p>We walk back to the cul-de-sac.</p>
+<p>We do not, on the walk back, hold hands.</p>
+<p>He goes into his house.</p>
+<p>I go into mine.</p>
+<p>I lie down on the bed in the empty bedroom.</p>
+<p>I think — <em>all right. Tonight. The last night.</em></p>
+<p>I think — <em>Cassie. You agreed. You agreed.</em></p>
+<p>I lie there for a long time.</p>
+<p>I am, by noon, asleep.</p>
+<p>In the small private dark of the afternoon nap, I dream of nothing.</p>
+<p>When I wake, at five, the small honest truth of the next sixteen hours is — <em>waiting</em>.</p>
+<p>I am, at nine o'clock that night, going to walk across the driveway one last time.</p>
+</div></article>
+
+<article class="chapter" id="chapter-9">
+<header class="ch-header"><div class="ch-num">Chapter 9</div><h2 class="ch-title">The End</h2></header>
+<div class="ch-body">
+<p>I walk across the driveway at nine.</p>
+<p>Mira is — by his text at six — staying at the hospital tonight for an early Sunday-morning surgery. She will not be home until Sunday afternoon. The kids are — by his careful arrangement — at Mira's sister's house in Larchmont overnight, having agreed to it as the small reward for an exhausting week. The cul-de-sac is dark. The house across the driveway is dark except for the small warm rectangle of the kitchen window where he is, by the precise small clarity of his schedule, making us dinner one more time.</p>
+<p>I have, by nine, dressed in the small white slip-dress he has, in five weeks of texts, told me twice was his favorite thing of mine. I have brought a single bottle of wine — a small good Pouilly-Fumé — that I have kept hidden, in the cellar, for this. I have, on a single thin black silk slip of paper, written him a letter that I am, in some small private way of saying it I have not yet found, going to give him at the end of the night.</p>
+<p>I cross the driveway.</p>
+<p>I let myself in through the back door.</p>
+<p>He is at the kitchen island.</p>
+<p>He turns.</p>
+<p>He looks at me.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>I say: "David."</p>
+<p>He crosses the kitchen to me in two long strides.</p>
+<p>He takes the wine. He sets it on the counter. He takes my hand. He holds it for a long beat.</p>
+<p>He says, against my forehead: "All right."</p>
+<p>I say: "All right."</p>
+<p>We do not, in the first hour, hurry.</p>
+<p>He cooks. He has — in the small specific way of the five weeks — made the meal of the figs and burrata that he made me the night of the Tuesday of the fourth week. He has also, beside it, made small grilled lamb chops with rosemary potatoes. He has, on the table, lit two candles. He has, on the small turntable in the corner of the kitchen that he had told me, in week two, had been a gift from Mira on his thirty-fifth birthday, put on a Nina Simone record we have been listening to since the second week.</p>
+<p>We eat the figs first.</p>
+<p>We eat the lamb chops second.</p>
+<p>We drink the wine.</p>
+<p>We talk for two hours.</p>
+<p>We talk about the first afternoon in the heatwave — that hot Wednesday with Iris and Sam at my pool and the small grilled chicken at the patio table. We talk about the Marriott. We talk about the Catskills. We talk about the small things — about a piece he had read that morning in <em>Architectural Record</em>, about a piece I had read this week in the <em>New Yorker</em> about a woman in Iowa. We talk about Owen's tennis lessons and Felix's small interest in the history of the Cold War. He tells me about Iris's new bike. He tells me about Sam's small private interest, this year, in maps.</p>
+<p>We do not — in any of those two hours — talk about Mira, or Brett, or what we are, in the small clean clarity of the dinner, doing.</p>
+<p>We do not need to.</p>
+<p>We are doing what people do at the end of an affair that they are, in the small clean clarity of the moment, deciding to put down: we are sitting at a kitchen table together, in a house that does not belong to either of us, and we are letting the candlelight be the candlelight, and we are letting Nina Simone be Nina Simone, and we are letting the wine be the wine, and we are saying — by every small gesture we make at the table — <em>thank you. Thank you. Thank you.</em></p>
+<p>At eleven, we go upstairs.</p>
+<p>He takes my hand at the foot of the stairs. He leads me up. He stops me, at the top of the stairs, and he looks at me.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "Not the guest room."</p>
+<p>I look at him.</p>
+<p>He says: "Our room. I have changed the sheets. I have stripped the bed. I have, this morning, washed everything Mira had on it and put it all in the laundry. I am going to make love to you tonight in the bed I share with my wife, because I am going to, in the small private clarity of putting this down, take that piece of you with me into the rest of my life. I do not — I do not want to leave you in the guest room. I do not want, in the small future I am going to have, the memory of you to live in the guest room. I want you in the bed."</p>
+<p>I look at him.</p>
+<p>I close my eyes for a beat.</p>
+<p>I say: "All right."</p>
+<p>He takes my hand.</p>
+<p>He leads me to the master bedroom.</p>
+<p>He has — he has cleaned it. There is no trace, in the room, of Mira. There is, on the bed, a single white linen duvet I have not seen before. There is, on each of the two bedside tables, a single small white candle, freshly lit. There is, on the dresser, the small wedding photograph of him and Mira at twenty-six and twenty-seven that I would, on any other night, have looked at — but that he has, by his own small grace, turned to the wall.</p>
+<p>He has, on the small chair in the corner, set out a small wooden tray with a single bottle of cold water and a single small bowl of strawberries and a single cloth napkin.</p>
+<p>He has, on the small bench at the foot of the bed, set out — and this <em>breaks</em> me, on the small specific way only the small specific gestures of a man who has been paying attention can break a woman — a single soft grey cashmere throw of the kind he had noticed I had once said I loved at a small store in Greenwich Village.</p>
+<p>He looks at me.</p>
+<p>I look at him.</p>
+<p>I say, very quietly: "David Avery."</p>
+<p>He says: "Yes."</p>
+<p>I say: "You are the most thoughtful man I have ever known."</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Take me to bed."</p>
+<p>He takes me to bed.</p>
+<p>He undresses me slowly. He has — in the small clean clarity of five weeks — learned every part of me. He kneels at the foot of the bed and puts his mouth on me for a long, long time. He brings me to come twice with his mouth — slowly, the way he has, in five weeks, taught me to be brought to come — and then he comes up the bed and braces above me on his forearms and looks at me, and he is — even in this last night, even in the small clean clarity of what we have decided — the man whose face I will, for the rest of my life, see when I close my eyes and think <em>the night I knew</em>.</p>
+<p>He pushes into me.</p>
+<p>He moves slowly.</p>
+<p>He keeps moving slowly.</p>
+<p>He moves slowly for a long time.</p>
+<p>He brings me to come around him, twice more — once with his hand at the soft of me from the side, once with his mouth at my throat — and he watches my face the whole time. He kisses me at the corner of my mouth. He kisses me at the temple. He kisses me — finally — full and hungry on the mouth, and that is when he goes harder, and that is when he comes with me, and that is when we both, very quietly, in the small private clarity of an empty house in the dark, cry.</p>
+<p>He holds himself over me on his forearms for a long minute after.</p>
+<p>He kisses me — very, very slowly — at the temple.</p>
+<p>He rolls, finally, to the side. He pulls me against him. He pulls the white linen duvet up over both of us. He pulls, separately, the soft grey cashmere throw up over my shoulders.</p>
+<p>He puts his face in my hair.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "I am going to be in love with you for the rest of my life."</p>
+<p>I say: "I know."</p>
+<p>He says: "I want you to know."</p>
+<p>I say: "I know."</p>
+<p>He says: "I will not — I will not, in any small future I am going to have with Mira, ever forget. You are not — you are not going to be a forgotten thing. You are going to be a known thing. You are going to be a kept thing. I will, in my own small private interior, <em>carry</em> you for the rest of my life. I am telling you this so you know."</p>
+<p>I say, against his throat: "David."</p>
+<p>He says: "Yes."</p>
+<p>I say: "I will, also."</p>
+<p>He says: "I know."</p>
+<p>I say: "I am going to be in love with you for the rest of my life. I am going to, somewhere in every Tuesday in July, see you. I am going to, somewhere in every small specific evening I am alone in my own kitchen, hear Nina Simone. I am going to, somewhere in every wedding photograph of every man I see at any wedding in any year from here, see the small soft line of your jaw and remember that I had, once, in the small private interior of myself, also been seen."</p>
+<p>He kisses my hair.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "We are doing the right thing."</p>
+<p>I say: "I know."</p>
+<p>He says: "It does not feel like it."</p>
+<p>I say: "No."</p>
+<p>He says: "But we are."</p>
+<p>I say: "Yes."</p>
+<p>We lie like that — in the small lamplight of his bedroom, in the small white linen of the duvet he has bought for the night, in the small grey cashmere of the throw he has set out — for a long, long time.</p>
+<p>At three in the morning, I get up.</p>
+<p>I dress, slowly, in the small white slip-dress.</p>
+<p>I sit at the edge of the bed.</p>
+<p>He is awake. He has not, in fact, slept.</p>
+<p>He sits up.</p>
+<p>He puts his arms around me from behind.</p>
+<p>He kisses the back of my neck.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "David."</p>
+<p>I take, from my small bag at the bedside, the single thin black silk slip of paper on which I have written the letter.</p>
+<p>I hand it to him.</p>
+<p>He takes it.</p>
+<p>He does not, in front of me, open it.</p>
+<p>He says, against my hair: "I will read it. Once. Tomorrow morning. And then I will burn it. I will keep, in my own small private interior of myself, whatever you have written."</p>
+<p>I say: "All right."</p>
+<p>He kisses me at the temple.</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "Walk out by the back door. Do not look at me again."</p>
+<p>I say: "All right."</p>
+<p>I get up.</p>
+<p>I do not, in fact, look at him again.</p>
+<p>I walk down the stairs of the house, in the dark.</p>
+<p>I let myself out through the back kitchen door.</p>
+<p>I cross the driveway in the dark, in the small white slip-dress, barefoot, with my walking shoes in my hand.</p>
+<p>I let myself into my own house through my own back door.</p>
+<p>I lock the door.</p>
+<p>I go upstairs.</p>
+<p>I get into the bed.</p>
+<p>I do not, for the rest of the night, sleep.</p>
+<p>In the morning at six, I see — through the kitchen window — the small thin trail of smoke from the small fire he has, on the small back patio of his house at seven o'clock, set in a small terracotta dish. He is feeding into the small fire the single thin black silk slip of paper I had given him.</p>
+<p>I watch the small fire burn down.</p>
+<p>I watch him take, from the small terracotta dish, a single ash, and put it into a small folded handkerchief, and put the folded handkerchief into the inside pocket of the soft cashmere jumper he is, this morning, wearing.</p>
+<p>He looks up at my kitchen window.</p>
+<p>He sees me through the glass.</p>
+<p>He puts his hand against his heart.</p>
+<p>He goes back inside his house.</p>
+<p>I do not, for the rest of the morning, leave the kitchen.</p>
+</div></article>
+
+<article class="chapter" id="chapter-10">
+<header class="ch-header"><div class="ch-num">Chapter 10</div><h2 class="ch-title">Across the Driveway</h2></header>
+<div class="ch-body">
+<p>Six months go by.</p>
+<p>That is the first thing to say about the rest of the book — that six months go by. The fall arrives on Cherry Lane. Brett comes home from Chicago. Mira comes back from her conferences. The boys go back to school. Iris loses a tooth and gets a small letter from the Tooth Fairy that David — by my small secret accounting of his small specific gestures — has written with his left hand to disguise his handwriting. Sam, in October, decides he wants to be a cartographer. The trees on Cherry Lane go red and orange and bronze. The pool gets closed for the winter under a heavy blue tarp that Brett, in some small spasm of domesticity, helps the pool service install on a Saturday in late October.</p>
+<p>I do not, in the six months, cross the driveway.</p>
+<p>He does not, in the six months, cross the driveway.</p>
+<p>We see each other, in the small careful machinery of cul-de-sac life, the way two neighbors who have, very long ago, been neighbors of the kind we are again being, see each other. We see each other at the mailbox. We see each other at the small parent-teacher meetings at the school. We see each other, in early November, at the small Halloween party Bob Marland next door throws every year for the cul-de-sac. We say, at the small Halloween party, the small ordinary things we have, in the seven years before the heatwave, said. We say <em>good evening, David</em>. We say <em>good evening, Cassie</em>. We are introduced — by Bob Marland, who does not know — to each other's spouses, at one minute past nine on a Saturday in October, as if we have not, in fact, been introduced before. Brett shakes David's hand. Mira kisses my cheek. We drink the small cup of cider Bob has handed each of us. We talk, with the careful neutrality of two adults who are, in some small interior way, <em>keeping each other</em>, about the small ordinary things of the cul-de-sac.</p>
+<p>I watch David's face the entire two hours of the Halloween party. He does not — once — look directly at me. He does not need to. I know, from the small specific angle of his shoulder to my shoulder across the small living room, that he is, in fact, looking at me with every other part of him.</p>
+<p>I leave the Halloween party at quarter past ten.</p>
+<p>I walk across the gravel of the driveway to my own house.</p>
+<p>I let myself into my own kitchen.</p>
+<p>I stand at the kitchen sink with my hand against the cold counter, and I cry, very quietly, for forty minutes.</p>
+<p>Brett is — at the time — still at Bob's. He does not, when he comes in at eleven thirty, notice. He does not, in his ordinary state of inattention, notice anything about me except whether I have, today, been polite to his mother on the phone.</p>
+<p>I have been polite to his mother on the phone.</p>
+<p>I have, in fact, been polite to everyone, for six months.</p>
+<p>I am — and this is, by my own private accounting, the small specific honest truth of my life — extremely polite, and extremely competent, and extremely managed, and extremely, <em>completely</em>, not okay.</p>
+<p>I do not, in any of the six months, tell anyone about David except Phoebe.</p>
+<p>Phoebe, when I tell her in October at our small quarterly dinner at a small restaurant on Smith Street, listens. She holds my hand at the small wooden table for a long minute. She does not — and I love her for this — say <em>I told you so</em>. She does not, in fact, say much at all. She says, after a long beat: "Cassie. I know."</p>
+<p>I say: "You know."</p>
+<p>She says: "I have known."</p>
+<p>I say: "How."</p>
+<p>She says: "Because for fourteen years I have known what you look like when you are loved. You have not, in eight years, looked like that. In July you did. In August you did. I came home from Lisbon at the end of August and you were a small careful ghost again. I knew, then. I have known, since."</p>
+<p>She pours me another glass of wine.</p>
+<p>She says, into the small careful clarity of our small wooden table: "Cassie. I am going to tell you a thing I have been waiting to tell you. You are not going to live in this marriage with Brett for the rest of your life."</p>
+<p>I look at her.</p>
+<p>She says: "I am not telling you that you are going to leave him. I am not telling you what to do. I am telling you what I know about my friend Cassie Reeves, who I have known for twenty years. You are not going to live in this marriage with Brett for the rest of your life. You are going to, in some way I cannot, by the small private clarity of my own life, predict, get out of this marriage in the next three years. You will get out of it because you have, in your one small life on this planet, woken up. You have not yet, in the small clean clarity of the morning, decided what to do with the waking. But you have woken up. You will not, having woken up, go back to sleep."</p>
+<p>I look at her.</p>
+<p>I look at her in the small candlelight of the small wooden table at a small restaurant on Smith Street on a Tuesday in October.</p>
+<p>I say: "Phoebe."</p>
+<p>She says: "Yes."</p>
+<p>I say: "I do not know yet."</p>
+<p>She says: "I know."</p>
+<p>I say: "I am not going to do anything yet."</p>
+<p>She says: "I know."</p>
+<p>I say: "I am going to be, for a while, the kind of woman who is, in her own small private way, deciding."</p>
+<p>She says: "I know."</p>
+<p>I drink the wine.</p>
+<p>I do not, in October, decide anything.</p>
+<p>I do not, in November, decide anything.</p>
+<p>I do not, in December, decide anything.</p>
+<p>I do, in December, on a Wednesday — the second Wednesday of the month, the small ordinary Wednesday of a forty-eight-degree afternoon — see David Avery at the mailbox at four o'clock.</p>
+<p>He has, in the six months, gotten thinner. He has, somewhere in the small interior of himself, become — the kind of man who is, in his small interior, <em>not</em> somewhere. He is the kind of man I had been, by November, becoming the female version of.</p>
+<p>I stop at the mailbox.</p>
+<p>He stops at the mailbox.</p>
+<p>We look at each other.</p>
+<p>For a long beat, neither of us speaks.</p>
+<p>He says, very quietly — in the small careful voice of a man who has, for six months, kept what we agreed: "Cassie."</p>
+<p>I say: "David."</p>
+<p>He says: "How are you."</p>
+<p>I say: "I am — I am surviving."</p>
+<p>He says: "I am too."</p>
+<p>I say: "I know."</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "Are you, in this — in your house — <em>okay.</em>"</p>
+<p>I look at him.</p>
+<p>I look at this man whom I have, in six months of silence, been in love with the way I have been in love with him every day of those six months — and I look at his face, and I look at his face the way he had — in five weeks of an affair — looked at mine.</p>
+<p>I see, very clearly, in his face — the small specific weight of his own <em>not okay</em>.</p>
+<p>I say: "David."</p>
+<p>He says: "Yes."</p>
+<p>I say: "We agreed."</p>
+<p>He says: "I know."</p>
+<p>I say: "We agreed, both of us."</p>
+<p>He says: "I know."</p>
+<p>I say: "Do not, today, ask me what you are about to ask me."</p>
+<p>He says: "I am not going to."</p>
+<p>I say: "Thank you."</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "I am going to be in love with you for the rest of my life."</p>
+<p>I say: "I know."</p>
+<p>He says: "I am going to be — <em>not okay</em> — for the rest of my life."</p>
+<p>I say: "I am also."</p>
+<p>He says: "We are also going to, somewhere in the next decade, be okay."</p>
+<p>I say: "We will."</p>
+<p>He says: "Eventually."</p>
+<p>I say: "Eventually."</p>
+<p>He says: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "I am sorry."</p>
+<p>I say: "I am sorry too."</p>
+<p>We stand at the mailbox in the small clear cold of a December afternoon.</p>
+<p>We do not — in any small specific way — touch each other.</p>
+<p>He says, very quietly: "If, in five years — in ten — if, somewhere in the small private clarity of the future, we are both — <em>free</em> — I will find you. I will, in some small interior way, <em>know</em>. And I will, in whatever small careful way I can, find you."</p>
+<p>I say: "David."</p>
+<p>He says: "Yes."</p>
+<p>I say: "If, in the small private clarity of the future, we are both free, you will not have to find me. I will be at the back door of your house, on the morning of the day after the day after the day. You will not have to find me."</p>
+<p>He looks at me.</p>
+<p>He closes his eyes.</p>
+<p>He says, very quietly: "Cassie."</p>
+<p>I say: "Yes."</p>
+<p>He says: "Until then."</p>
+<p>I say: "Until then."</p>
+<p>He takes the mail out of his mailbox.</p>
+<p>I take the mail out of mine.</p>
+<p>We walk, separately, back across the driveway in the small clear cold of the December afternoon.</p>
+<p>He goes into his house.</p>
+<p>I go into mine.</p>
+<p>I close the kitchen door.</p>
+<p>I stand at the kitchen sink.</p>
+<p>I do not cry. I have, by then, cried enough.</p>
+<p>I take the mail out of my hand and I look at it. The mail is — the mail. A small Pottery Barn catalog. A small letter from my mother. The Wednesday-night family-event flyer from Owen's school. A bill from the utility.</p>
+<p>I put the mail on the counter.</p>
+<p>I look out the kitchen window.</p>
+<p>I look at David's kitchen window, across the driveway.</p>
+<p>I see, in his kitchen window, his back. He is, in the small specific clarity of his own afternoon, at his own kitchen counter, opening his own mail.</p>
+<p>He turns around.</p>
+<p>He sees me through the window.</p>
+<p>He does not, this time, put his hand against his heart.</p>
+<p>He does not need to.</p>
+<p>He looks at me for a long beat across forty feet of December afternoon, and the small specific weight of the look — in our case — is the weight of <em>I have you. I am keeping you. I will, in some small interior way, carry you for the rest of my life.</em></p>
+<p>I look back at him.</p>
+<p>I give him, with my own face — for the same forty feet — the same small specific weight.</p>
+<p>We do not, after a long beat, do anything else.</p>
+<p>He turns away from the window.</p>
+<p>I turn away from the window.</p>
+<p>I make myself a cup of tea.</p>
+<p>I sit at the kitchen island.</p>
+<p>I drink the tea.</p>
+<p>I think — <em>Cassie. You are going to live, in this house, with Brett, for some small specific number of years. You are not, in any small private accounting, going to live in this house with Brett forever. You are, in some small interior way, becoming a person who is going to decide. You have not, today, decided. You will, in some month I cannot yet predict, decide. But today, in the small clean clarity of the December afternoon, you are going to drink your tea, and you are going to walk over to your son Felix's room, and you are going to sit with him for half an hour while he tells you about a small unexpected piece he has, this week, read about the small specific role of the Czechoslovak Legion in the Russian Civil War. You are going to listen. You are going to ask the small good questions. You are going to laugh at the small specific places where the seventeen-year-old version of your son is, in fact, very funny. You are going to put your hand on the top of his head when he tells you about the bit at the end where the Legion took the gold reserves of the Czar across Siberia in a small armored train. You are going to be, in the small specific evening, his mother.</em></p>
+<p><em>And you are going to, for one more night, be the wife of a man who is, in his own small interior, also in a marriage he has long ago stopped being inside.</em></p>
+<p><em>And you are going to, somewhere in the next three years, get out of this. You are going to get out of this in the way Phoebe said. Not because of the man across the driveway. Because of the small clean clarity that the man across the driveway, in five weeks of an affair, gave you. Because of the woman, in the bathroom mirror, who has — for the first time in three years — colour in her face.</em></p>
+<p><em>You are going to, somewhere in the next three years, do it. You will do it the right way. You will not, in the doing, become a person who blew up a marriage for an affair. You will, in the doing, be a woman who, in the small clean clarity of her own life, said — at thirty-eight — </em>I have woken up.*</p>
+<p><em>You will do it kindly. You will not, in the doing, hurt Brett more than the marriage was, in fact, already hurting him. You will, in the doing, set him free.</em></p>
+<p><em>You will, in the doing, set yourself free.</em></p>
+<p><em>And in the small private clarity of three years from now, you will be a woman who knows, in the small clean honest interior of herself, that the small thing she did in July was, in the end, the door she walked through.</em></p>
+<p>I drink the tea.</p>
+<p>I think — <em>David Avery, across the driveway, has the same small clean clarity inside him. He is not, today, going to do anything about it either. He is going to keep loving his wife, who is, in some real way, also still his wife. He is going to keep being a good father to his children. He is going to, somewhere in the next decade — possibly — also become a person who has, in some small clean clarity of his own, said</em> I have woken up. <em>He may not. The decision is, in his case, his.</em></p>
+<p>I think — <em>I am not, today, going to wait for him.</em></p>
+<p>I think — <em>I am, today, going to wait for myself.</em></p>
+<p>I finish the tea.</p>
+<p>I go upstairs.</p>
+<p>I sit on the edge of Felix's bed.</p>
+<p>I listen to the small specific story of the Czechoslovak Legion, and the small armored train across Siberia, and the small specific weight of the gold reserves of the Czar.</p>
+<p>I laugh at the funny parts.</p>
+<p>I put my hand, briefly, on the top of his head.</p>
+<p>I am, in the small specific evening, his mother.</p>
+<p>In a year and a half from now, I will leave Brett.</p>
+<p>I will not, in the leaving, contact David Avery.</p>
+<p>I will, eight months after leaving, run into him at a bookstore in Manhattan — by accident, in the small specific way these things happen — and we will look at each other for a long beat in the small bright light of the bookstore at three in the afternoon.</p>
+<p>He will be, by then, also leaving Mira.</p>
+<p>He will not, by then, know that I have left Brett. I will not, by then, know that he is also leaving.</p>
+<p>We will, in the small clean clarity of the bookstore, stand opposite each other in the small clean clarity of two single people on a Saturday afternoon in Manhattan, holding two different new books we have just chosen at a small independent shop on Mercer Street.</p>
+<p>He will say, very quietly: "Cassie."</p>
+<p>I will say: "David."</p>
+<p>He will say: "Are you —"</p>
+<p>I will say: "Yes."</p>
+<p>He will say: "Are you, in some small interior way, free."</p>
+<p>I will say: "Yes."</p>
+<p>He will say: "Cassie."</p>
+<p>I will say: "Yes."</p>
+<p>He will say: "Come and have a coffee with me."</p>
+<p>I will say: "Yes."</p>
+<p>We will, on the Saturday at three in the afternoon at a small cafe on Mercer Street, in the small clean clarity of two people who have, in the small private way that the world sometimes lets you, found each other again — drink a small slow cup of coffee.</p>
+<p>And we will, in the small clean clarity of the next sixteen years, never be apart again.</p>
+<p>But that is — and you should know — the next eighteen months and the eight months after.</p>
+<p>That is not, today, what I know.</p>
+<p>Today, in the small specific December afternoon of Cherry Lane, I do not know any of it.</p>
+<p>I am sitting on the edge of Felix's bed listening to a small specific story about a small armored train across Siberia.</p>
+<p>I am, in the small specific evening, in a marriage I am, in some small interior way, eighteen months from leaving.</p>
+<p>I am, in the small specific evening, in love with a man across the driveway who is, in some small interior way, eighteen months from leaving his own.</p>
+<p>I am, in the small specific evening — <em>waking up</em>.</p>
+<p>I am, in the small specific evening, becoming a person who is going to choose.</p>
+<p>I do not, in the small specific evening, know any of this yet.</p>
+<p>But the small clean clarity of having woken up is, by itself, the rest of it.</p>
+<p>The rest of it is just time.</p>
+<p><em>~ end Chapter 10 ~</em></p>
+</div></article>
+
+    <footer class="book-end">
+      <div class="the-end">~ The End ~</div>
+      <a class="back-link" href="/library/">← Back to Library</a>
+    </footer>
+  </main>
+
+  <script type="module">
+    import { requireAuth, renderTopbar, logEvent } from "/assets/lib.js";
+    await requireAuth();
+    renderTopbar();
+    logEvent("book_opened", { book_id: "across-the-driveway" });
+  </script>
+</body>
+</html>

@@ -56,10 +56,39 @@
         author: "Stuff So Sweet",
         cover: "https://trippleu.com/wp-content/uploads/2026/06/book_1_cover.webp",
         tagline: "A wildlife biologist tracks a stationary signal deeper into the Bitterroot wilderness than she should. The man at the abandoned cabin knows her name before she gives it. And then her transmitter pings inside his heartbeat.",
-        chapters: 10,
-        words: 22000,
-        readMins: 90,
-        heat: "Spicy",
+        chapters: 10, words: 22000, readMins: 90, heat: "Spicy",
+      },
+      {
+        id: "foxlight",
+        title: "Foxlight",
+        author: "Stuff So Sweet",
+        cover: "https://trippleu.com/wp-content/uploads/2026/06/book_foxlight.webp",
+        tagline: "A London barrister inherits a small Welsh estate that comes with a copper-haired groundskeeper, an 1763 family compact, and a creature in the orchard at dusk with eyes the color of amber whiskey.",
+        chapters: 10, words: 21000, readMins: 90, heat: "Spicy",
+      },
+      {
+        id: "the-penthouse-floor",
+        title: "The Penthouse Floor",
+        author: "Stuff So Sweet",
+        cover: "https://trippleu.com/wp-content/uploads/2026/06/penthouse.webp",
+        tagline: "A Tribeca fashion editor meets the widower in the penthouse. He gets off the elevator on her floor to know her name before she disappears. The next morning a flat white shows up at her door.",
+        chapters: 10, words: 24000, readMins: 95, heat: "Spicy",
+      },
+      {
+        id: "across-the-driveway",
+        title: "Across the Driveway",
+        author: "Stuff So Sweet",
+        cover: "https://trippleu.com/wp-content/uploads/2026/06/drivebay.webp",
+        tagline: "A Greenwich heatwave, a fifty-eight-hour power outage, both spouses away. The architectural historian across the driveway brings his kids to her pool. Six weeks of an affair. A bittersweet end.",
+        chapters: 10, words: 27000, readMins: 110, heat: "Very spicy",
+      },
+      {
+        id: "after-hours",
+        title: "After Hours",
+        author: "Stuff So Sweet",
+        cover: "https://trippleu.com/wp-content/uploads/2026/06/after_hours.webp",
+        tagline: "A senior analyst and the senior partner at a Park Avenue investment firm. A power flicker. A drink across the street. He tells her he is experienced in things that might interest a curious mind. She has, in fact, been curious for six years.",
+        chapters: 10, words: 31000, readMins: 125, heat: "Very explicit · BDSM",
       },
     ];
 
@@ -68,7 +97,7 @@
 
     const grid = document.getElementById("grid");
     grid.innerHTML = BOOKS.map(b => `
-      <a class="book-card" href="/library/book/?id=${encodeURIComponent(b.id)}">
+      <a class="book-card" href="/library/book/${b.id}/">
         <img class="book-cover" src="${b.cover}" alt="" loading="lazy">
         <div class="book-info">
           <div class="book-title">${b.title}</div>
