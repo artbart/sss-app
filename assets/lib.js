@@ -3,6 +3,7 @@
 // exposes auth helpers, and provides a small event-logging utility.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import posthog from "https://esm.sh/posthog-js@1";
 
 const SUPABASE_URL = "https://gmhbcxylqubhxozomhlt.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaGJjeHlscXViaHhvem9taGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTk5OTksImV4cCI6MjA5MjczNTk5OX0.GAM73P5X7fT1BIziTfvqUpFT2W_W5EtFb5Gze5cIFfY";
@@ -14,6 +15,38 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     detectSessionInUrl: true,  // /auth/callback handles the hash itself, but this is fine to leave on
   },
 });
+
+/* ===== PostHog product analytics =====
+ * The project key below is a PUBLIC (publishable) PostHog key — it is meant to
+ * live in client-side code, exactly like the Supabase anon key above.
+ * Both stuffsosweet.com and app.stuffsosweet.com report into the SAME PostHog
+ * project, so this key must match the one used in Sss_test/assets/posthog.js.
+ *
+ * EU cloud: ingestion host eu.i.posthog.com, dashboard host eu.posthog.com.  */
+const POSTHOG_KEY = "phc_BzHnof4mQ7dmxTetogNVJF4aEynfmgDP4uHs5LBQZrFu";
+const POSTHOG_HOST = "https://eu.i.posthog.com";
+
+// Only initialize once we have a real key, so the app keeps working before the
+// project is created / the key is pasted in.
+export const posthogReady = POSTHOG_KEY.startsWith("phc_") && !POSTHOG_KEY.includes("REPLACE");
+if (posthogReady) {
+  posthog.init(POSTHOG_KEY, {
+    api_host: POSTHOG_HOST,
+    ui_host: "https://eu.posthog.com",
+    person_profiles: "identified_only", // anonymous events still captured & merged on identify
+    capture_pageview: true,
+    capture_pageleave: true,
+    autocapture: true,
+    session_recording: {
+      maskAllInputs: true, // mask every form input (emails, etc.) in replays
+    },
+    persistence: "localStorage+cookie",
+  });
+} else {
+  console.warn("[sss-app] PostHog key not set — analytics disabled. Paste the project key into assets/lib.js.");
+}
+
+export { posthog };
 
 /* ===== Auth helpers ===== */
 
@@ -100,9 +133,53 @@ export async function logEvent(event_type, extras = {}) {
     };
     const { error } = await supabase.from("events").insert(row);
     if (error) console.warn("[sss-app] event insert failed:", error.message);
+
+    // Mirror the same event to PostHog. Flatten the well-known columns and
+    // spread metadata so each key is a first-class, filterable property.
+    if (posthogReady) {
+      const { metadata, email, ...rest } = extras;
+      posthog.capture(event_type, {
+        ...rest,
+        ...(metadata && typeof metadata === "object" ? metadata : { metadata }),
+        story_id: row.story_id ?? undefined,
+        chapter_number: row.chapter_number ?? undefined,
+        session_id: row.session_id ?? undefined,
+        surface: "app",
+      });
+    }
   } catch (e) {
     console.warn("[sss-app] logEvent threw:", e);
   }
+}
+
+/* Tie the current PostHog person to the signed-in Supabase user.
+ * Called automatically on load (below) and again right after login. Idempotent. */
+export async function identifyUser(session = null) {
+  if (!posthogReady) return;
+  try {
+    const sess = session ?? (await getSession());
+    if (sess?.user?.id) {
+      // Key identity on EMAIL to match the marketing/quiz funnel (Sss_test),
+      // so a visitor's quiz → signup → reading journey is one PostHog person.
+      // The Supabase UUID is kept as a property for cross-referencing.
+      posthog.identify(sess.user.email ?? sess.user.id, {
+        email: sess.user.email ?? undefined,
+        supabase_user_id: sess.user.id,
+      });
+    }
+  } catch (e) {
+    console.warn("[sss-app] identifyUser threw:", e);
+  }
+}
+
+// Identify on every page load if a session already exists, and keep PostHog in
+// sync with Supabase auth transitions (login in another tab, token refresh, logout).
+if (posthogReady) {
+  identifyUser();
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") identifyUser(session);
+    if (event === "SIGNED_OUT") posthog.reset();
+  });
 }
 
 /* ===== UI helpers ===== */
