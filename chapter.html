@@ -291,7 +291,19 @@
       const nextExists = all.some(c => c.chapter_number === chapterN + 1);
 
       if (isFinal) {
-        optionsEl.innerHTML = `<div class="final-note">This was the final chapter of your story. We hope you enjoyed it.</div>`;
+        optionsEl.innerHTML = `
+          <div class="final-note">
+            You've reached the end of your story. <strong>One last thing</strong> — your finished book has just unlocked something new: a private conversation with any of its characters.
+          </div>
+          <div style="margin-top:16px;text-align:center;">
+            <a class="nav-btn primary"
+               style="display:inline-block;padding:14px 26px;font-size:15px;text-decoration:none;"
+               href="https://chat.stuffsosweet.com/?story=${encodeURIComponent(storyId)}"
+               target="_blank" rel="noopener">
+              Chat with the characters  →
+            </a>
+          </div>
+        `;
       } else if (alreadyChose && nextExists) {
         // Already chose AND next chapter exists → show "Read next" button
         renderNavButtons(chapterN, total, all);
@@ -374,7 +386,7 @@
           <div class="waiting-progress"><div class="waiting-progress-fill" id="waitProg"></div></div>
         </div>
       `;
-      navEl.innerHTML = `<a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a>`;
+      navEl.innerHTML = `<div class="nav-row" style="margin-top:20px;"><a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a></div>`;
 
       // Animate progress bar over 120s
       let start = Date.now();
