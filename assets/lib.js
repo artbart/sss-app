@@ -182,6 +182,33 @@ if (posthogReady) {
   });
 }
 
+/* ===== Cross-subdomain chat link ===== */
+// Build a URL to chat.stuffsosweet.com that carries the current Supabase session
+// in the URL hash so chat auto-logs the user in (detectSessionInUrl=true on that side).
+//   buildChatUrl()                → opens the chat home (wizard / past convos)
+//   buildChatUrl(storyId)         → opens the wizard pre-selected to that personalized story
+export async function buildChatUrl(target = null) {
+  // Accepts: null (just chat home), a string (legacy = story uuid),
+  // { story: <uuid> } for personalized stories, { book: <slug> } for library books.
+  if (typeof target === "string") target = { story: target };
+  const base = "https://chat.stuffsosweet.com/";
+  let query = "";
+  if (target?.story) query = `?story=${encodeURIComponent(target.story)}`;
+  else if (target?.book) query = `?book=${encodeURIComponent(target.book)}`;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token && session?.refresh_token) {
+      const hash = `#access_token=${encodeURIComponent(session.access_token)}` +
+                   `&refresh_token=${encodeURIComponent(session.refresh_token)}` +
+                   `&token_type=bearer&type=passthrough`;
+      return base + query + hash;
+    }
+  } catch (e) {
+    console.warn("[chat-passthrough] could not read session:", e);
+  }
+  return base + query;
+}
+
 /* ===== UI helpers ===== */
 
 // Inject a standard top-bar into the page.
@@ -195,12 +222,18 @@ export function renderTopbar(target = "#topbar") {
       <div class="menu">
         <a href="/stories.html">Stories</a>
         <a href="/library/">Library</a>
+        <a href="#" id="chatNavLink">Chat</a>
         <a href="/settings.html">Settings</a>
         <button id="signOutBtn" type="button">Sign out</button>
       </div>
     </div>
   `;
   document.getElementById("signOutBtn")?.addEventListener("click", () => signOut("/"));
+  document.getElementById("chatNavLink")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const url = await buildChatUrl();
+    window.open(url, "_blank", "noopener");
+  });
 }
 
 /* ===== PWA service worker registration ===== */

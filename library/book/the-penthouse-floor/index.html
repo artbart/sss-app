@@ -1305,6 +1305,13 @@
 
     <footer class="book-end">
       <div class="the-end">~ The End ~</div>
+      <div style="margin: 18px auto 22px; text-align: center;">
+        <a class="nav-btn primary" id="bookEndChatBtn"
+           style="display:inline-block; background:var(--cta); color:#fff; padding:14px 26px; border-radius:12px; font-family:Georgia,serif; font-size:15px; text-decoration:none; cursor:pointer;"
+           href="#">
+          Chat with the characters &nbsp;→
+        </a>
+      </div>
       <a class="back-link" href="/library/">← Back to Library</a>
     </footer>
   </main>
@@ -1314,6 +1321,13 @@
     await requireAuth();
     renderTopbar();
     logEvent("book_opened", { book_id: "the-penthouse-floor" });
+
+    document.getElementById("bookEndChatBtn")?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const { buildChatUrl } = await import("/assets/lib.js");
+      const url = await buildChatUrl({ book: "the-penthouse-floor" });
+      window.open(url, "_blank", "noopener");
+    });
   </script>
 </body>
 </html>
