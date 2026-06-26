@@ -271,15 +271,29 @@
       </div>
     </a>
 
+    <a class="library-hero" id="chatHero" href="https://chat.stuffsosweet.com/" target="_blank" rel="noopener" style="margin-top:14px;">
+      <div class="lh-covers" aria-hidden="true">
+        <div style="display:flex;gap:6px;align-items:center;justify-content:center;width:100%;">
+          <div style="width:54px;height:54px;border-radius:50%;background:rgba(240,200,158,0.18);color:#f0c89e;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:22px;">C</div>
+          <div style="width:54px;height:54px;border-radius:50%;background:rgba(240,200,158,0.18);color:#f0c89e;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:22px;">L</div>
+          <div style="width:54px;height:54px;border-radius:50%;background:rgba(240,200,158,0.18);color:#f0c89e;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:22px;">I</div>
+          <div style="width:54px;height:54px;border-radius:50%;background:rgba(240,200,158,0.18);color:#f0c89e;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:22px;">H</div>
+          <div style="width:54px;height:54px;border-radius:50%;background:rgba(240,200,158,0.18);color:#f0c89e;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:22px;">A</div>
+        </div>
+      </div>
+      <div class="lh-text">
+        <div class="lh-eyebrow">COMPANION CHAT</div>
+        <div class="lh-title">Talk to the characters</div>
+        <div class="lh-sub">Cassie, Lila, Iona, Hadley, Andrea — and the leads from any of your finished personalized stories.</div>
+        <div class="lh-cta">Open chat →</div>
+      </div>
+    </a>
+
     <div class="section-label">Coming soon</div>
     <div class="coming-soon-grid">
       <div class="coming-card">
         <div class="coming-title">Sound stories</div>
         <div class="coming-sub">Listen, anytime, anywhere.</div>
-      </div>
-      <div class="coming-card">
-        <div class="coming-title">Companion chat</div>
-        <div class="coming-sub">Talk to your favorite characters.</div>
       </div>
     </div>
   </div>
@@ -288,6 +302,14 @@
     import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
 
     const session = await requireAuth();
+
+    // Make the chat-hero card carry the auth session via URL hash
+    document.getElementById('chatHero')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const { buildChatUrl } = await import('/assets/lib.js');
+      const url = await buildChatUrl();
+      window.open(url, '_blank', 'noopener');
+    });
     renderTopbar();
     await logEvent("app_open", { metadata: { page: "stories" } });
 

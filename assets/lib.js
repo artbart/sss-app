@@ -8,11 +8,48 @@ import posthog from "https://esm.sh/posthog-js@1";
 const SUPABASE_URL = "https://gmhbcxylqubhxozomhlt.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaGJjeHlscXViaHhvem9taGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTk5OTksImV4cCI6MjA5MjczNTk5OX0.GAM73P5X7fT1BIziTfvqUpFT2W_W5EtFb5Gze5cIFfY";
 
+/**
+ * Cross-subdomain cookie storage: writes Supabase session cookies on the parent
+ * domain .stuffsosweet.com so app.stuffsosweet.com and chat.stuffsosweet.com share
+ * the same session. Falls back to localStorage on localhost / preview environments.
+ *
+ * Cookies are stored URL-encoded. The Supabase session payload (~2-4KB) fits in a
+ * single cookie under the 4KB limit; if a future user has a larger session we will
+ * need to split across multiple cookies.
+ */
+const PARENT_DOMAIN = ".stuffsosweet.com";
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 year
+const isProductionHost = typeof location !== "undefined" && location.hostname.endsWith("stuffsosweet.com");
+const crossDomainCookieStorage = {
+  getItem(key) {
+    if (typeof document === "undefined") return null;
+    const prefix = encodeURIComponent(key) + "=";
+    const parts = document.cookie ? document.cookie.split("; ") : [];
+    for (const part of parts) {
+      if (part.startsWith(prefix)) {
+        try { return decodeURIComponent(part.slice(prefix.length)); }
+        catch (_) { return part.slice(prefix.length); }
+      }
+    }
+    return null;
+  },
+  setItem(key, value) {
+    if (typeof document === "undefined") return;
+    const cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; path=/; domain=${PARENT_DOMAIN}; SameSite=Lax; Secure; max-age=${COOKIE_MAX_AGE_SECONDS}`;
+    document.cookie = cookie;
+  },
+  removeItem(key) {
+    if (typeof document === "undefined") return;
+    document.cookie = `${encodeURIComponent(key)}=; path=/; domain=${PARENT_DOMAIN}; max-age=0`;
+  },
+};
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true,  // /auth/callback handles the hash itself, but this is fine to leave on
+    detectSessionInUrl: true,
+    storage: isProductionHost ? crossDomainCookieStorage : (typeof window !== "undefined" ? window.localStorage : undefined),
   },
 });
 
@@ -190,6 +227,9 @@ if (posthogReady) {
 export async function buildChatUrl(target = null) {
   // Accepts: null (just chat home), a string (legacy = story uuid),
   // { story: <uuid> } for personalized stories, { book: <slug> } for library books.
+  // Session is shared across subdomains via cookies on .stuffsosweet.com, so no
+  // URL hash passthrough is needed in normal cases. Hash fallback kept in case the
+  // user has cookies blocked.
   if (typeof target === "string") target = { story: target };
   const base = "https://chat.stuffsosweet.com/";
   let query = "";
@@ -198,9 +238,11 @@ export async function buildChatUrl(target = null) {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.access_token && session?.refresh_token) {
+      // Hash fallback: chat-side bootstrap calls setSession() with these if present.
+      // Harmless if cookies already carried the session.
       const hash = `#access_token=${encodeURIComponent(session.access_token)}` +
                    `&refresh_token=${encodeURIComponent(session.refresh_token)}` +
-                   `&token_type=bearer&type=passthrough`;
+                   `&token_type=bearer&type=magiclink`;
       return base + query + hash;
     }
   } catch (e) {
@@ -218,7 +260,7 @@ export function renderTopbar(target = "#topbar") {
   if (!el) return;
   el.innerHTML = `
     <div class="topbar">
-      <a class="brand" href="/stories.html">Stuff So Sweet</a>
+      <a class="brand" href="/stories.html">SSS</a>
       <div class="menu">
         <a href="/stories.html">Stories</a>
         <a href="/library/">Library</a>

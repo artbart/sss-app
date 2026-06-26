@@ -47,10 +47,10 @@ a:hover { text-decoration: underline; }
 }
 .topbar .brand {
   font-family: Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 700;
   color: #fff4ec;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
 }
 .topbar .brand::before,
 .topbar .brand::after {
