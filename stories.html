@@ -271,7 +271,7 @@
       </div>
     </a>
 
-    <a class="library-hero" id="chatHero" href="https://chat.stuffsosweet.com/" target="_blank" rel="noopener" style="margin-top:14px;">
+    <a class="library-hero" id="chatHero" href="https://chat.stuffsosweet.com/" style="margin-top:14px;">
       <div class="lh-covers" aria-hidden="true">
         <div style="display:flex;gap:6px;align-items:center;justify-content:center;width:100%;">
           <div style="width:54px;height:54px;border-radius:50%;background:rgba(240,200,158,0.18);color:#f0c89e;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:22px;">C</div>
@@ -307,8 +307,7 @@
     document.getElementById('chatHero')?.addEventListener('click', async (e) => {
       e.preventDefault();
       const { buildChatUrl } = await import('/assets/lib.js');
-      const url = await buildChatUrl();
-      window.open(url, '_blank', 'noopener');
+      location.href = await buildChatUrl();
     });
     renderTopbar();
     await logEvent("app_open", { metadata: { page: "stories" } });
