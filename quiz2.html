@@ -79,26 +79,6 @@
     .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #e04b57; border-radius: 50%; animation: sp 0.8s linear infinite; }
     @keyframes sp { to { transform: rotate(360deg); } }
     .age-warn { font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); text-align: center; margin: 16px 4px 0; }
-
-    /* In-app-browser (Facebook/Messenger/Instagram) banner. Their webview
-       has bugs iOS Safari doesn't (position:fixed under keyboard, event
-       ordering, sometimes even blocked button taps). We show a one-tap
-       Safari link at the top when we detect them. */
-    .inapp-banner {
-      display: none;
-      background: rgba(224, 75, 87, 0.14);
-      border: 1px solid rgba(224, 75, 87, 0.45);
-      color: #ffd7db;
-      font-family: Arial, sans-serif; font-size: 13px; line-height: 1.4;
-      padding: 12px 14px; border-radius: 10px; margin-bottom: 14px;
-    }
-    .inapp-banner b { color: #fff; }
-    .inapp-banner a {
-      display: inline-block; margin-top: 6px; padding: 8px 12px;
-      background: #e04b57; color: #fff; text-decoration: none;
-      border-radius: 8px; font-weight: 600;
-    }
-    body.is-inapp-browser .inapp-banner { display: block; }
   </style>
 
   <!-- Google Tag Manager -->
@@ -116,36 +96,9 @@
   <div id="topbar"></div>
   <div class="quiz-wrap">
     <a class="quiz-back" href="/stories.html">← Back to stories</a>
-
-    <div class="inapp-banner" id="inappBanner">
-      <div><b>Facebook / Instagram browser detected.</b></div>
-      <div>Some controls (like the Continue button) don't work reliably here on iPhone. Please open this page in Safari for a smooth flow:</div>
-      <a id="openInSafariBtn" href="#">Open in Safari →</a>
-    </div>
-
     <div id="root"></div>
   </div>
   <div id="continueArea"></div>
-
-  <script>
-    // Detect Meta / Instagram / TikTok in-app browsers on iOS. When true,
-    // show the banner + wire the button. Kept out of the ES module below so
-    // it runs immediately (before requireAuth() has a chance to redirect).
-    (function () {
-      var ua = navigator.userAgent || "";
-      var isInApp = /FBAN|FBAV|Instagram|MessengerLite|MessengerForiOS|Line|Twitter/i.test(ua);
-      var isIOS = /iPhone|iPad|iPod/.test(ua);
-      if (isInApp && isIOS) {
-        document.body.classList.add("is-inapp-browser");
-        var btn = document.getElementById("openInSafariBtn");
-        if (btn) {
-          // On iOS 17+, x-safari- URL scheme opens the page in Safari from
-          // most in-app webviews. Falls back to normal href if unsupported.
-          btn.href = "x-safari-" + window.location.href;
-        }
-      }
-    })();
-  </script>
 
   <script type="module">
     import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
@@ -166,8 +119,10 @@
         { value: "no",  label: "❌ No — I'd rather watch it unfold from the outside" },
       ] },
 
-      // Only shown when in_story === "yes"
-      { key: "you", type: "you_compound", title: "Tell the story a little about you.", showIf: (s) => s.in_story === "yes" },
+      // Split from a single compound step so each field is committed on its
+      // own — mobile in-app browsers stumble on multi-field steps.
+      { key: "you_name",   type: "you_name",   title: "Your name in the story",   showIf: (s) => s.in_story === "yes" },
+      { key: "you_gender", type: "you_gender", title: "Your gender in the story", showIf: (s) => s.in_story === "yes" },
 
       { key: "pairing", type: "single", title: "Who's the romance between?", options: [
         { value: "wm",       label: "👩👨 A woman and a man" },
@@ -290,16 +245,20 @@
               <span class="check">&#10003;</span><span class="lbl">${o.label}</span>
             </button>
           `).join("") + `</div>`;
-      } else if (q.type === "you_compound") {
-        const you = cur || {};
+      } else if (q.type === "you_name") {
         body = `
-          <input class="name-input" id="youName" placeholder="What should we call you? (first name is fine)"
-                 value="${escapeAttr(you.name || "")}">
-          <div class="opt-multi-note">And how should the story refer to you?</div>
+          <div class="q-sub">First name is fine. This is what the engine will call you throughout the story.</div>
+          <input class="name-input" id="youName" placeholder="e.g. Ava" maxlength="30"
+                 autocapitalize="words" autocomplete="off" spellcheck="false"
+                 value="${escapeAttr(cur || "")}">
+        `;
+      } else if (q.type === "you_gender") {
+        body = `
+          <div class="q-sub">How the story will refer to you.</div>
           <div class="opt-list">
             ${["woman","man","nb"].map(g => `
-              <button class="opt ${you.gender === g ? "selected" : ""}" data-gender="${g}">
-                ${g === "woman" ? "👩 As a woman" : g === "man" ? "👨 As a man" : "🌈 Non-binary / neither"}
+              <button class="opt ${cur === g ? "selected" : ""}" data-gender="${g}">
+                ${g === "woman" ? "👩 Woman" : g === "man" ? "👨 Man" : "🌈 Non-binary"}
               </button>`).join("")}
           </div>
         `;
@@ -355,12 +314,9 @@
             if (i >= 0) arr.splice(i, 1); else arr.push(v);
             state[q.key] = arr;
             render();
-          } else if (q.type === "you_compound" && el.dataset.gender) {
-            const you = state[q.key] || {};
-            you.gender = el.dataset.gender;
-            you.name = (document.getElementById("youName")?.value || "").trim();
-            state[q.key] = you;
-            render();
+          } else if (q.type === "you_gender" && el.dataset.gender) {
+            state[q.key] = el.dataset.gender;
+            setTimeout(next, 180); // auto-advance like other single-select
           } else if (q.type === "skip_compound") {
             const s = state[q.key] || { open_any: false, specifics: [], free_text: "" };
             if (el.dataset.skipmode === "open_any") {
@@ -380,13 +336,8 @@
         });
       });
       root.querySelector("#youName")?.addEventListener("input", (e) => {
-        const you = state[q.key] || {};
-        you.name = e.target.value.trim();
-        state[q.key] = you;
-        // Refresh the Continue button without re-rendering the whole form
-        // (would blur the input on mobile). Fixes: name typed after picking
-        // gender left Continue disabled because it was only refreshed by
-        // gender-click render().
+        // For the split you_name step, state is a plain string (not an object)
+        state[q.key] = e.target.value.trim();
         renderContinueBar(q);
       });
       root.querySelector("#skipFree")?.addEventListener("input", (e) => {
@@ -401,7 +352,8 @@
       // Continue button — cleaner UX matching the marketing quiz2. Only show
       // the button for question types where the user needs to explicitly
       // commit multiple sub-choices before moving on.
-      const needsButton = q.type === "multi" || q.type === "you_compound" || q.type === "skip_compound";
+      // you_name has an input + explicit Continue; you_gender auto-advances (no button).
+      const needsButton = q.type === "multi" || q.type === "you_name" || q.type === "skip_compound";
       if (!needsButton) { contArea.innerHTML = ""; return; }
 
       // If a button is already mounted for THIS render pass, only toggle its
@@ -435,7 +387,8 @@
       const v = state[q.key];
       if (q.type === "single_bool" || q.type === "single") return v !== undefined;
       if (q.type === "multi") return Array.isArray(v) && v.length > 0;
-      if (q.type === "you_compound") return v && v.gender && (v.name || "").length >= 1;
+      if (q.type === "you_name") return typeof v === "string" && v.trim().length >= 1;
+      if (q.type === "you_gender") return typeof v === "string" && v.length > 0;
       if (q.type === "skip_compound") return true; // fully optional
       return true;
     }
@@ -464,7 +417,7 @@
         // No age_confirmed here — in-app users confirmed at signup; the
         // backend defaults q0_age_confirmed=true for source=app_authenticated_v2.
         in_story: state.in_story,
-        you: state.you || null,
+        you: (state.you_name || state.you_gender) ? { name: state.you_name || "", gender: state.you_gender || "" } : null,
         pairing: state.pairing,
         world: state.world,
         love_interest: state.love_interest,
