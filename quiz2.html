@@ -336,6 +336,11 @@
         const you = state[q.key] || {};
         you.name = e.target.value.trim();
         state[q.key] = you;
+        // Refresh the Continue button without re-rendering the whole form
+        // (would blur the input on mobile). Fixes: name typed after picking
+        // gender left Continue disabled because it was only refreshed by
+        // gender-click render().
+        renderContinueBar(q);
       });
       root.querySelector("#skipFree")?.addEventListener("input", (e) => {
         const s = state[q.key] || { open_any: false, specifics: [], free_text: "" };
