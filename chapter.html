@@ -381,21 +381,25 @@
       }
     }
 
-    // Waiting state: realtime listener + 2-minute fallback
+    // Waiting state: realtime listener + fallback to email-when-ready.
+    // Cap is the point where the UI switches from spinner to "we'll email you"
+    // message. It does NOT stop generation — that continues in the background
+    // (Edge Function has ~6-min budget with retries + emergency fallback), and
+    // the user gets an email + the chapter shows next time they reload.
     function renderWaitingState() {
       optionsEl.innerHTML = `
         <div class="waiting-card">
           <div class="spinner"></div>
           <div class="label">Writing your next chapter…</div>
-          <div class="sublabel">Usually takes 60-90 seconds. Up to 2 minutes.</div>
+          <div class="sublabel">Usually 60-90 seconds. Sometimes up to 3 minutes.</div>
           <div class="waiting-progress"><div class="waiting-progress-fill" id="waitProg"></div></div>
         </div>
       `;
       navEl.innerHTML = `<div class="nav-row" style="margin-top:20px;"><a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a></div>`;
 
-      // Animate progress bar over 120s
+      // Animate progress bar over 180s (3 min) — matches "up to 3 minutes" copy.
       let start = Date.now();
-      const cap = 120000;
+      const cap = 180000;
       const progEl = document.getElementById("waitProg");
       const tick = setInterval(() => {
         const pct = Math.min(100, ((Date.now() - start) / cap) * 100);
@@ -430,8 +434,8 @@
         supabase.removeChannel(channel);
         optionsEl.innerHTML = `
           <div class="waiting-card">
-            <div class="label">This is taking longer than usual.</div>
-            <div class="sublabel">We'll email you when your chapter is ready. You can also check back later.</div>
+            <div class="label">Still writing — the story engine's taking its time.</div>
+            <div class="sublabel">You can safely close this page. We'll email you within the next 10-15 minutes once your chapter is ready, and it'll also appear here.</div>
             <button class="nav-btn primary mt-16" style="margin-top:14px" id="checkNowBtn">Check now</button>
           </div>
         `;
@@ -445,7 +449,7 @@
           if (c) {
             window.location.href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}&fresh=1`;
           } else {
-            document.getElementById("checkNowBtn").textContent = "Not ready yet — try again soon";
+            document.getElementById("checkNowBtn").textContent = "Not ready yet — try again in a minute";
           }
         });
       }
