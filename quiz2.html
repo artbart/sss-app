@@ -246,11 +246,15 @@
             </button>
           `).join("") + `</div>`;
       } else if (q.type === "you_name") {
+        // Inline Continue right below the input — the fixed bottom bar gets
+        // covered by the iOS/Android on-screen keyboard, and older users
+        // don't know to dismiss it. Inline sits where the thumb already is.
         body = `
           <div class="q-sub">First name is fine. This is what the engine will call you throughout the story.</div>
           <input class="name-input" id="youName" placeholder="e.g. Ava" maxlength="30"
                  autocapitalize="words" autocomplete="off" spellcheck="false"
                  value="${escapeAttr(cur || "")}">
+          <button class="continue-btn" id="youNameCta" style="margin-top:10px;" ${(cur || "").length >= 1 ? "" : "disabled"}>Continue →</button>
         `;
       } else if (q.type === "you_gender") {
         body = `
@@ -336,9 +340,16 @@
         });
       });
       root.querySelector("#youName")?.addEventListener("input", (e) => {
-        // For the split you_name step, state is a plain string (not an object)
+        // For the split you_name step, state is a plain string (not an object).
         state[q.key] = e.target.value.trim();
-        renderContinueBar(q);
+        // Toggle the INLINE Continue button (not the fixed bar).
+        const inlineBtn = root.querySelector("#youNameCta");
+        if (inlineBtn) inlineBtn.disabled = state[q.key].length < 1;
+      });
+      root.querySelector("#youNameCta")?.addEventListener("click", () => {
+        // Dismiss the keyboard before transitioning so viewport doesn't jump.
+        document.activeElement?.blur?.();
+        next();
       });
       root.querySelector("#skipFree")?.addEventListener("input", (e) => {
         const s = state[q.key] || { open_any: false, specifics: [], free_text: "" };
@@ -352,8 +363,9 @@
       // Continue button — cleaner UX matching the marketing quiz2. Only show
       // the button for question types where the user needs to explicitly
       // commit multiple sub-choices before moving on.
-      // you_name has an input + explicit Continue; you_gender auto-advances (no button).
-      const needsButton = q.type === "multi" || q.type === "you_name" || q.type === "skip_compound";
+      // you_name renders its own INLINE Continue right below the input (mobile
+      // keyboard would cover the fixed bar). you_gender auto-advances (no button).
+      const needsButton = q.type === "multi" || q.type === "skip_compound";
       if (!needsButton) { contArea.innerHTML = ""; return; }
 
       // If a button is already mounted for THIS render pass, only toggle its
