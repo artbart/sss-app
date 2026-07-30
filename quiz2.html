@@ -357,13 +357,31 @@
       const needsButton = q.type === "multi" || q.type === "you_compound" || q.type === "skip_compound";
       if (!needsButton) { contArea.innerHTML = ""; return; }
 
+      // If a button is already mounted for THIS render pass, only toggle its
+      // enabled state — don't destroy + recreate. iOS Safari fires `input`
+      // events as the user taps outside the input (autocorrect commit), and
+      // if we swap the button node mid-tap the tap lands on a destroyed
+      // element and does nothing. Reuse the existing DOM node.
+      const existing = document.getElementById("contBtn");
       const enabled = isAnswered(q);
+      const label = idx === QUESTIONS.length - 1 ? "Start my story →" : "Continue →";
+      if (existing) {
+        existing.disabled = !enabled;
+        existing.textContent = label;
+        return;
+      }
+
       contArea.innerHTML = `
         <div class="continue-bar">
           <button class="continue-btn" id="contBtn" ${enabled ? "" : "disabled"}>${idx === QUESTIONS.length - 1 ? "Start my story →" : "Continue →"}</button>
         </div>
       `;
-      document.getElementById("contBtn").addEventListener("click", next);
+      document.getElementById("contBtn").addEventListener("click", (e) => {
+        // iOS: if the on-screen keyboard is still up (name input focused),
+        // dismiss it first so the tap position doesn't jump.
+        document.activeElement?.blur?.();
+        next();
+      });
     }
 
     function isAnswered(q) {
