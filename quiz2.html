@@ -27,7 +27,12 @@
       background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer;
       transition: all .12s ease;
     }
-    .opt:hover { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.08); }
+    /* Only apply :hover on real mouse devices — iOS Safari + Meta/Instagram
+       in-app browsers leave :hover STICKY after tap, making the last-tapped
+       option look permanently highlighted. */
+    @media (hover: hover) and (pointer: fine) {
+      .opt:hover { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.08); }
+    }
     .opt.selected { border-color: #e04b57; background: rgba(224,75,87,0.14); }
     /* Checkmark for multi-select selected state — visually distinct from single-select */
     .opt.multi { display: flex; align-items: center; gap: 12px; padding-left: 14px; }
