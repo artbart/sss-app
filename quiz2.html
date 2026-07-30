@@ -79,6 +79,26 @@
     .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #e04b57; border-radius: 50%; animation: sp 0.8s linear infinite; }
     @keyframes sp { to { transform: rotate(360deg); } }
     .age-warn { font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); text-align: center; margin: 16px 4px 0; }
+
+    /* In-app-browser (Facebook/Messenger/Instagram) banner. Their webview
+       has bugs iOS Safari doesn't (position:fixed under keyboard, event
+       ordering, sometimes even blocked button taps). We show a one-tap
+       Safari link at the top when we detect them. */
+    .inapp-banner {
+      display: none;
+      background: rgba(224, 75, 87, 0.14);
+      border: 1px solid rgba(224, 75, 87, 0.45);
+      color: #ffd7db;
+      font-family: Arial, sans-serif; font-size: 13px; line-height: 1.4;
+      padding: 12px 14px; border-radius: 10px; margin-bottom: 14px;
+    }
+    .inapp-banner b { color: #fff; }
+    .inapp-banner a {
+      display: inline-block; margin-top: 6px; padding: 8px 12px;
+      background: #e04b57; color: #fff; text-decoration: none;
+      border-radius: 8px; font-weight: 600;
+    }
+    body.is-inapp-browser .inapp-banner { display: block; }
   </style>
 
   <!-- Google Tag Manager -->
@@ -96,9 +116,36 @@
   <div id="topbar"></div>
   <div class="quiz-wrap">
     <a class="quiz-back" href="/stories.html">← Back to stories</a>
+
+    <div class="inapp-banner" id="inappBanner">
+      <div><b>Facebook / Instagram browser detected.</b></div>
+      <div>Some controls (like the Continue button) don't work reliably here on iPhone. Please open this page in Safari for a smooth flow:</div>
+      <a id="openInSafariBtn" href="#">Open in Safari →</a>
+    </div>
+
     <div id="root"></div>
   </div>
   <div id="continueArea"></div>
+
+  <script>
+    // Detect Meta / Instagram / TikTok in-app browsers on iOS. When true,
+    // show the banner + wire the button. Kept out of the ES module below so
+    // it runs immediately (before requireAuth() has a chance to redirect).
+    (function () {
+      var ua = navigator.userAgent || "";
+      var isInApp = /FBAN|FBAV|Instagram|MessengerLite|MessengerForiOS|Line|Twitter/i.test(ua);
+      var isIOS = /iPhone|iPad|iPod/.test(ua);
+      if (isInApp && isIOS) {
+        document.body.classList.add("is-inapp-browser");
+        var btn = document.getElementById("openInSafariBtn");
+        if (btn) {
+          // On iOS 17+, x-safari- URL scheme opens the page in Safari from
+          // most in-app webviews. Falls back to normal href if unsupported.
+          btn.href = "x-safari-" + window.location.href;
+        }
+      }
+    })();
+  </script>
 
   <script type="module">
     import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
