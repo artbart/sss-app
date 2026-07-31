@@ -113,6 +113,17 @@
     await logEvent("app_open", { metadata: { page: "quiz2" } });
     await logEvent("quiz_started", { metadata: { source: "app", quiz_version: 2 } });
 
+    // Pre-fill the reader name from the user's account display_name (if any) so
+    // returning users don't have to retype it. Editing here only affects THIS
+    // story's q1b_you.name — it does NOT overwrite the account display_name
+    // (that's a one-time seed at first signup, done in start-authenticated-story-v2).
+    let prefillName = "";
+    try {
+      const { data: u } = await supabase.from("users")
+        .select("display_name").eq("id", session.user.id).maybeSingle();
+      if (u?.display_name) prefillName = String(u.display_name).slice(0, 40);
+    } catch (_) { /* non-fatal — user just retypes */ }
+
     // ================================================================
     // V2 question schema — mirrors _shared/prompts_v2.ts field names.
     // ================================================================
@@ -338,6 +349,8 @@
     ];
 
     const state = {};
+    // Seed name from account display_name if we have one (see fetch above).
+    if (prefillName) state.you_name = prefillName;
     let idx = 0;
 
     // Compute visible steps based on showIf conditionals + current state.
