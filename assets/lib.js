@@ -440,6 +440,13 @@ export async function renderShell(opts = {}) {
     });
   });
 
+  // Gate the rail "New story" link when the monthly quota (3 stories) is
+  // exhausted. Runs on every page so users can't sneak past by navigating
+  // to /quiz2.html from settings or story pages. Silent-fail if the query
+  // can't run (e.g. preview mode, guest session) — better to allow than
+  // to block wrongly.
+  gateNewStoryNav().catch((e) => console.warn("[shell] quota gate failed:", e));
+
   // Reveal main content — starts hidden via .main{opacity:0} so pages don't
   // flash empty → filled during load. One frame after the shell is set up
   // is enough for layout to settle.
@@ -465,6 +472,42 @@ export async function renderShell(opts = {}) {
       if (nm) nm.textContent = name;
     }
   } catch (e) { /* rail user row is decorative — swallow */ }
+}
+
+/* ===== New-story quota gate (shared across every page's rail nav) =====
+ * Queries this month's story count; if the user is at the 3/month cap,
+ * dims the "New story" nav item + intercepts clicks with a tooltip. Only
+ * touches the rail nav item; the header pill on stories.html has its own
+ * gate. Backend enforcement lives in start-authenticated-story-v2. */
+const MONTHLY_STORY_LIMIT = 3;
+
+async function gateNewStoryNav() {
+  const navItems = document.querySelectorAll('[data-nav="new"]');
+  if (!navItems.length) return;                    // no new-story link on this page
+  if (isPreviewMode()) return;                     // preview mode has no real quota
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return;                      // signed out — no gate
+
+  const now = new Date();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const { count, error } = await supabase.from("stories")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", session.user.id)
+    .gte("created_at", monthStart);
+  if (error) return;                               // silent fail — better to allow
+
+  const used = count || 0;
+  const left = Math.max(0, MONTHLY_STORY_LIMIT - used);
+  if (left > 0) return;                            // still under cap — allow
+
+  navItems.forEach((a) => {
+    a.style.opacity = "0.4";
+    a.style.pointerEvents = "none";
+    a.setAttribute("aria-disabled", "true");
+    a.setAttribute("title",
+      `You've used all ${MONTHLY_STORY_LIMIT} of your stories this month. Quota resets on the 1st.`);
+    a.addEventListener("click", (e) => { e.preventDefault(); return false; });
+  });
 }
 
 /* ===== PWA service worker registration ===== */
