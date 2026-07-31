@@ -149,8 +149,85 @@
     await getSessionOrPreview({ users: [{ display_name: "Arturas" }] });
     await renderShell({ activeNav: "library" });
 
-    // Library catalog — add new books here.
+    // Library catalog — sorted newest first.
+    // Entries with an explicit `href` are DB-backed personalized-engine books
+    // (readable via /story.html?id=<uuid>). Entries without `href` fall back to
+    // static /library/book/<id>/ folders (the original 5 hand-crafted books).
     const BOOKS = [
+      // ─── Latest batch: 8 books from the personalized engine (Jul 31, 2026) ───
+      {
+        id: "a78d1eed-f559-471c-ac8a-7f4121b345d7",
+        href: "/story.html?id=a78d1eed-f559-471c-ac8a-7f4121b345d7",
+        title: "When the Dark Holds Still",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/a78d1eed-f559-471c-ac8a-7f4121b345d7.jpg",
+        tagline: "Bound to a demon lord by an ancient pact she didn't make, Nell must survive in his manor — and resist the dark pull between them.",
+        chapters: 10, words: 22000, readMins: 92, heat: "Very spicy",
+      },
+      {
+        id: "9342b4a8-dd42-4997-8418-0a4ea88f778d",
+        href: "/story.html?id=9342b4a8-dd42-4997-8418-0a4ea88f778d",
+        title: "His Dangerous Attention",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/9342b4a8-dd42-4997-8418-0a4ea88f778d.jpg",
+        tagline: "One reckless night with a dangerous man becomes an obsession neither can escape.",
+        chapters: 10, words: 22000, readMins: 93, heat: "Very spicy",
+      },
+      {
+        id: "130b6fca-1bff-472e-b005-3cbb4346b66a",
+        href: "/story.html?id=130b6fca-1bff-472e-b005-3cbb4346b66a",
+        title: "She Promised Safety",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/130b6fca-1bff-472e-b005-3cbb4346b66a.jpg",
+        tagline: "A younger woman fleeing burnout finds unexpected shelter — and desire — with the steady carpenter who offers her a safe place to land.",
+        chapters: 10, words: 23000, readMins: 97, heat: "Spicy",
+      },
+      {
+        id: "9c17807a-14da-4672-94be-cdd2c0c85ac0",
+        href: "/story.html?id=9c17807a-14da-4672-94be-cdd2c0c85ac0",
+        title: "What Are You Hiding From?",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/9c17807a-14da-4672-94be-cdd2c0c85ac0.jpg",
+        tagline: "A cybersecurity analyst is forced to work side-by-side with the dangerously controlled executive she's been assigned to investigate.",
+        chapters: 10, words: 26000, readMins: 109, heat: "Spicy",
+      },
+      {
+        id: "141d7645-18d4-43e5-9ae8-d162012b8081",
+        href: "/story.html?id=141d7645-18d4-43e5-9ae8-d162012b8081",
+        title: "What He Knows",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/141d7645-18d4-43e5-9ae8-d162012b8081.jpg",
+        tagline: "An omega who walked away three years ago finds himself back in the alpha's orbit — and this time, neither of them is letting go without answers.",
+        chapters: 10, words: 22000, readMins: 94, heat: "Very spicy",
+      },
+      {
+        id: "488f22a9-de86-4537-8266-43537c3982cd",
+        href: "/story.html?id=488f22a9-de86-4537-8266-43537c3982cd",
+        title: "Three Weeks, No Mercy",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/488f22a9-de86-4537-8266-43537c3982cd.jpg",
+        tagline: "When her father's will names his estranged best friend as her guardian, Ivy finds herself confined to a crumbling estate with a man who wants nothing to do with her — and everything she shouldn't want.",
+        chapters: 10, words: 21000, readMins: 87, heat: "Spicy",
+      },
+      {
+        id: "0380e02e-a985-4d2b-979b-08c8a12dee3d",
+        href: "/story.html?id=0380e02e-a985-4d2b-979b-08c8a12dee3d",
+        title: "What He Keeps Close",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/0380e02e-a985-4d2b-979b-08c8a12dee3d.jpg",
+        tagline: "A night stranded at an airport hotel with a stranger who won't let himself be known becomes the beginning of something neither can walk away from.",
+        chapters: 10, words: 22000, readMins: 94, heat: "Spicy",
+      },
+      {
+        id: "f0c7f38b-2663-464c-ba29-7256e668dfc4",
+        href: "/story.html?id=f0c7f38b-2663-464c-ba29-7256e668dfc4",
+        title: "Where the Vow Breaks",
+        author: "Stuff So Sweet",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/stories/f0c7f38b-2663-464c-ba29-7256e668dfc4.jpg",
+        tagline: "A woman seeking refuge in her guardian's estate finds herself drawn to his enigmatic brother — a man she should never touch.",
+        chapters: 10, words: 25000, readMins: 106, heat: "Very spicy",
+      },
+      // ─── Original 5 hand-crafted books ───
       {
         id: "where-the-wild-stays",
         title: "Where the Wild Stays",
@@ -213,8 +290,9 @@
 
     document.getElementById("grid").innerHTML = BOOKS.map(b => {
       const overlay = splitTitleForOverlay(b.title).map(p => `<span>${esc(p)}</span>`).join("");
+      const href = b.href || `/library/book/${b.id}/`;
       return `
-      <a class="book-card" href="/library/book/${b.id}/">
+      <a class="book-card" href="${href}">
         <div class="book-cover-wrap" style="background-image: url('${b.cover}');">
           <div class="cover-title-overlay">${overlay}</div>
         </div>
