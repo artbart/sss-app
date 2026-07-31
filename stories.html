@@ -73,6 +73,13 @@
     .rail-nav a.active { background: rgba(255,255,255,0.08); color: #fff; }
     .rail-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
     .rail-nav .n-ico { width: 20px; text-align: center; font-size: 15px; }
+    .rail-nav .n-quota {
+      margin-left: auto; padding-left: 6px;
+      font-family: Arial, sans-serif; font-size: 10px;
+      color: rgba(255,255,255,0.55); letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .rail-nav a[aria-disabled="true"] .n-quota { color: var(--gold); opacity: 0.75; }
     .rail-nav .n-soon {
       margin-left: auto; background: rgba(240,212,140,0.2); color: var(--gold);
       font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.08em;
@@ -1300,8 +1307,28 @@
           btn.style.pointerEvents = "none";
           btn.setAttribute("aria-disabled", "true");
           btn.setAttribute("title", `You've used all ${limit} of your stories this month. Quota resets on the 1st.`);
-          if (qLabel) qLabel.textContent = "· limit reached";
+          if (qLabel) qLabel.textContent = "· Resets on 1st";
         }
+        // Rail nav "New story" item — same gate. renderShell()'s gateNewStoryNav
+        // doesn't run here because stories.html builds its shell inline, so we
+        // duplicate the treatment on the home page.
+        document.querySelectorAll('[data-nav="new"]').forEach((a) => {
+          // Always append a small quota hint so the user knows how many are left
+          // (or when it resets when exhausted).
+          if (!a.querySelector('.n-quota')) {
+            const hint = document.createElement('span');
+            hint.className = 'n-quota';
+            a.appendChild(hint);
+          }
+          const hint = a.querySelector('.n-quota');
+          hint.textContent = left === 0 ? ' · Resets 1st' : ` · ${left} left`;
+          if (left === 0) {
+            a.style.opacity = "0.45";
+            a.style.pointerEvents = "none";
+            a.setAttribute("aria-disabled", "true");
+            a.setAttribute("title", `You've used all ${limit} of your stories this month. Quota resets on the 1st.`);
+          }
+        });
       } catch (e) { console.warn("quota load failed:", e); }
     }
     loadQuota();

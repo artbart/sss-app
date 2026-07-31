@@ -498,15 +498,24 @@ async function gateNewStoryNav() {
 
   const used = count || 0;
   const left = Math.max(0, MONTHLY_STORY_LIMIT - used);
-  if (left > 0) return;                            // still under cap — allow
 
   navItems.forEach((a) => {
-    a.style.opacity = "0.4";
-    a.style.pointerEvents = "none";
-    a.setAttribute("aria-disabled", "true");
-    a.setAttribute("title",
-      `You've used all ${MONTHLY_STORY_LIMIT} of your stories this month. Quota resets on the 1st.`);
-    a.addEventListener("click", (e) => { e.preventDefault(); return false; });
+    // Append a small quota hint so the label always shows N left OR reset date.
+    let hint = a.querySelector('.n-quota');
+    if (!hint) {
+      hint = document.createElement('span');
+      hint.className = 'n-quota';
+      a.appendChild(hint);
+    }
+    hint.textContent = left === 0 ? ' · Resets 1st' : ` · ${left} left`;
+    if (left === 0) {
+      a.style.opacity = "0.45";
+      a.style.pointerEvents = "none";
+      a.setAttribute("aria-disabled", "true");
+      a.setAttribute("title",
+        `You've used all ${MONTHLY_STORY_LIMIT} of your stories this month. Quota resets on the 1st.`);
+      a.addEventListener("click", (e) => { e.preventDefault(); return false; });
+    }
   });
 }
 
