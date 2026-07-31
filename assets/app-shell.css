@@ -1,0 +1,180 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   app-shell.css — the desktop rail + mobile header + bottom nav shared by
+   every signed-in page in the app. Extracted from stories.html (locked
+   2026-07-31 — see STORIES_HOME_V2_LOCKED.md for the visual spec).
+
+   Pages include this AFTER /assets/style.css and BEFORE their own inline
+   page-specific styles. The renderShell({activeNav}) helper in lib.js
+   injects the matching HTML.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root { --dash-max: 1200px; }
+
+/* scrollbar-gutter reserves space for the vertical scrollbar even when the
+   page is short, so it never appears/disappears mid-load. Without this the
+   viewport width jumps by ~15px when content grows past the fold, and the
+   centered .dash container visibly shifts left as the scrollbar takes space. */
+html { scrollbar-gutter: stable; }
+body { overflow-x: hidden; overflow-y: auto; position: relative; }
+
+/* Extend the rail's dark background all the way to the LEFT edge of the
+   viewport when the screen is wider than the .dash max-width. The rail
+   itself is inside a centered container; this pseudo fills the visual gap.
+   Hidden on mobile (<900px) where the rail is display:none. */
+body::before {
+  content: "";
+  position: fixed; top: 0; bottom: 0; left: 0;
+  width: max(0px, calc(50vw - var(--dash-max) / 2 + 240px));
+  background: rgba(0,0,0,0.28);
+  z-index: -1;
+  pointer-events: none;
+}
+@media (max-width: 900px) { body::before { display: none; } }
+
+.dash {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  max-width: var(--dash-max);
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* ─── LEFT RAIL (desktop only) — matches stories.html home exactly */
+.rail {
+  background: rgba(0,0,0,0.28);
+  padding: 24px 18px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; height: 100vh;
+}
+.rail-brand {
+  font-family: Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: 0.04em;
+  padding: 4px 8px 24px; color: #fff; text-decoration: none;
+}
+.rail-brand span { color: var(--gold); }
+.rail-nav a {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; margin-bottom: 4px;
+  border-radius: 10px; text-decoration: none; color: var(--muted);
+  font-family: Arial, sans-serif; font-size: 14px;
+}
+.rail-nav a.active { background: rgba(255,255,255,0.08); color: #fff; }
+.rail-nav a:hover  { background: rgba(255,255,255,0.05); color: #fff; }
+.rail-nav .n-ico   { width: 20px; text-align: center; font-size: 15px; }
+.rail-nav .n-soon  {
+  margin-left: auto; background: rgba(240,212,140,0.2); color: var(--gold);
+  font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.08em;
+}
+
+.rail-user {
+  margin-top: auto; padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px; border-radius: 12px;
+  font-family: Arial, sans-serif; color: inherit; text-decoration: none;
+}
+.rail-user:hover { background: rgba(255,255,255,0.04); }
+.rail-user .u-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #ff8fa3, var(--cta));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 13px; flex-shrink: 0;
+}
+.rail-user .u-name { font-size: 13px; color: #fff; }
+
+/* ─── MAIN CONTENT ─────────────────────────────────────────────────────
+   Main starts invisible then fades in once JS finishes populating content.
+   Prevents the flash of empty→filled that reads as "blinking" on load.
+   `main.ready` is added by page scripts after their data arrives. */
+.main {
+  padding: 40px 48px 60px;
+  min-width: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.main.ready { opacity: 1; }
+
+/* Section labels + view-all separator */
+.sect-lbl {
+  font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.14em;
+  color: var(--faint); text-transform: uppercase; margin: 32px 0 12px;
+}
+.view-all-row {
+  margin: 14px 0 0; text-align: center; padding: 8px 0;
+}
+.view-all {
+  color: var(--gold); text-decoration: none;
+  font-family: Arial, sans-serif; font-size: 12px; letter-spacing: 0.04em;
+}
+.view-all:hover { text-decoration: underline; }
+
+/* Generic empty-state box */
+.empty {
+  background: rgba(255,255,255,0.05); border-radius: 16px; padding: 32px 24px;
+  text-align: center; margin-top: 12px;
+}
+
+/* Standard CTAs used across pages */
+.cta-primary {
+  display: inline-block; padding: 12px 22px; background: var(--cta); color: #fff;
+  text-decoration: none; border-radius: 10px;
+  font-family: Arial, sans-serif; font-weight: 600; font-size: 14px;
+  box-shadow: 0 8px 20px rgba(224,75,87,0.4);
+  transition: background 0.15s ease;
+}
+.cta-primary:hover { background: var(--cta-hover); }
+.cta-secondary {
+  display: inline-block; padding: 10px 16px; background: transparent; color: var(--gold);
+  text-decoration: none; border: 1px solid var(--gold); border-radius: 10px;
+  font-family: Arial, sans-serif; font-weight: 600; font-size: 13px;
+}
+.cta-secondary:hover { background: rgba(240,212,140,0.1); }
+
+/* Back-link used by story/chapter pages */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: Arial, sans-serif; font-size: 13px; color: var(--faint);
+  text-decoration: none; margin-bottom: 18px;
+}
+.back-link:hover { color: var(--muted); }
+
+/* ─── MOBILE TOP HEADER (hidden on desktop) ─────────────────────────── */
+.m-header {
+  display: none;
+  position: sticky; top: 0; z-index: 90;
+  background: rgba(10,0,5,0.94); backdrop-filter: blur(20px);
+  padding: 12px 18px; padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+  align-items: center; justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.m-brand {
+  font-family: Georgia, serif; font-size: 17px; font-weight: 700; letter-spacing: 0.04em;
+  color: #fff; text-decoration: none;
+}
+.m-brand span { color: var(--gold); }
+
+/* ─── MOBILE BOTTOM NAV (hidden on desktop) ─────────────────────────── */
+.bottom-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,0,5,0.94); backdrop-filter: blur(20px);
+  padding: 10px 0 calc(env(safe-area-inset-bottom, 10px));
+  border-top: 1px solid rgba(255,255,255,0.06);
+  justify-content: space-around;
+}
+.bn-item {
+  flex: 1; text-align: center; text-decoration: none; color: var(--faint);
+  font-family: Arial, sans-serif; font-size: 10px; padding: 4px; position: relative;
+}
+.bn-item.active { color: #fff; }
+.bn-item .bn-ico { display: block; font-size: 20px; margin-bottom: 3px; }
+
+/* ─── MOBILE (< 900px) breakpoint ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash { grid-template-columns: 1fr; }
+  .rail { display: none; }
+  .main { padding: 16px 18px 100px; }
+
+  /* Show mobile-only header + bottom nav. !important beats base-hidden
+     rules that sit later in source order at equal specificity. */
+  .m-header  { display: flex !important; }
+  .bottom-nav { display: flex !important; }
+}

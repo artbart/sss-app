@@ -8,229 +8,227 @@
   <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
   <meta name="theme-color" content="#4b0018">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Stuff So Sweet">
   <meta name="robots" content="noindex,nofollow">
 
   <style>
-    .settings-wrap { width: 100%; max-width: 600px; padding: 24px 18px 80px; margin: 0 auto; }
-    .settings-wrap h1 { text-align: left; font-size: clamp(26px, 5vw, 32px); margin-bottom: 24px; }
-    .back-link {
-      display: inline-block;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
-      margin-bottom: 14px;
+    /* ─── PAGE-SPECIFIC: settings form ─────────────────────────────── */
+    .set-wrap { max-width: 640px; }
+    .set-wrap h1 {
+      font-family: Georgia, serif; font-size: 30px; font-weight: normal;
+      color: #fff; margin: 0 0 24px;
     }
     .section {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 18px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px; padding: 22px; margin-bottom: 16px;
     }
     .section h2 {
-      font-size: 18px;
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      color: var(--gold);
-      margin-bottom: 16px;
-      text-align: left;
+      font-family: Georgia, serif; font-size: 18px; font-weight: normal;
+      color: var(--gold); margin: 0 0 16px;
     }
-    .field { margin-bottom: 18px; }
+    .field { margin-bottom: 16px; }
     .field:last-child { margin-bottom: 0; }
     .field-label {
-      display: block;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
+      display: block; font-family: Arial, sans-serif; font-size: 12px;
+      color: var(--muted); margin-bottom: 6px; letter-spacing: 0.02em;
     }
     .field-readonly {
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      font-family: Arial, sans-serif;
-      font-size: 15px;
-      color: var(--faint);
+      padding: 12px 14px; background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+      font-family: Arial, sans-serif; font-size: 14px; color: var(--faint);
     }
+    .field input.input {
+      width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.10); border-radius: 10px;
+      font-family: Arial, sans-serif; font-size: 14px; color: #fff;
+      box-sizing: border-box;
+    }
+    .field input.input:focus { outline: none; border-color: var(--gold); }
+
     .radio-row {
-      display: block;
-      padding: 14px 16px;
-      margin-bottom: 8px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      display: block; padding: 14px 16px; margin-bottom: 8px; cursor: pointer;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; transition: background 0.15s, border-color 0.15s;
     }
-    .radio-row:hover { background: rgba(255,255,255,0.08); }
+    .radio-row:hover { background: rgba(255,255,255,0.06); }
     .radio-row.selected {
-      background: rgba(240, 212, 140, 0.08);
-      border-color: rgba(240, 212, 140, 0.45);
+      background: rgba(240,212,140,0.06); border-color: rgba(240,212,140,0.4);
     }
     .radio-row input[type="radio"] { display: none; }
-    .radio-row .radio-title {
-      font-family: Arial, sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 4px;
+    .radio-row .rt {
+      font-family: Arial, sans-serif; font-size: 14px; font-weight: 600;
+      color: #fff; margin-bottom: 3px;
     }
-    .radio-row.selected .radio-title { color: var(--gold); }
-    .radio-row .radio-desc {
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
-      line-height: 1.4;
-    }
-    .check-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      cursor: pointer;
-    }
-    .check-row input { margin-top: 4px; accent-color: var(--cta); }
-    .save-row { display: flex; gap: 10px; }
+    .radio-row.selected .rt { color: var(--gold); }
+    .radio-row .rd { font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); line-height: 1.4; }
+
+    .check-row { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+    .check-row input { margin-top: 3px; accent-color: var(--cta); }
+
     .save-status {
-      margin-top: 14px;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      min-height: 18px;
+      margin-top: 14px; font-family: Arial, sans-serif; font-size: 13px; min-height: 18px;
       transition: opacity 0.3s;
     }
-    .save-status.ok { color: #8eff6d; }
-    .save-status.err { color: var(--err); }
+    .save-status.ok  { color: #8eff6d; }
+    .save-status.err { color: var(--err, #ff6b7d); }
 
     .danger-zone {
-      margin-top: 24px;
-      padding: 18px;
-      background: rgba(0,0,0,0.18);
-      border: 1px dashed rgba(255,255,255,0.10);
-      border-radius: 12px;
-      text-align: center;
+      margin-top: 24px; padding: 20px; text-align: center;
+      background: rgba(0,0,0,0.18); border: 1px dashed rgba(255,255,255,0.10);
+      border-radius: 14px;
     }
-    .danger-zone p { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); margin-bottom: 12px; }
+    .danger-zone p {
+      font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); margin: 0 0 12px;
+    }
+
+    @media (max-width: 900px) {
+      .set-wrap h1 { font-size: 24px; }
+      .section { padding: 16px; }
+    }
   </style>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-PKM537QM');</script>
-  <!-- End Google Tag Manager -->
-
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKM537QM"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-  <div id="topbar"></div>
-  <div class="settings-wrap">
-    <a class="back-link" href="/stories.html">← All stories</a>
-    <h1>Settings</h1>
+  <header class="m-header" id="shell-mheader">
+    <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+  </header>
+  <div class="dash">
+    <aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">
+        <a href="/stories.html" data-nav="home" class=""><span class="n-ico">🏠</span> Home</a>
+        <a href="/quiz2.html" data-nav="new" class=""><span class="n-ico">✎</span> New story</a>
+        <a href="#chat" data-nav="chat" class=""><span class="n-ico">💬</span> Chat</a>
+        <a href="/library/" data-nav="library" class=""><span class="n-ico">📚</span> Library</a>
+        <a href="/settings.html" data-nav="settings" class="active"><span class="n-ico">⚙️</span> Settings</a>
+      </nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>
+    <main class="main">
 
-    <form id="settingsForm">
-      <div class="section">
-        <h2>Your account</h2>
+      <div class="set-wrap">
+        <a class="back-link" href="/stories.html">← Back to home</a>
+        <h1>Settings</h1>
 
-        <div class="field">
-          <label class="field-label">Email</label>
-          <div class="field-readonly" id="emailDisplay">…</div>
-        </div>
-
-        <div class="field">
-          <label class="field-label" for="displayName">Display name <span style="color:var(--very-faint)">(optional)</span></label>
-          <input class="input" type="text" id="displayName" placeholder="What should we call you?" maxlength="60">
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Chapter notifications</h2>
-        <p class="field-label" style="margin-bottom: 14px;">How should we deliver your chapters?</p>
-
-        <label class="radio-row" data-pref="email_full_story">
-          <input type="radio" name="notification_preference" value="email_full_story">
-          <div class="radio-title">Send the full chapter in my inbox</div>
-          <div class="radio-desc">Read every chapter right in your email, with option buttons to pick what happens next. (Default.)</div>
-        </label>
-
-        <label class="radio-row" data-pref="email_link_only">
-          <input type="radio" name="notification_preference" value="email_link_only">
-          <div class="radio-title">Just notify me — I'll read in the app</div>
-          <div class="radio-desc">A short email when your next chapter is ready, with a button to open it here.</div>
-        </label>
-
-        <label class="radio-row" data-pref="in_app_only">
-          <input type="radio" name="notification_preference" value="in_app_only">
-          <div class="radio-title">No emails — I'll check the app</div>
-          <div class="radio-desc">We won't send anything to your inbox. New chapters appear here when ready.</div>
-        </label>
-
-        <div class="field" style="margin-top: 18px;">
-          <label class="check-row">
-            <input type="checkbox" id="marketingOptIn">
-            <div>
-              <div style="font-family:Arial,sans-serif;font-size:14px;color:var(--text);">Send me occasional updates</div>
-              <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--faint);">New features, story drops, special offers. Separate from chapter delivery.</div>
+        <form id="settingsForm">
+          <div class="section">
+            <h2>Your account</h2>
+            <div class="field">
+              <label class="field-label">Email</label>
+              <div class="field-readonly" id="emailDisplay">…</div>
             </div>
-          </label>
+            <div class="field">
+              <label class="field-label" for="displayName">Display name <span style="color:rgba(255,255,255,0.3)">(optional)</span></label>
+              <input class="input" type="text" id="displayName" placeholder="What should we call you?" maxlength="60">
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Chapter notifications</h2>
+            <p class="field-label" style="margin-bottom: 12px;">How should we deliver your chapters?</p>
+
+            <label class="radio-row" data-pref="email_full_story">
+              <input type="radio" name="notification_preference" value="email_full_story">
+              <div class="rt">Send the full chapter in my inbox</div>
+              <div class="rd">Read every chapter right in your email, with option buttons to pick what happens next. (Default.)</div>
+            </label>
+
+            <label class="radio-row" data-pref="email_link_only">
+              <input type="radio" name="notification_preference" value="email_link_only">
+              <div class="rt">Just notify me — I'll read in the app</div>
+              <div class="rd">A short email when your next chapter is ready, with a button to open it here.</div>
+            </label>
+
+            <label class="radio-row" data-pref="in_app_only">
+              <input type="radio" name="notification_preference" value="in_app_only">
+              <div class="rt">No emails — I'll check the app</div>
+              <div class="rd">We won't send anything to your inbox. New chapters appear here when ready.</div>
+            </label>
+
+            <div class="field" style="margin-top: 16px;">
+              <label class="check-row">
+                <input type="checkbox" id="marketingOptIn">
+                <div>
+                  <div style="font-family:Arial,sans-serif;font-size:14px;color:#fff;">Send me occasional updates</div>
+                  <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--faint);margin-top:2px;">New features, story drops, special offers. Separate from chapter delivery.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="cta-primary" id="saveBtn">Save changes</button>
+          <div class="save-status" id="saveStatus"></div>
+        </form>
+
+        <div class="section" id="subSection" style="display:none;margin-top:24px;">
+          <h2>Subscription</h2>
+          <div class="field-readonly" id="subStatusLine" style="margin-bottom:14px;">…</div>
+          <button type="button" class="cta-secondary" id="cancelSubBtn" style="display:none;">Cancel subscription</button>
+          <button type="button" class="cta-primary"   id="reactivateBtn" style="display:none;">Reactivate subscription</button>
+          <div class="save-status" id="subStatus"></div>
+        </div>
+
+        <div class="danger-zone">
+          <p>Signing out only removes this device. Your stories stay safe.</p>
+          <button type="button" class="cta-secondary" id="signOutBtn2">Sign out</button>
         </div>
       </div>
 
-      <div class="save-row">
-        <button type="submit" class="btn" id="saveBtn">Save changes</button>
-      </div>
-      <div class="save-status" id="saveStatus"></div>
-    </form>
-
-    <div class="section" id="subSection" style="display:none;">
-      <h2>Subscription</h2>
-      <div class="field-readonly" id="subStatusLine" style="margin-bottom:14px;">…</div>
-      <button type="button" class="btn btn-secondary" id="cancelSubBtn" style="width:auto;padding:10px 22px;display:none;">Cancel subscription</button>
-      <button type="button" class="btn" id="reactivateBtn" style="width:auto;padding:10px 22px;display:none;">Reactivate subscription</button>
-      <div class="save-status" id="subStatus"></div>
-    </div>
-
-    <div class="danger-zone">
-      <p>Signing out only removes this device. Your stories stay safe.</p>
-      <button type="button" class="btn btn-secondary" id="signOutBtn2" style="width:auto;padding:10px 22px;">Sign out</button>
-    </div>
+    </main>
   </div>
+  <nav class="bottom-nav" id="shell-bnav">
+    <a href="/stories.html" data-nav="home" class="bn-item "><span class="bn-ico">🏠</span>Home</a>
+    <a href="/library/" data-nav="library" class="bn-item "><span class="bn-ico">📚</span>Library</a>
+    <a href="#chat" data-nav="chat" class="bn-item "><span class="bn-ico">💬</span>Chat</a>
+    <a href="/settings.html" data-nav="settings" class="bn-item active"><span class="bn-ico">👤</span>You</a>
+  </nav>
 
   <script type="module">
-    import { requireAuth, supabase, renderTopbar, signOut, logEvent } from "/assets/lib.js";
+    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
 
-    const session = await requireAuth();
-    renderTopbar();
-    await logEvent("app_open", { metadata: { page: "settings" } });
+    const session = await getSessionOrPreview({
+      users: [{
+        display_name: "Arturas",
+        notification_preference: "email_full_story",
+        marketing_email_opt_in: true,
+        subscription_status: "active",
+        current_period_end: new Date(Date.now() + 20 * 24 * 3600 * 1000).toISOString(),
+        cancel_at_period_end: false,
+        stripe_subscription_id: "sub_preview_123",
+      }],
+    });
+    await renderShell({ activeNav: "settings" });
+    if (!isPreviewMode()) await logEvent("app_open", { metadata: { page: "settings" } });
 
-    const emailDisplay = document.getElementById("emailDisplay");
-    const displayNameInput = document.getElementById("displayName");
-    const marketingOptIn = document.getElementById("marketingOptIn");
-    const form = document.getElementById("settingsForm");
-    const saveBtn = document.getElementById("saveBtn");
-    const saveStatus = document.getElementById("saveStatus");
-
-    emailDisplay.textContent = session.user.email;
+    const $ = (id) => document.getElementById(id);
+    $("emailDisplay").textContent = session.user.email;
 
     // Load current user profile
-    const { data: user, error } = await supabase
-      .from("users")
+    const { data: user, error } = await supabase.from("users")
       .select("display_name, notification_preference, marketing_email_opt_in, subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
-      .eq("id", session.user.id)
-      .maybeSingle();
+      .eq("id", session.user.id).maybeSingle();
 
     if (error) {
-      saveStatus.textContent = "Couldn't load your settings: " + error.message;
-      saveStatus.className = "save-status err";
+      $("saveStatus").textContent = "Couldn't load your settings: " + error.message;
+      $("saveStatus").className = "save-status err";
     } else if (user) {
-      displayNameInput.value = user.display_name || "";
-      marketingOptIn.checked = !!user.marketing_email_opt_in;
+      $("displayName").value = user.display_name || "";
+      $("marketingOptIn").checked = !!user.marketing_email_opt_in;
       const pref = user.notification_preference || "email_full_story";
       const radio = document.querySelector(`input[name="notification_preference"][value="${pref}"]`);
       if (radio) {
@@ -250,116 +248,95 @@
     });
 
     // Save
-    form.addEventListener("submit", async (e) => {
+    $("settingsForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      saveBtn.disabled = true;
-      saveBtn.textContent = "Saving…";
-      saveStatus.textContent = "";
+      const saveBtn = $("saveBtn"), status = $("saveStatus");
+      saveBtn.disabled = true; saveBtn.textContent = "Saving…"; status.textContent = "";
 
       const newPref = document.querySelector('input[name="notification_preference"]:checked')?.value || "email_full_story";
       const updates = {
-        display_name: displayNameInput.value.trim() || null,
+        display_name: $("displayName").value.trim() || null,
         notification_preference: newPref,
-        marketing_email_opt_in: marketingOptIn.checked,
+        marketing_email_opt_in: $("marketingOptIn").checked,
       };
 
-      const { error: updateErr } = await supabase
-        .from("users")
-        .update(updates)
-        .eq("id", session.user.id);
-
+      const { error: updateErr } = await supabase.from("users").update(updates).eq("id", session.user.id);
       if (updateErr) {
-        saveStatus.textContent = "Couldn't save: " + updateErr.message;
-        saveStatus.className = "save-status err";
-        saveBtn.disabled = false;
-        saveBtn.textContent = "Save changes";
+        status.textContent = "Couldn't save: " + updateErr.message;
+        status.className = "save-status err";
+        saveBtn.disabled = false; saveBtn.textContent = "Save changes";
         return;
       }
 
-      // Log if notification preference changed
       if (user && user.notification_preference !== newPref) {
         await logEvent("notification_preference_changed", {
           metadata: { from: user.notification_preference, to: newPref },
         });
       }
 
-      saveStatus.textContent = "Saved ✓";
-      saveStatus.className = "save-status ok";
-      saveBtn.disabled = false;
-      saveBtn.textContent = "Save changes";
-
-      // Fade message after a few seconds
-      setTimeout(() => { saveStatus.textContent = ""; saveStatus.className = "save-status"; }, 3000);
+      status.textContent = "Saved ✓"; status.className = "save-status ok";
+      saveBtn.disabled = false; saveBtn.textContent = "Save changes";
+      setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 3000);
     });
 
-    // ---- Subscription management ----
-    const subSection = document.getElementById("subSection");
-    const subStatusLine = document.getElementById("subStatusLine");
-    const cancelSubBtn = document.getElementById("cancelSubBtn");
-    const reactivateBtn = document.getElementById("reactivateBtn");
-    const subStatus = document.getElementById("subStatus");
-
+    // ── Subscription management ────────────────────────
     function fmtDate(iso) {
       if (!iso) return "";
       try { return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); }
       catch (_) { return ""; }
     }
-
     function renderSub(u) {
-      if (!u || !u.stripe_subscription_id) { subSection.style.display = "none"; return; }
-      subSection.style.display = "";
+      if (!u || !u.stripe_subscription_id) { $("subSection").style.display = "none"; return; }
+      $("subSection").style.display = "";
       const end = fmtDate(u.current_period_end);
       const active = u.current_period_end && new Date(u.current_period_end) >= new Date();
       if (u.cancel_at_period_end) {
-        subStatusLine.textContent = active
+        $("subStatusLine").textContent = active
           ? `Your subscription is set to end on ${end}. You keep full access until then.`
           : "Your subscription has ended.";
-        cancelSubBtn.style.display = "none";
-        reactivateBtn.style.display = active ? "" : "none";
+        $("cancelSubBtn").style.display = "none";
+        $("reactivateBtn").style.display = active ? "" : "none";
       } else if (active) {
-        subStatusLine.textContent = `Active — renews on ${end}.`;
-        cancelSubBtn.style.display = "";
-        reactivateBtn.style.display = "none";
+        $("subStatusLine").textContent = `Active — renews on ${end}.`;
+        $("cancelSubBtn").style.display = "";
+        $("reactivateBtn").style.display = "none";
       } else {
-        subStatusLine.textContent = "No active subscription.";
-        cancelSubBtn.style.display = "none";
-        reactivateBtn.style.display = "none";
+        $("subStatusLine").textContent = "No active subscription.";
+        $("cancelSubBtn").style.display = "none";
+        $("reactivateBtn").style.display = "none";
       }
     }
 
     async function manageSub(action, btn) {
       const original = btn.textContent;
       btn.disabled = true; btn.textContent = "…";
-      subStatus.textContent = ""; subStatus.className = "save-status";
+      $("subStatus").textContent = ""; $("subStatus").className = "save-status";
       const { data, error: fnErr } = await supabase.functions.invoke("cancel-subscription", { body: { action } });
       if (fnErr || !data || !data.ok) {
-        subStatus.textContent = "Couldn't update your subscription. Please try again.";
-        subStatus.className = "save-status err";
+        $("subStatus").textContent = "Couldn't update your subscription. Please try again.";
+        $("subStatus").className = "save-status err";
         btn.disabled = false; btn.textContent = original;
         return;
       }
-      const { data: u2 } = await supabase
-        .from("users")
+      const { data: u2 } = await supabase.from("users")
         .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
-        .eq("id", session.user.id)
-        .maybeSingle();
+        .eq("id", session.user.id).maybeSingle();
       btn.disabled = false; btn.textContent = original;
       renderSub(u2);
-      subStatus.textContent = action === "reactivate" ? "Subscription reactivated ✓" : "Cancellation scheduled ✓";
-      subStatus.className = "save-status ok";
+      $("subStatus").textContent = action === "reactivate" ? "Subscription reactivated ✓" : "Cancellation scheduled ✓";
+      $("subStatus").className = "save-status ok";
       await logEvent(action === "reactivate" ? "subscription_reactivated" : "subscription_cancel_requested", {});
-      setTimeout(() => { subStatus.textContent = ""; subStatus.className = "save-status"; }, 4000);
+      setTimeout(() => { $("subStatus").textContent = ""; $("subStatus").className = "save-status"; }, 4000);
     }
 
-    cancelSubBtn.addEventListener("click", (e) => {
+    $("cancelSubBtn").addEventListener("click", (e) => {
       if (!confirm("Cancel your subscription? You'll keep full access until the end of your current paid period.")) return;
       manageSub("cancel", e.currentTarget);
     });
-    reactivateBtn.addEventListener("click", (e) => manageSub("reactivate", e.currentTarget));
+    $("reactivateBtn").addEventListener("click", (e) => manageSub("reactivate", e.currentTarget));
 
     renderSub(user);
-
-    document.getElementById("signOutBtn2").addEventListener("click", () => signOut("/"));
+    $("signOutBtn2").addEventListener("click", () => signOut("/"));
   </script>
 </body>
 </html>

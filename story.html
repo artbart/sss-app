@@ -8,170 +8,281 @@
   <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#4b0018">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="noindex,nofollow">
 
   <style>
-    .story-wrap { width: 100%; max-width: 720px; padding: 24px 18px 80px; margin: 0 auto; }
-    .back-link {
-      display: inline-block;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
-      margin-bottom: 14px;
+    /* ─── PAGE-SPECIFIC: story overview + chapter list ──────────────── */
+    .story-hero {
+      display: grid; grid-template-columns: 160px 1fr; gap: 20px;
+      padding: 20px; margin-bottom: 24px;
+      background: linear-gradient(135deg, rgba(224,75,87,0.08), rgba(240,212,140,0.05));
+      border: 1px solid rgba(224,75,87,0.2);
+      border-radius: 20px;
     }
-    .story-header h1 {
-      text-align: left;
-      font-size: clamp(28px, 5vw, 36px);
-      color: var(--gold);
-      margin-bottom: 8px;
-      letter-spacing: -0.01em;
+    .story-cover {
+      position: relative; width: 160px; aspect-ratio: 3 / 4; border-radius: 10px;
+      background-size: cover; background-position: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
+      overflow: hidden;
     }
-    .story-header h1.pulse {
-      animation: titlePulse 1.5s ease-in-out infinite;
+    .story-cover::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none; z-index: 1;
     }
-    @keyframes titlePulse {
-      0%, 100% { opacity: 0.45; }
-      50%      { opacity: 1; }
+    .cover-title-overlay {
+      position: absolute; bottom: 7%; left: 8%; right: 8%; z-index: 2;
+      text-align: center;
+      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
+      font-weight: 500;
+      color: #d4a24b;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      line-height: 1.08;
+      font-size: 12px;
+      pointer-events: none;
     }
-    .story-header .meta {
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
-      margin-bottom: 24px;
+    .cover-title-overlay span { display: block; }
+    .story-info h1 {
+      font-family: Georgia, serif; font-size: clamp(24px, 4vw, 30px);
+      color: var(--gold); margin: 0 0 8px;
+      font-weight: normal; letter-spacing: -0.01em;
+    }
+    .story-info h1.pulse { animation: titlePulse 1.5s ease-in-out infinite; }
+    @keyframes titlePulse { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+    .story-info .meta {
+      font-family: Arial, sans-serif; font-size: 12px; color: var(--faint);
+      margin-bottom: 12px; letter-spacing: 0.06em;
+    }
+    .story-info .hook {
+      font-family: Georgia, serif; font-style: italic; font-size: 14px;
+      color: var(--muted); line-height: 1.5; margin-bottom: 12px;
+    }
+    .story-info .progress-mini {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: Arial, sans-serif; font-size: 12px; color: var(--faint);
+    }
+    .progress-mini .pm-bar {
+      width: 100px; height: 4px; background: rgba(255,255,255,0.10);
+      border-radius: 4px; overflow: hidden;
+    }
+    .progress-mini .pm-bar > div {
+      height: 100%; background: linear-gradient(90deg, var(--cta), var(--gold));
     }
 
+    /* Chapter list */
     .chapter-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 14px;
-      padding: 16px 18px;
-      margin-bottom: 10px;
-      color: inherit;
-      text-decoration: none;
-      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px; padding: 14px 18px;
+      margin-bottom: 8px; text-decoration: none; color: inherit;
+      transition: background 0.15s, border-color 0.15s;
     }
     .chapter-row:hover {
-      background: var(--card-hi);
-      border-color: rgba(240, 212, 140, 0.25);
-      text-decoration: none;
+      background: rgba(255,255,255,0.07); border-color: rgba(240,212,140,0.28);
     }
     .chapter-info { flex: 1; min-width: 0; }
     .chapter-num {
-      font-family: Arial, sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 4px;
+      font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 4px;
     }
     .chapter-summary {
-      font-size: 15px;
-      line-height: 1.45;
-      color: var(--muted);
+      font-family: Georgia, serif; font-size: 14px; line-height: 1.4; color: var(--muted);
     }
     .chapter-arrow {
-      flex-shrink: 0;
-      color: var(--very-faint);
-      margin-left: 12px;
-      font-size: 22px;
+      flex-shrink: 0; color: rgba(255,255,255,0.25); margin-left: 12px; font-size: 22px;
     }
     .chapter-row.unread .chapter-num::before {
-      content: "● ";
-      color: var(--cta);
+      content: "● "; color: var(--cta);
     }
+
+    /* Ambient "next chapter being written" pill */
     .next-pending {
-      background: rgba(240, 212, 140, 0.06);
-      border: 1px dashed rgba(240, 212, 140, 0.3);
-      border-radius: 14px;
-      padding: 18px;
-      text-align: center;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      color: var(--muted);
-      margin-top: 10px;
+      background: rgba(240,212,140,0.06);
+      border: 1px dashed rgba(240,212,140,0.3);
+      border-radius: 12px; padding: 16px 18px;
+      font-family: Arial, sans-serif; font-size: 13px; color: var(--muted);
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .next-pending .np-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); animation: writingDot 1.4s ease-in-out infinite;
+    }
+    @keyframes writingDot { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+    /* Mobile: stack hero */
+    @media (max-width: 900px) {
+      .story-hero { grid-template-columns: 100px 1fr; gap: 14px; padding: 16px; }
+      .story-cover { width: 100px; }
+      .story-info h1 { font-size: 22px; }
     }
   </style>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-PKM537QM');</script>
-  <!-- End Google Tag Manager -->
-
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKM537QM"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-  <div id="topbar"></div>
-  <div class="story-wrap">
-    <a class="back-link" href="/stories.html">← All stories</a>
-    <div class="story-header">
-      <h1 id="title">Loading…</h1>
-      <div class="meta" id="meta"></div>
-    </div>
-    <div id="chapters"></div>
+  <!-- App shell mounts (renderShell fills these) -->
+  <header class="m-header" id="shell-mheader">
+    <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+  </header>
+  <div class="dash">
+    <aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">
+        <a href="/stories.html" data-nav="home" class="active"><span class="n-ico">🏠</span> Home</a>
+        <a href="/quiz2.html" data-nav="new" class=""><span class="n-ico">✎</span> New story</a>
+        <a href="#chat" data-nav="chat" class=""><span class="n-ico">💬</span> Chat</a>
+        <a href="/library/" data-nav="library" class=""><span class="n-ico">📚</span> Library</a>
+        <a href="/settings.html" data-nav="settings" class=""><span class="n-ico">⚙️</span> Settings</a>
+      </nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>
+    <main class="main">
+
+      <a class="back-link" href="/stories.html">← All stories</a>
+
+      <!-- Silent loading slot — no flash of "Loading…" text; content div
+           swaps in as soon as data lands. -->
+      <div id="loading" style="min-height:80px;"></div>
+
+      <div id="content" style="display:none;">
+        <div class="story-hero">
+          <a class="story-cover" id="storyCover" href="#"></a>
+          <div class="story-info">
+            <h1 id="storyTitle">Loading…</h1>
+            <div class="meta" id="storyMeta"></div>
+            <div class="hook" id="storyHook"></div>
+            <div class="progress-mini" id="storyProgress" style="display:none;">
+              <span id="storyPgText">Chapter — of —</span>
+              <div class="pm-bar"><div id="storyPgBar" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sect-lbl">Chapters</div>
+        <div id="chapters"></div>
+      </div>
+
+    </main>
   </div>
+  <nav class="bottom-nav" id="shell-bnav">
+    <a href="/stories.html" data-nav="home" class="bn-item active"><span class="bn-ico">🏠</span>Home</a>
+    <a href="/library/" data-nav="library" class="bn-item "><span class="bn-ico">📚</span>Library</a>
+    <a href="#chat" data-nav="chat" class="bn-item "><span class="bn-ico">💬</span>Chat</a>
+    <a href="/settings.html" data-nav="settings" class="bn-item "><span class="bn-ico">👤</span>You</a>
+  </nav>
 
   <script type="module">
-    import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
+    import { supabase, renderShell, logEvent, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
 
-    await requireAuth();
-    renderTopbar();
-
+    const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
     const storyId = params.get("id");
-    if (!storyId) { window.location.href = "/stories.html"; }
+    if (!storyId && !isPreviewMode()) { window.location.href = "/stories.html"; }
 
-    await logEvent("story_viewed", { story_id: storyId });
+    // Preview mock: one active story with 5 chapters
+    await getSessionOrPreview({
+      users: [{ display_name: "Arturas" }],
+      stories: [{
+        id: storyId || "m1",
+        title: "Technically Off Limits",
+        status: "active",
+        target_chapter_count: 10,
+        current_chapter_number: 5,
+        hook: "When the merger forces you to share an office with the woman who plays by her own rules, every late night at the copier feels like a dare.",
+        opening_premise: "Two rival divisions merge overnight. You inherit her.",
+        genre: "Contemporary Romance / Erotic Fiction",
+        heat_level: "Spicy",
+      }],
+      chapters: [
+        { chapter_number: 5, summary: "The elevator jams. Neither of you moves for the button.", mood: "charged", key_event: "confrontation", chosen_option: null },
+        { chapter_number: 4, summary: "A dinner that wasn't supposed to be dinner.", mood: "slow burn", chosen_option: 2 },
+        { chapter_number: 3, summary: "She stays past midnight. You do too.", mood: "tension", chosen_option: 3 },
+        { chapter_number: 2, summary: "First real argument. First real look.", mood: "friction", chosen_option: 1 },
+        { chapter_number: 1, summary: "Day one. New badge, new hallway, new problem.", mood: "curious", chosen_option: 2 },
+      ],
+    });
+    await renderShell({ activeNav: "home" });
 
-    const titleEl = document.getElementById("title");
-    const metaEl  = document.getElementById("meta");
-    const list    = document.getElementById("chapters");
+    if (!isPreviewMode()) await logEvent("story_viewed", { story_id: storyId });
 
     const { data: story, error: sErr } = await supabase
       .from("stories")
-      .select("id, title, status, target_chapter_count, hook, opening_premise")
+      .select("id, title, status, target_chapter_count, hook, opening_premise, genre, heat_level, cover_image_url")
       .eq("id", storyId)
       .single();
 
     if (sErr || !story) {
-      titleEl.textContent = "Story not found";
-      metaEl.textContent = sErr?.message || "It may have been removed.";
-    } else if (!story.title) {
-      // Title hasn't been written yet = chapter 1 is still generating.
-      titleEl.textContent = "Your story is being written…";
-      titleEl.classList.add("pulse");
-      metaEl.textContent = "Chapter 1 will arrive in about 3-5 minutes. We'll notify You.";
-    } else {
-      titleEl.textContent = story.title;
-      if (story.hook) metaEl.textContent = story.hook;
+      $("loading").innerHTML = `<h2 style="font-family:Georgia,serif;color:#fff;">Story not found</h2>
+        <p style="color:var(--faint)">${escapeHtml(sErr?.message || "It may have been removed.")}</p>`;
+      throw new Error("story not found");
     }
 
+    // Paint hero — prefer real AI cover, fall back to placeholder
+    const bookImg = story.cover_image_url || bookImageFor(story);
+    const gradient = coverGradientFor(story);
+    $("storyCover").style.backgroundImage = `url('${bookImg}'), ${gradient}`;
+    $("storyCover").href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=1`;
+    // Gold title overlay — only when both cover and title exist
+    if (story.cover_image_url && story.title) {
+      const parts = splitTitleForOverlay(story.title);
+      const overlay = document.createElement("div");
+      overlay.className = "cover-title-overlay";
+      overlay.innerHTML = parts.map(p => `<span>${escapeHtml(p)}</span>`).join("");
+      $("storyCover").appendChild(overlay);
+    }
+    $("storyMeta").textContent = shortMeta(story);
+    $("storyHook").textContent = story.hook || "";
+    if (!story.title) {
+      $("storyTitle").textContent = "Your story is being written…";
+      $("storyTitle").classList.add("pulse");
+      $("storyMeta").textContent = "Chapter 1 arrives in about 3-5 minutes. We'll notify you.";
+    } else {
+      $("storyTitle").textContent = story.title;
+    }
+
+    // Chapter list
     const { data: chapters, error: cErr } = await supabase
       .from("chapters")
       .select("id, chapter_number, summary, mood, key_event, chosen_option, created_at")
       .eq("story_id", storyId)
       .order("chapter_number", { ascending: false });
 
+    const total  = story.target_chapter_count || 10;
+    const chList = $("chapters");
     if (cErr) {
-      list.innerHTML = `<div class="empty">Couldn't load chapters. ${escapeHtml(cErr.message)}</div>`;
+      chList.innerHTML = `<div class="empty">Couldn't load chapters. ${escapeHtml(cErr.message)}</div>`;
     } else if (!chapters || chapters.length === 0) {
-      list.innerHTML = `<div class="next-pending">Chapter 1 will arrive in about 3-5 minutes. We'll notify You.</div>`;
+      chList.innerHTML = `<div class="next-pending"><span class="np-dot"></span> Chapter 1 arriving in about 3-5 minutes.</div>`;
     } else {
-      const total = story?.target_chapter_count || 10;
       const latest = chapters[0].chapter_number;
       const nextPending = latest < total && chapters[0].chosen_option != null;
 
-      list.innerHTML = chapters.map(c => {
+      // Progress mini
+      const pct = Math.min(100, Math.round((latest / total) * 100));
+      $("storyProgress").style.display = "";
+      $("storyPgText").textContent = `Chapter ${latest} of ${total}`;
+      $("storyPgBar").style.width = pct + "%";
+
+      const html = chapters.map(c => {
         const isLatest = c.chapter_number === latest;
         const cls = isLatest && c.chosen_option == null ? "chapter-row unread" : "chapter-row";
         const blurb = c.summary || c.key_event || c.mood || `Chapter ${c.chapter_number}`;
@@ -182,20 +293,51 @@
               <div class="chapter-summary">${escapeHtml(blurb)}</div>
             </div>
             <div class="chapter-arrow">›</div>
-          </a>
-        `;
+          </a>`;
       }).join("");
-
+      chList.innerHTML = html;
       if (nextPending) {
-        list.insertAdjacentHTML("afterbegin",
-          `<div class="next-pending">Your next chapter is being written. Check back in a minute.</div>`);
+        chList.insertAdjacentHTML("afterbegin",
+          `<div class="next-pending"><span class="np-dot"></span> Writing chapter ${latest + 1}… check back in a minute.</div>`);
       }
     }
 
+    $("loading").style.display = "none";
+    $("content").style.display = "";
+
+    // ─── helpers ─────────────────────────────────────────────────
+    function bookImageFor(s){
+      const covers = ["book_01","book_02","book_03","book_04","book_05","book_06","book_A2","book_b","book_c","book_d","book_e","book_f"];
+      const key = String(s.id || "");
+      let h = 0; for (let i=0;i<key.length;i++) h = (h*31 + key.charCodeAt(i)) & 0xffffffff;
+      return `https://stuffsosweet.com/media/${covers[Math.abs(h) % covers.length]}.webp`;
+    }
+    function coverGradientFor(s){
+      const palettes = [["#6a1a2b","#2a0810"],["#4a1a6a","#1a082a"],["#6a4a1a","#2a1a08"],["#1a4a6a","#08202a"],["#6a1a4a","#2a0820"],["#5a1a1a","#2a0808"]];
+      const key = String(s.id || "");
+      let h = 0; for (let i=0;i<key.length;i++) h = (h*31 + key.charCodeAt(i)) & 0xffffffff;
+      const p = palettes[Math.abs(h) % palettes.length];
+      return `linear-gradient(140deg, ${p[0]}, ${p[1]})`;
+    }
+    function shortMeta(s){
+      const g = (s.genre || "").split(/\s*[\/—]\s*/)[0].replace(/\s+Romance\b/i,"").trim();
+      const h = (s.heat_level || "").split(/\s*[—,\/]\s*/)[0].trim();
+      return [g, h].filter(Boolean).join(" · ").slice(0, 42);
+    }
     function escapeHtml(s) {
-      return String(s ?? "")
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    }
+    function splitTitleForOverlay(title){
+      const t = String(title || "").trim();
+      if (t.length <= 14) return [t];
+      if (t.includes(",")) {
+        const parts = t.split(",").map(s => s.trim()).filter(Boolean);
+        if (parts.length >= 2) return parts.slice(0, 3);
+      }
+      const words = t.split(/\s+/);
+      if (words.length <= 2) return [t];
+      const mid = Math.ceil(words.length / 2);
+      return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
     }
   </script>
 </body>

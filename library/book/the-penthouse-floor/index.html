@@ -6,6 +6,10 @@
   <title>The Penthouse Floor — Stuff So Sweet Library</title>
   <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
   <meta name="robots" content="noindex,nofollow">
   <style>
     .book-hero { max-width: 720px; margin: 0 auto; padding: 32px 20px 28px; text-align: center; }
@@ -16,7 +20,7 @@
     .book-hero .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); margin-bottom: 28px; }
     .book-hero .begin { display: inline-block; background: var(--cta); color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 14px; font-family: Georgia, serif; font-size: 16px; font-weight: bold; box-shadow: 0 8px 24px rgba(224,75,87,0.28); }
 
-    .toc { max-width: 560px; margin: 36px auto; padding: 24px 28px; background: rgba(255,255,255,0.05); border-radius: 16px; }
+    .toc { max-width: 560px; margin: 36px auto; padding: 8px 0; }
     .toc h2 { font-family: Georgia, serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); font-weight: normal; margin: 0 0 14px; text-align: center; }
     .toc ol { list-style: none; padding: 0; margin: 0; }
     .toc li a { display: flex; align-items: baseline; gap: 10px; padding: 9px 4px; color: inherit; text-decoration: none; font-family: Georgia, serif; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color 0.15s; }
@@ -40,6 +44,31 @@
     @media (max-width: 540px) {
       .ch-body { font-size: 16.5px; }
     }
+  
+    /* Wrap the cover img in a positioned container so we can overlay the
+       gold Cinzel title. Existing .book-hero .cover rule stays, added below. */
+    .book-hero .cover-frame {
+      position: relative; display: inline-block; margin: 0 auto 22px;
+      max-width: 320px;
+    }
+    .book-hero .cover-frame::before {
+      content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 14px;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none;
+    }
+    .book-hero .cover-frame .cover-title-overlay {
+      position: absolute; bottom: 6%; left: 8%; right: 8%; z-index: 2;
+      text-align: center;
+      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
+      font-weight: 500;
+      color: #d4a24b;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      line-height: 1.08;
+      font-size: 18px;
+      pointer-events: none;
+    }
+    .book-hero .cover-frame .cover-title-overlay span { display: block; }
   </style>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -56,11 +85,27 @@
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
-  <div id="topbar"></div>
-
-  <main>
+  <header class="m-header" id="shell-mheader">
+    <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+  </header>
+  <div class="dash">
+    <aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">
+        <a href="/stories.html" data-nav="home" class=""><span class="n-ico">🏠</span> Home</a>
+        <a href="/quiz2.html" data-nav="new" class=""><span class="n-ico">✎</span> New story</a>
+        <a href="#chat" data-nav="chat" class=""><span class="n-ico">💬</span> Chat</a>
+        <a href="/library/" data-nav="library" class="active"><span class="n-ico">📚</span> Library</a>
+        <a href="/settings.html" data-nav="settings" class=""><span class="n-ico">⚙️</span> Settings</a>
+      </nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>
+    <main>
     <section class="book-hero">
-      <img class="cover" src="https://trippleu.com/wp-content/uploads/2026/06/penthouse.webp" alt="">
+      <div class="cover-frame"><img class="cover" src="https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/the-penthouse-floor.jpg" alt=""><div class="cover-title-overlay"><span>The Penthouse</span><span>Floor</span></div></div>
       <h1>The Penthouse Floor</h1>
       <div class="author">A Manhattan Romance · Stuff So Sweet</div>
       <p class="summary">Hadley Wright is house-sitting her best friend's family Tribeca apartment for six months — recovering from the discovery that her boyfriend of two years had a wife in San Francisco — when she meets Damon Kade in the elevator on her third night. He lives in the penthouse on the thirtieth floor. She lives on the fourteenth. He gets off the elevator on her floor to know her name before she disappears into 14C for the rest of his life. The next morning a flat white from her favorite café shows up at her door with a small handwritten card: <em>If you don't want me to do this again, leave the cup in the lobby and I won't.</em> She doesn't leave the cup in the lobby.</p>
@@ -1315,11 +1360,18 @@
       <a class="back-link" href="/library/">← Back to Library</a>
     </footer>
   </main>
+  </div>
+  <nav class="bottom-nav" id="shell-bnav">
+    <a href="/stories.html" data-nav="home" class="bn-item "><span class="bn-ico">🏠</span>Home</a>
+    <a href="/library/" data-nav="library" class="bn-item active"><span class="bn-ico">📚</span>Library</a>
+    <a href="#chat" data-nav="chat" class="bn-item "><span class="bn-ico">💬</span>Chat</a>
+    <a href="/settings.html" data-nav="settings" class="bn-item "><span class="bn-ico">👤</span>You</a>
+  </nav>
 
   <script type="module">
-    import { requireAuth, renderTopbar, logEvent } from "/assets/lib.js";
-    await requireAuth();
-    renderTopbar();
+    import { renderShell, logEvent, getSessionOrPreview } from "/assets/lib.js";
+    await getSessionOrPreview({ users: [{ display_name: "Arturas" }] });
+    await renderShell({ activeNav: "library" });
     logEvent("book_opened", { book_id: "the-penthouse-floor" });
 
     document.getElementById("bookEndChatBtn")?.addEventListener("click", async (e) => {

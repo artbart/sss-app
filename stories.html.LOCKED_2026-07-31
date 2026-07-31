@@ -8,9 +8,6 @@
   <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/assets/style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#4b0018">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,22 +22,7 @@
 
     :root { --dash-max: 1200px; }
 
-    /* scrollbar-gutter reserves the vertical scrollbar space even on short
-       pages, so the centered .dash never shifts left when tall content loads. */
-    html { scrollbar-gutter: stable; }
-    body { overflow-x: hidden; overflow-y: auto; position: relative; }
-
-    /* Extend rail's dark background to the LEFT edge of the viewport on wide
-       screens (rail is inside a centered dash container). Hidden on mobile. */
-    body::before {
-      content: "";
-      position: fixed; top: 0; bottom: 0; left: 0;
-      width: max(0px, calc(50vw - var(--dash-max) / 2 + 240px));
-      background: rgba(0,0,0,0.28);
-      z-index: -1;
-      pointer-events: none;
-    }
-    @media (max-width: 900px) { body::before { display: none; } }
+    body { overflow-x: hidden; }
 
     .dash {
       display: grid;
@@ -51,7 +33,6 @@
     }
 
     /* ─── LEFT RAIL (desktop only) ───────────────────────────────────────── */
-    /* ─── LEFT RAIL (desktop only) ───────────────────────────────────── */
     .rail {
       background: rgba(0,0,0,0.28);
       padding: 24px 18px;
@@ -135,9 +116,10 @@
       font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.14em;
       color: var(--faint); text-transform: uppercase; margin: 32px 0 12px;
     }
-    /* "View all" sits below the block, plain centered link (no divider) */
+    /* "View all" sits below the block as a full-width thin separator */
     .view-all-row {
-      margin: 14px 0 0; text-align: center; padding: 8px 0;
+      margin: 16px 0 0; text-align: center;
+      padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.06);
     }
     .view-all {
       color: var(--gold); text-decoration: none;
@@ -145,9 +127,9 @@
     }
     .view-all:hover { text-decoration: underline; }
 
-    /* Continue reading hero (3:4 cover ratio, matches AI-generated covers) */
+    /* Continue reading hero */
     .hero {
-      display: grid; grid-template-columns: 180px 1fr; gap: 24px;
+      display: grid; grid-template-columns: 160px 1fr; gap: 24px;
       padding: 22px; border-radius: 20px;
       background: linear-gradient(135deg, rgba(224,75,87,0.08), rgba(240,212,140,0.05));
       border: 1px solid rgba(224,75,87,0.2);
@@ -168,11 +150,11 @@
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
       font-family: Arial, sans-serif; font-size: 11px; color: #fff; font-weight: 600;
     }
-    /* 3:4 cover slot — hosts the AI-generated cover PLUS a gold-serif
-       title overlay in the bottom-third. Falls back to placeholder book_XX
-       when story.cover_image_url is null. */
+    /* Native book cover shape — 7:10 ratio (140×200 source), reduced from
+       the earlier 3:4 gradient plate. Uses a real book image + subtle inner
+       vignette so text on top stays legible. */
     .cover {
-      position: relative; width: 180px; aspect-ratio: 3 / 4;
+      position: relative; width: 160px; aspect-ratio: 7 / 10;
       border-radius: 10px; overflow: hidden;
       background-size: cover; background-position: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
@@ -180,23 +162,9 @@
     }
     .cover::before {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%);
-      pointer-events: none; z-index: 1;
-    }
-    /* Gold title overlay per COVER_STYLE_SPEC.md — Cinzel, uppercase, no shadow */
-    .cover-title-overlay {
-      position: absolute; bottom: 7%; left: 8%; right: 8%; z-index: 2;
-      text-align: center;
-      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
-      font-weight: 500;
-      color: #d4a24b;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      line-height: 1.08;
-      font-size: 13px;                /* scales via container width below */
+      background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.55) 100%);
       pointer-events: none;
     }
-    .cover-title-overlay span { display: block; }
     /* Progress ring on the cover */
     .ring { position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; z-index: 2; }
     .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -262,6 +230,7 @@
       grid-template-areas:
         "thumb body"
         "thumb quote"
+        "thumb chars"
         "thumb cta";
       gap: 10px 18px;
       align-items: start;
@@ -270,6 +239,7 @@
     .card-with-thumb .card-body   { grid-area: body; min-width: 0; }
     .card-with-thumb .card-body h3 { margin-top: 0; }
     .card-with-thumb .chat-quote  { grid-area: quote; }
+    .card-with-thumb .chat-chars  { grid-area: chars; }
     .card-with-thumb .cta-secondary { grid-area: cta; justify-self: start; margin-top: 4px; }
     .card-thumb {
       width: 120px; aspect-ratio: 234 / 401; border-radius: 12px;
@@ -336,29 +306,11 @@
 
     .lib-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 16px; }
     .lib-cover {
-      position: relative; aspect-ratio: 3 / 4; border-radius: 6px; overflow: hidden;
+      aspect-ratio: 7 / 10; border-radius: 6px;
       background-size: cover; background-position: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       text-decoration: none;
     }
-    .lib-cover::before {
-      content: ""; position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%);
-      pointer-events: none;
-    }
-    .lib-cover .cover-title-overlay {
-      position: absolute; bottom: 5%; left: 6%; right: 6%; z-index: 2;
-      text-align: center;
-      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
-      font-weight: 500;
-      color: #d4a24b;
-      text-transform: uppercase;
-      letter-spacing: 0.10em;
-      line-height: 1.05;
-      font-size: 8px;
-      pointer-events: none;
-    }
-    .lib-cover .cover-title-overlay span { display: block; }
 
     /* Existing stories (sub-hero) list */
     .other-stories { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -372,21 +324,9 @@
     /* Small thumb — 60×80 (3:4), gradient placeholder matching the hero style */
     .os-thumb {
       position: relative; flex-shrink: 0;
-      width: 60px; aspect-ratio: 3 / 4; border-radius: 6px; overflow: hidden;
+      width: 56px; height: 74px; border-radius: 6px; overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
       display: flex; align-items: center; justify-content: center;
-    }
-    /* Compact title overlay on tiny thumbnails — 1 line, smaller type */
-    .os-thumb .cover-title-overlay {
-      position: absolute; bottom: 4px; left: 4px; right: 4px;
-      font-size: 6px; letter-spacing: 0.08em; line-height: 1;
-      color: #e8c778;
-    }
-    .os-thumb .cover-title-overlay span { display: inline; }
-    .os-thumb::before {
-      content: ""; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.55) 100%);
-      pointer-events: none; z-index: 1;
     }
     .os-thumb::before {
       content: ""; position: absolute; inset: 0;
@@ -441,98 +381,6 @@
     .empty {
       background: rgba(255,255,255,0.05); border-radius: 16px; padding: 32px 24px;
       text-align: center; margin-top: 12px;
-    }
-
-    /* ─── Empty-state promo — shown when user has zero stories ────────────
-       Replaces the Continue Reading hero + Your other stories rail with a
-       single big "start your own story" pitch. Chat + Books cards below
-       stay visible so the page never feels barren. */
-    .start-promo {
-      position: relative;
-      background:
-        radial-gradient(circle at 85% 20%, rgba(240,212,140,0.14), transparent 55%),
-        linear-gradient(160deg, rgba(224,75,87,0.20) 0%, rgba(75,0,24,0.55) 55%, rgba(26,0,8,0.65) 100%);
-      border: 1px solid rgba(240,212,140,0.22);
-      border-radius: 20px;
-      padding: 40px 44px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    }
-    .start-promo::before {
-      /* faint gold sheen top-right — no image asset needed */
-      content: ""; position: absolute; top: -80px; right: -80px;
-      width: 260px; height: 260px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(240,212,140,0.18), transparent 70%);
-      pointer-events: none;
-    }
-    .start-promo .sp-eyebrow {
-      font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.18em;
-      color: var(--gold); text-transform: uppercase; font-weight: 600;
-      margin-bottom: 10px;
-    }
-    .start-promo h2 {
-      font-family: Georgia, serif; font-weight: 400;
-      font-size: 30px; line-height: 1.15; color: rgba(255,255,255,0.96);
-      margin: 0 0 14px; max-width: 520px;
-    }
-    .start-promo .sp-lede {
-      font-family: Georgia, serif; font-size: 15.5px; line-height: 1.55;
-      color: rgba(255,255,255,0.82); max-width: 540px; margin: 0 0 26px;
-    }
-    .start-promo .sp-steps {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
-      margin: 0 0 28px; max-width: 620px;
-    }
-    .start-promo .sp-step {
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px; padding: 14px 14px 12px;
-    }
-    .start-promo .sp-step-n {
-      display: inline-block; width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(240,212,140,0.18); color: var(--gold);
-      font-family: Arial, sans-serif; font-size: 12px; font-weight: 700;
-      text-align: center; line-height: 22px; margin-bottom: 8px;
-    }
-    .start-promo .sp-step-title {
-      font-family: Georgia, serif; font-size: 14px; color: rgba(255,255,255,0.92);
-      margin-bottom: 3px; line-height: 1.25;
-    }
-    .start-promo .sp-step-sub {
-      font-family: Arial, sans-serif; font-size: 11.5px; color: var(--faint);
-      line-height: 1.4;
-    }
-    .start-promo .sp-cta {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: var(--cta); color: #fff; text-decoration: none;
-      padding: 15px 28px; border-radius: 999px;
-      font-family: Georgia, serif; font-size: 16px; font-weight: 500;
-      letter-spacing: 0.01em;
-      box-shadow: 0 8px 24px rgba(224,75,87,0.35);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .start-promo .sp-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 28px rgba(224,75,87,0.45);
-    }
-    .start-promo .sp-cta-ico { font-size: 15px; }
-    .start-promo .sp-foot {
-      display: block; margin-top: 14px;
-      font-family: Arial, sans-serif; font-size: 12px;
-      color: rgba(255,255,255,0.55);
-    }
-    @media (max-width: 900px) {
-      .start-promo { padding: 26px 22px; border-radius: 18px; }
-      .start-promo h2 { font-size: 24px; }
-      .start-promo .sp-lede { font-size: 14.5px; margin-bottom: 20px; }
-      .start-promo .sp-steps {
-        grid-template-columns: 1fr; gap: 10px; margin-bottom: 22px;
-      }
-      .start-promo .sp-step { padding: 12px 14px; }
-      .start-promo .sp-cta {
-        display: flex; justify-content: center;
-        padding: 14px 20px; font-size: 15px;
-      }
     }
 
     /* Coming-soon strip — dashed muted card, teases the next product without
@@ -610,8 +458,8 @@
       .row { grid-template-columns: 1fr; }
       .other-stories { grid-template-columns: 1fr; }
 
-      /* Mobile chat layout: row 1 = thumb + body (50:50),
-         row 2 = quote full-width, row 3 = CTA full-width. */
+      /* Mobile chat layout (#6): row 1 = thumb + body (50:50),
+         row 2 = quote full-width, row 3 = CTA full-width. Chars hidden. */
       .card-with-thumb {
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
@@ -624,6 +472,7 @@
         width: 100%; height: auto; max-height: 200px;
         aspect-ratio: 234 / 401;
       }
+      .card-with-thumb .chat-chars { display: none; }
 
       .lib-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
@@ -697,7 +546,6 @@
       <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
       <nav class="rail-nav">
         <a href="/stories.html" class="active"><span class="n-ico">🏠</span> Home</a>
-        <a href="/quiz2.html"><span class="n-ico">✎</span> New story</a>
         <a href="#" id="chatLink"><span class="n-ico">💬</span> Chat</a>
         <a href="/library/"><span class="n-ico">📚</span> Library</a>
         <a href="/settings.html"><span class="n-ico">⚙️</span> Settings</a>
@@ -723,46 +571,13 @@
         Your taste: <span id="tasteInner"></span>
       </div>
 
-      <!-- Invisible loading slot — reserves NO visible text but keeps DOM
-           stable. Content div is hidden until data lands, then swaps in. -->
-      <div id="loading" style="min-height:80px;"></div>
+      <!-- Loading placeholder -->
+      <div id="loading" style="text-align:center;padding:60px 20px;font-family:Arial,sans-serif;color:var(--faint);">
+        Loading your home…
+      </div>
 
       <!-- Real content injected here -->
       <div id="content" style="display:none;">
-
-        <!-- START-YOUR-STORY PROMO — replaces continue+other blocks when
-             the user has zero stories yet (new accounts, first login). -->
-        <div id="startBlock" style="display:none;">
-          <div class="start-promo">
-            <div class="sp-eyebrow">Your subscription includes this</div>
-            <h2>Start your own custom story.</h2>
-            <p class="sp-lede">
-              A 10-chapter romance shaped by your taste — the world, the pairing, the pacing, the heat. You pick what happens at every chapter break. No two readers ever get the same story.
-            </p>
-            <div class="sp-steps">
-              <div class="sp-step">
-                <span class="sp-step-n">1</span>
-                <div class="sp-step-title">Take the 2-minute quiz</div>
-                <div class="sp-step-sub">Tell us your world, mood, and how spicy.</div>
-              </div>
-              <div class="sp-step">
-                <span class="sp-step-n">2</span>
-                <div class="sp-step-title">Chapter 1 arrives in ~5 min</div>
-                <div class="sp-step-sub">Written just for you. Cover included.</div>
-              </div>
-              <div class="sp-step">
-                <span class="sp-step-n">3</span>
-                <div class="sp-step-title">You choose what happens next</div>
-                <div class="sp-step-sub">Three options at every chapter break.</div>
-              </div>
-            </div>
-            <a class="sp-cta" href="/quiz2.html" id="startPromoCta">
-              <span class="sp-cta-ico">✎</span> Start your story
-              <span style="opacity:0.8">→</span>
-            </a>
-            <span class="sp-foot">Up to 3 personalized stories every month.</span>
-          </div>
-        </div>
 
         <!-- CONTINUE READING (only if there's an active story) -->
         <div id="continueBlock" style="display:none;">
@@ -792,7 +607,7 @@
           <div class="sect-lbl">Your other stories</div>
           <div class="other-stories" id="otherStories"></div>
           <div class="view-all-row" id="viewAllRow" style="display:none;">
-            <a href="#more-stories" id="viewAllLink" class="view-all">View all →</a>
+            <a href="/library.html" id="viewAllLink" class="view-all">View all →</a>
           </div>
         </div>
 
@@ -807,10 +622,11 @@
                 They remember what happened. Pick up where the chapter ended.
               </div>
             </div>
-            <div class="chat-quote" id="chatQuote">
-              <span id="chatQuoteText">"I've been thinking about what you said last chapter. About what you actually wanted."</span>
-              <span class="cq-attr" id="chatQuoteAttr">— a taste of what chat feels like</span>
+            <div class="chat-quote" id="chatQuote" style="display:none;">
+              <span id="chatQuoteText"></span>
+              <span class="cq-attr" id="chatQuoteAttr"></span>
             </div>
+            <div class="chat-chars" id="chatChars"></div>
             <a class="cta-secondary" id="chatBtn" href="#">Open chat →</a>
           </div>
 
@@ -818,15 +634,9 @@
             <h3>Books library</h3>
             <p>5 full-length stories · included with your subscription.</p>
             <div class="lib-grid">
-              <a class="lib-cover" href="/library/book/across-the-driveway/" style="background-image:url('https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/across-the-driveway.jpg');">
-                <div class="cover-title-overlay"><span>Across the</span><span>Driveway</span></div>
-              </a>
-              <a class="lib-cover" href="/library/book/after-hours/"         style="background-image:url('https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/after-hours.jpg');">
-                <div class="cover-title-overlay"><span>After Hours</span></div>
-              </a>
-              <a class="lib-cover" href="/library/book/the-penthouse-floor/" style="background-image:url('https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/the-penthouse-floor.jpg');">
-                <div class="cover-title-overlay"><span>The Penthouse</span><span>Floor</span></div>
-              </a>
+              <a class="lib-cover" href="/library/book/?id=fated-mates"    style="background-image:url('https://stuffsosweet.com/media/book_A2.webp');"></a>
+              <a class="lib-cover" href="/library/book/?id=after-hours"    style="background-image:url('https://stuffsosweet.com/media/book_b.webp');"></a>
+              <a class="lib-cover" href="/library/book/?id=penthouse"      style="background-image:url('https://stuffsosweet.com/media/book_c.webp');"></a>
             </div>
             <a class="cta-secondary" href="/library/">Browse all 5 →</a>
           </div>
@@ -946,12 +756,6 @@
         }],
         quiz_sessions: [],
       };
-      // Preview filter: ?preview=1&first=1 shows what a brand-new user sees on
-      // their very first visit — a single pending story where chapter 1 is
-      // still being generated. Uses the m3 mock (pending, title=null, chapters=[]).
-      if (new URLSearchParams(location.search).has("first")) {
-        MOCKS.stories = MOCKS.stories.filter(s => s.id === "m3");
-      }
       supabase.from = (table) => {
         const rows = MOCKS[table] || [];
         // ALL chain methods return the same q so `.select().eq().gte()...`
@@ -981,17 +785,6 @@
       };
       // Chat button no-ops in preview
       window.buildChatUrl = async () => "#preview-mode";
-      // Propagate ?preview=1 through <a> clicks so the whole app stays walkable
-      document.addEventListener("click", (e) => {
-        const a = e.target.closest("a[href]");
-        if (!a) return;
-        const url = a.getAttribute("href");
-        if (!url || url.startsWith("http") || url.startsWith("#") || url.startsWith("mailto:")) return;
-        if (url.includes("preview=")) return;
-        e.preventDefault();
-        const sep = url.includes("?") ? "&" : "?";
-        window.location.href = url + sep + "preview=1";
-      }, true);
       console.info("[preview mode] using mock data, no auth, no DB");
     } else {
       session = await requireAuth();
@@ -1032,7 +825,7 @@
       .from("stories")
       .select(`
         id, title, status, current_chapter_number, target_chapter_count,
-        hook, genre, heat_level, cover_image_url, created_at, updated_at, lead_email,
+        hook, genre, heat_level, created_at, updated_at, lead_email,
         chapters(id, chapter_number, chosen_option, option_1, option_2, option_3, next_chapter_tone_hint, mood)
       `)
       .order("updated_at", { ascending: false });
@@ -1076,33 +869,16 @@
       const total = s.target_chapter_count || 10;
       const inProgress = !s.title;
 
-      // Cover source, in priority order:
-      //   1. Real AI-generated cover (fires ~15s after chapter 1 lands)
-      //   2. Pending-cover placeholder for stories mid-generation (no title)
-      //      — avoids showing a random book that isn't theirs during the wait
-      //   3. Rotating marketing-cover placeholder for stories that somehow
-      //      have a title but no AI cover yet (backfill period / legacy rows)
-      const img = s.cover_image_url
-        ? s.cover_image_url
-        : (inProgress ? "/media/loading.webp" : bookImageFor(s));
+      // Real book-cover image (rotating placeholder from the 12 marketing
+      // covers, deterministic per story so it never changes on reload).
+      // Falls back to gradient if the image fails to load.
+      const img = bookImageFor(s);
       const palette = coverPaletteFor(s);
       const heroCover = $("heroCover");
       heroCover.style.backgroundImage = `url("${img}"), linear-gradient(140deg, ${palette[0]}, ${palette[1]} 60%, ${palette[2]})`;
       heroCover.style.backgroundSize = "cover";
       heroCover.style.backgroundPosition = "center";
       heroCover.href = `/story.html?id=${encodeURIComponent(s.id)}`;
-      // Gold Cinzel title overlay in the bottom-third.
-      // Only when we have both a real title AND a cover image (avoids stale
-      // overlay flashing on empty state or during regeneration).
-      const existingOverlay = heroCover.querySelector(".cover-title-overlay");
-      if (existingOverlay) existingOverlay.remove();
-      if (!inProgress && s.title && s.cover_image_url) {
-        const parts = splitTitleForOverlay(s.title);
-        const overlay = document.createElement("div");
-        overlay.className = "cover-title-overlay";
-        overlay.innerHTML = parts.map(p => `<span>${escapeHtml(p)}</span>`).join("");
-        heroCover.appendChild(overlay);
-      }
 
       // Circular progress ring — top-right of the hero block (moved off cover)
       const pct = Math.min(100, (chapterNum / total) * 100);
@@ -1170,9 +946,7 @@
                </svg>
                <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
              </div>`
-          : `<div class="os-thumb" style="background:url('${s.cover_image_url || bookImageFor(s)}'), ${gradient}; background-size:cover; background-position:center;">
-               ${s.cover_image_url && s.title ? `<div class="cover-title-overlay">${escapeHtml(s.title.length > 20 ? s.title.slice(0, 20) + "…" : s.title)}</div>` : ""}
-             </div>`;
+          : `<div class="os-thumb" style="background:url('${bookImageFor(s)}'), ${gradient}; background-size:cover; background-position:center;"></div>`;
 
         // Title: keep real title for writingNext (we have it); pulse only for brand-new
         const titleHtml = brandNew
@@ -1207,22 +981,16 @@
     }
 
     // ─── Empty state — no stories yet ──────────────────────────────────
-    // Shows the .start-promo card in place of the continue+other blocks.
-    // Chat + Books cards stay visible below so the page never feels barren.
-    // Also hides the top "+ New story" button since the promo owns the CTA.
     function paintEmpty() {
-      $("startBlock").style.display = "";
-      $("continueBlock").style.display = "none";
-      $("otherBlock").style.display = "none";
-      const nsBtn = $("newStoryBtn");
-      if (nsBtn) nsBtn.style.display = "none";
+      $("continueBlock").innerHTML = `
+        <div class="empty" style="padding:40px 24px;">
+          <a href="/quiz2.html" style="font-family:Georgia,serif;font-size:22px;color:var(--gold);text-decoration:none;">Start your first custom story →</a>
+        </div>
+      `;
+      $("continueBlock").style.display = "";
     }
 
-    // Force-empty flag for local QA: ?preview=1&empty=1
-    const forceEmpty = isPreview && new URLSearchParams(location.search).has("empty");
-    const hasAnyStory = (stories || []).length > 0 && !forceEmpty;
-
-    if (hasAnyStory && hero) {
+    if (hero) {
       $("continueBlock").style.display = "";
       paintHero(hero);
       if (otherStories.length) paintOthers(otherStories);
@@ -1254,21 +1022,63 @@
     }
     loadTaste();
 
-    // ─── Chat card quote (no chips) ────────────────────────────────────
-    // Static showcase quote for everyone — same look regardless of whether
-    // the user has real conversations. Real per-user latest-message hookup
-    // is deferred; the ambient quote hints at what chat feels like without
-    // pretending activity.
-    // (Char chips removed per Arturas — cleaner, one message on both mobile
-    //  and desktop, always visible.)
+    // ─── Chat recents — character chips + latest message preview ───────
+    // If the user has real conversations: show chips + their latest message.
+    // If not: show a universal showcase quote (unbranded, evocative) + hide
+    // chips entirely — hints at what chat feels like without pretending they
+    // have activity. Preview mode uses `?nochats=1` to force the empty state.
+    async function loadChatRecents() {
+      let convos = [];
+      if (!isPreview) {
+        try {
+          const { data } = await supabase.from("chat_conversations")
+            .select("id, title, character_id, updated_at")
+            .eq("user_id", session.user.id)
+            .order("updated_at", { ascending: false })
+            .limit(4);
+          convos = data || [];
+        } catch (e) { console.warn("chat recents load failed:", e); }
+      } else if (!new URLSearchParams(location.search).has("nochats")) {
+        // Preview: populated mock
+        convos = [
+          { id: "c1", title: "Ava",      updated_at: new Date(Date.now() - 2*3600e3).toISOString() },
+          { id: "c2", title: "Vivienne", updated_at: new Date(Date.now() - 24*3600e3).toISOString() },
+          { id: "c3", title: "Kai",      updated_at: new Date(Date.now() - 72*3600e3).toISOString() },
+        ];
+      }
+
+      const wrap = $("chatChars");
+      if (convos.length > 0) {
+        // POPULATED — real chips + latest quote
+        const palettes = [["#6a1a4a","#2a0820"],["#4a1a6a","#1a082a"],["#6a1a2b","#2a0810"],["#4a1a6a","#08202a"]];
+        wrap.innerHTML = convos.slice(0, 3).map((c, i) => {
+          const name = c.title || "Character";
+          const pal = palettes[i % palettes.length];
+          return `<a class="chat-char" href="/chat?c=${encodeURIComponent(c.id)}">
+            <span class="cc-av" style="background:linear-gradient(135deg,${pal[0]},${pal[1]});">${escapeHtml(name[0].toUpperCase())}</span>
+            ${escapeHtml(name)}
+          </a>`;
+        }).join("") + (convos.length > 3 ? `<span class="chat-char-more">+ ${convos.length - 3} more</span>` : "");
+
+        $("chatQuote").style.display = "";
+        if (isPreview) {
+          $("chatQuoteText").textContent = `"You never told me you owned this place."`;
+          $("chatQuoteAttr").textContent = "Ava · 2h ago";
+        } else {
+          // Real: fetch latest assistant message. TODO #120.
+          $("chatQuote").style.display = "none";
+        }
+      } else {
+        // EMPTY — universal showcase quote, no chips
+        wrap.style.display = "none";
+        $("chatQuote").style.display = "";
+        $("chatQuoteText").textContent = `"I've been thinking about what you said last chapter. About what you actually wanted."`;
+        $("chatQuoteAttr").textContent = "— a taste of what chat feels like";
+      }
+    }
+    loadChatRecents();
 
     // ─── Quota (used stories this calendar month) ───────────────────────
-    // Enforces the 3/month cap in the UI (backend cap lives in
-    // start-authenticated-story-v2). The rail quota widget was removed when
-    // the rail got simplified (STORIES_HOME_V2_LOCKED.md rule 4) — so this
-    // only writes to the header pill now. Any legacy rail-widget elements
-    // are written to defensively (via optional chaining) so a missing DOM
-    // node never silently disables the button-block below.
     async function loadQuota() {
       try {
         const now = new Date();
@@ -1279,28 +1089,15 @@
           .gte("created_at", monthStart);
         const used = count || 0, limit = 3, left = Math.max(0, limit - used);
         const pct = Math.round((used / limit) * 100);
-
-        // Legacy rail-widget writes — kept for safety if the elements are
-        // re-added later. Optional chaining prevents a null throw from
-        // aborting the button-disable logic below.
-        const rq = $("railQuota");
-        if (rq) {
-          const qc = rq.querySelector(".q-count");
-          if (qc) qc.innerHTML = `<b>${left}</b> of ${limit} stories left`;
-        }
-        const rqb = $("railQuotaBar");
-        if (rqb) rqb.style.width = pct + "%";
-
-        // Header pill — the source of truth for the visible quota now.
+        $("railQuota").querySelector(".q-count").innerHTML = `<b>${left}</b> of ${limit} stories left`;
+        $("railQuotaBar").style.width = pct + "%";
+        // Header pill shows quota inline; disable when exhausted
         const btn = $("newStoryBtn");
-        const qLabel = $("newStoryQuota");
-        if (qLabel) qLabel.textContent = `· ${left} left`;
-        if (btn && left === 0) {
+        $("newStoryQuota").textContent = `· ${left} left`;
+        if (left === 0) {
           btn.style.opacity = "0.5";
           btn.style.pointerEvents = "none";
-          btn.setAttribute("aria-disabled", "true");
-          btn.setAttribute("title", `You've used all ${limit} of your stories this month. Quota resets on the 1st.`);
-          if (qLabel) qLabel.textContent = "· limit reached";
+          $("newStoryQuota").textContent = "· limit reached";
         }
       } catch (e) { console.warn("quota load failed:", e); }
     }
@@ -1360,23 +1157,6 @@
       return palettes[Math.abs(h) % palettes.length];
     }
     function truncate(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n-1) + "…" : s; }
-
-    // Split a story title into up-to-3 lines for the cover overlay so long
-    // titles wrap cleanly. Splits on commas or natural word groups.
-    function splitTitleForOverlay(title){
-      const t = String(title || "").trim();
-      if (t.length <= 14) return [t];
-      // Prefer a comma split
-      if (t.includes(",")) {
-        const parts = t.split(",").map(s => s.trim()).filter(Boolean);
-        if (parts.length >= 2) return parts.slice(0, 3);
-      }
-      // Otherwise break into ~2 lines by word midpoint
-      const words = t.split(/\s+/);
-      if (words.length <= 2) return [t];
-      const mid = Math.ceil(words.length / 2);
-      return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
-    }
 
     // Small SVG glyph shown top-left on the cover — genre-flavored so different
     // stories look visually distinct even before real cover art exists.

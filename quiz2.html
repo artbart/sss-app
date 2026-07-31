@@ -173,34 +173,164 @@
         { value: "very_spicy",  label: "🌶🌶🌶 Very Spicy — very explicit throughout" },
       ] },
 
+      // MOOD — values aligned with marketing quiz2 so drill showIf conditions work
       { key: "mood", type: "multi", title: "Which moods should the story lean into?", sub: "Pick as many as fit.", options: [
-        { value: "soft_tender",     label: "🤗 Soft & tender" },
-        { value: "slow_burn",       label: "⏳ Slow burn tension" },
-        { value: "playful_bratty",  label: "😈 Playful & bratty" },
-        { value: "intense",         label: "💥 Intense & consuming" },
-        { value: "power_dynamic",   label: "👑 Power dynamic" },
-        { value: "vulnerable",      label: "💧 Vulnerable & emotional" },
-        { value: "forbidden",       label: "🚫 Forbidden / taboo" },
-        { value: "dark",            label: "🖤 Dark & morally complex" },
+        { value: "soft_tender",       label: "🤗 Soft & tender" },
+        { value: "slow_burn",         label: "⏳ Slow burn tension" },
+        { value: "playful_bratty",    label: "😈 Playful & bratty" },
+        { value: "rough_care",        label: "💥 Rough with real care" },
+        { value: "dark_obsessive",    label: "🖤 Dark & obsessive" },
+        { value: "forbidden",         label: "🚫 Forbidden / risky" },
+        { value: "sensual_worship",   label: "🗿 Sensual, worship-tempo" },
+        { value: "multiple_partners", label: "👥 Multiple partners" },
       ] },
 
-      { key: "setup_depth", type: "single", title: "How deep should we go on the details?", options: [
-        { value: "quick", label: "⚡ Quick — you have enough. Just write it." },
-        { value: "full",  label: "🎨 Full — I want to shape more of the specifics" },
-      ] },
+      { key: "setup_depth", type: "single", title: "How deep should we go on the details?",
+        // Only ask if user chose something spicy — matches marketing behavior
+        showIf: (s) => s.spicy === "spicy" || s.spicy === "very_spicy",
+        options: [
+          { value: "quick", label: "⚡ Quick — smart defaults, take me to the story" },
+          { value: "full",  label: "🎨 Full — customize every detail (~10 more questions)" },
+        ] },
 
-      // Only when setup_depth === "full"
-      { key: "specifics", type: "multi", title: "Any specifics you want woven in?", sub: "Pick any that call to you.",
+      // SPECIFICS — values aligned with marketing quiz2
+      { key: "specifics", type: "multi", title: "Specific things you want woven in", sub: "Multi-select, all optional.",
         showIf: (s) => s.setup_depth === "full",
         options: [
-          { value: "dirty_talk",    label: "🗯 Dirty talk" },
-          { value: "restraint",     label: "🪢 Restraint / light bondage" },
-          { value: "power_play",    label: "👑 Power play / D/s" },
-          { value: "voyeurism",     label: "👁 Watching / being watched" },
-          { value: "size_dynamic",  label: "📏 Size difference" },
-          { value: "public_risk",   label: "🎬 Public / risk of being caught" },
-          { value: "praise",        label: "🌟 Praise" },
-          { value: "roleplay",      label: "🎭 Roleplay" },
+          { value: "praise",         label: "🌟 Praise talk / worship" },
+          { value: "instruction",    label: "🗣 Instruction / commands" },
+          { value: "restraint",      label: "🪢 Restraint / being held down" },
+          { value: "marking",        label: "💉 Marking (bruises, evidence)" },
+          { value: "slow_denial",    label: "⏳ Slow denial / edging" },
+          { value: "public_watched", label: "👁 Public / being watched" },
+          { value: "explicit_oral",  label: "👄 Explicit oral" },
+          { value: "explicit_anal",  label: "🍑 Explicit anal" },
+          { value: "size_diff",      label: "📏 Size difference" },
+          { value: "breeding",       label: "💦 Breeding / creampie" },
+          { value: "filthy_talk",    label: "🗯 Filthy talk" },
+        ] },
+
+      // ═══ 12 CONDITIONAL DRILLS — mirrored from marketing quiz2 ═══
+      // Only fire when setup_depth = full AND their specific trigger applies.
+
+      { key: "restraint", type: "single", title: "How much restraint feels right?",
+        showIf: s => s.setup_depth === "full" && ((s.mood||[]).includes("rough_care") || (s.specifics||[]).some(x => ["restraint","marking"].includes(x)) || s.spicy === "very_spicy"),
+        options: [
+          { value: "held",  label: "✋ Just held — hands, weight, position" },
+          { value: "light", label: "🎀 Light bindings — silk, a tie" },
+          { value: "real",  label: "🪢 Real restraints — cuffs, rope" },
+          { value: "full",  label: "⛓ Full bondage — advanced, immobilization" },
+        ] },
+
+      { key: "sensory", type: "multi", title: "Sensory play", sub: "Multi-select. Zero picks is fine.",
+        showIf: s => s.setup_depth === "full" && ((s.mood||[]).includes("rough_care") || (s.specifics||[]).some(x => ["restraint","marking"].includes(x))),
+        options: [
+          { value: "blindfold",   label: "🕶 Blindfolds" },
+          { value: "gag",         label: "🤐 Gags / silencing" },
+          { value: "temperature", label: "🧊 Temperature (ice, wax)" },
+          { value: "deprivation", label: "🔇 Deprivation (blindfold + earplug)" },
+        ] },
+
+      { key: "talk", type: "multi", title: "Style of intimate talk", sub: "Multi-select, up to 3.",
+        showIf: s => s.setup_depth === "full" && (s.specifics||[]).some(x => ["praise","instruction","filthy_talk"].includes(x)),
+        options: [
+          { value: "praise",        label: "🌟 Praise (\"perfect\", \"look at me\")" },
+          { value: "instruction",   label: "💡 Instruction (\"hold still\", \"eyes here\")" },
+          { value: "filthy_praise", label: "😈 Filthy praise (worship + explicit mixed)" },
+          { value: "degradation",   label: "🖤 Degradation edge" },
+          { value: "silent",        label: "🤫 Almost silent — bodies do the talking" },
+        ] },
+
+      { key: "aftercare", type: "single", title: "Aftercare tone",
+        showIf: s => s.setup_depth === "full" && ((s.mood||[]).includes("rough_care") || (s.specifics||[]).some(x => ["restraint","marking"].includes(x))),
+        options: [
+          { value: "warm",    label: "🧥 Warm and wrapped up" },
+          { value: "fed",     label: "🍵 Fed, taken care of" },
+          { value: "quiet",   label: "🌛 Quiet, just staying" },
+          { value: "playful", label: "😏 Playful banter, ease it down" },
+          { value: "fade",    label: "🎬 Fade to next scene — don't linger" },
+        ] },
+
+      { key: "paranormal_kind", type: "multi", title: "What kind of paranormal?", sub: "Multi-select.",
+        showIf: s => s.setup_depth === "full" && s.world === "fantasy_paranormal",
+        options: [
+          { value: "vampire", label: "🧛 Vampire" },
+          { value: "wolf",    label: "🐺 Wolf shifter" },
+          { value: "dragon",  label: "🐉 Dragon shifter" },
+          { value: "bearcat", label: "🐻 Bear / big-cat shifter" },
+          { value: "fae",     label: "🧝 Fae / elf" },
+          { value: "demon",   label: "👿 Demon" },
+          { value: "angel",   label: "👼 Angel" },
+        ] },
+
+      { key: "monster_flavor", type: "multi", title: "What kind of monster?", sub: "Multi-select. All are intelligent beings — never actual animals.",
+        showIf: s => s.setup_depth === "full" && s.world === "monster",
+        options: [
+          { value: "orc",      label: "🧌 Orc" },
+          { value: "alien",    label: "👽 Alien (human-compatible)" },
+          { value: "tentacle", label: "🐙 Tentacle beings" },
+          { value: "sea",      label: "🧜 Sea creatures / merfolk" },
+          { value: "invented", label: "✨ Something the story invents" },
+        ] },
+
+      { key: "omegaverse", type: "multi", title: "Heat & mating dynamics", sub: "Multi-select.",
+        showIf: s => s.setup_depth === "full" && (s.world === "omegaverse" || (s.paranormal_kind||[]).some(x => ["wolf","dragon","bearcat"].includes(x))),
+        options: [
+          { value: "heat",      label: "🔥 Heat cycles as story engine" },
+          { value: "knot",      label: "🪢 Knotting" },
+          { value: "bond",      label: "🔗 Mating bonds (permanent)" },
+          { value: "scent",     label: "👃 Scenting / claiming" },
+          { value: "rivals",    label: "⚔ Rival alphas / competition" },
+          { value: "find_pair", label: "🧲 Omega finding their alpha (or vice versa)" },
+        ] },
+
+      { key: "size", type: "single", title: "Size / power difference",
+        showIf: s => s.setup_depth === "full" && (["fantasy_paranormal","monster","omegaverse"].includes(s.world) || (s.specifics||[]).includes("size_diff")),
+        options: [
+          { value: "massive",     label: "💥 Massive — physical impossibility played for tension" },
+          { value: "significant", label: "📏 Significant but grounded" },
+          { value: "present",     label: "🧮 Present but not the point" },
+          { value: "skip",        label: "⏭ Skip" },
+        ] },
+
+      { key: "partner_dynamic", type: "single", title: "How do the partners connect to each other?",
+        showIf: s => s.setup_depth === "full" && (s.mood||[]).includes("multiple_partners"),
+        options: [
+          { value: "mutual",       label: "🔁 Fully mutual — everyone with everyone" },
+          { value: "centered",     label: "🎯 Centered on the main character" },
+          { value: "two_plus_one", label: "➕ Two-plus-one — one primary, other(s) join" },
+          { value: "hierarchical", label: "👑 Hierarchical (alpha primary, others secondary)" },
+          { value: "decide",       label: "🎲 Let the story figure it out" },
+        ] },
+
+      { key: "dark_kind", type: "single", title: "The dark love interest — what kind?",
+        showIf: s => s.setup_depth === "full" && ((s.mood||[]).includes("dark_obsessive") || (s.mood||[]).includes("forbidden")),
+        options: [
+          { value: "mafia",        label: "🕴 Mafia / underworld" },
+          { value: "villain",      label: "😈 Villain / antihero" },
+          { value: "stalker",      label: "👁 Stalker energy — obsession, watching" },
+          { value: "captor",       label: "⛓ Captor / captivity dynamic" },
+          { value: "gray",         label: "⚖ Morally gray but not evil" },
+          { value: "full_villain", label: "💀 Full villain, no redemption" },
+        ] },
+
+      { key: "dark_consent", type: "single", title: "Consent flavor in dark scenes",
+        showIf: s => s.setup_depth === "full" && ((s.mood||[]).includes("dark_obsessive") || (s.mood||[]).includes("forbidden")),
+        options: [
+          { value: "fully",  label: "✅ Fully consensual throughout" },
+          { value: "dubcon", label: "🌀 Dubcon — blurred lines that resolve as consensual" },
+          { value: "cnc",    label: "🎭 CNC — negotiated fantasy, safewords off-page" },
+          { value: "skip",   label: "⏭ Skip dark consent territory entirely" },
+        ] },
+
+      { key: "voyeur", type: "single", title: "Voyeurism — how?",
+        showIf: s => s.setup_depth === "full" && (s.specifics||[]).includes("public_watched"),
+        options: [
+          { value: "watched",      label: "👁 Being watched" },
+          { value: "watching",     label: "👓 Watching them" },
+          { value: "mutual",       label: "👀 Watching each other" },
+          { value: "someone_else", label: "👥 With someone else present" },
+          { value: "risk_only",    label: "🎬 Just the possibility — public risk, no audience" },
         ] },
 
       { key: "skip", type: "skip_compound", title: "Anything you want to keep OUT?",
@@ -443,6 +573,19 @@
         mood: state.mood || [],
         specifics: state.specifics || [],
         setup_depth: state.setup_depth,
+        // 12 conditional drills (only populated if setup_depth === "full" + trigger)
+        restraint:       state.restraint       || null,
+        sensory:         state.sensory         || [],
+        talk:            state.talk            || [],
+        aftercare:       state.aftercare       || null,
+        paranormal_kind: state.paranormal_kind || [],
+        monster_flavor:  state.monster_flavor  || [],
+        omegaverse:      state.omegaverse      || [],
+        size:            state.size            || null,
+        partner_dynamic: state.partner_dynamic || null,
+        dark_kind:       state.dark_kind       || null,
+        dark_consent:    state.dark_consent    || null,
+        voyeur:          state.voyeur          || null,
         skip: state.skip || null,
         landing_page: window.location.href,
         user_agent: navigator.userAgent,

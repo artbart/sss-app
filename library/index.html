@@ -2,64 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Library — Stuff So Sweet</title>
   <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#4b0018">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="noindex,nofollow">
+
   <style>
-    .lib-head { max-width: 720px; margin: 0 auto; padding: 32px 22px 16px; }
-    .lib-head h1 { font-family: Georgia, serif; font-size: clamp(28px, 5vw, 36px); color: var(--gold); margin: 0 0 6px; letter-spacing: -0.01em; }
+    /* ─── PAGE-SPECIFIC: books grid landing ───────────────────────── */
+    .lib-head { margin-bottom: 24px; }
+    .lib-head h1 {
+      font-family: Georgia, serif; font-size: 30px; font-weight: normal;
+      color: #fff; margin: 0 0 4px; letter-spacing: -0.01em;
+    }
     .lib-head .sub { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); margin: 0; }
 
-    .book-grid { max-width: 720px; margin: 0 auto; padding: 16px 22px 80px; display: flex; flex-direction: column; gap: 18px; }
-    .book-card { display: flex; gap: 18px; background: var(--card); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; color: inherit; text-decoration: none; transition: background 0.15s, transform 0.1s, border-color 0.15s; }
-    .book-card:hover { background: var(--card-hi); border-color: rgba(240,212,140,0.3); transform: translateY(-1px); text-decoration: none; }
+    .book-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    .book-card {
+      display: grid; grid-template-columns: 120px 1fr; gap: 20px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px; padding: 18px; text-decoration: none; color: inherit;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .book-card:hover {
+      background: rgba(255,255,255,0.07); border-color: rgba(240,212,140,0.28);
+      transform: translateY(-1px);
+    }
+    /* .book-cover-wrap is a 3:4 slot that hosts the AI image AND the gold
+       title overlay in the bottom-third. Replaces the plain <img> so we can
+       layer text on top. */
+    .book-cover-wrap {
+      position: relative; width: 120px; aspect-ratio: 3 / 4; flex-shrink: 0;
+      border-radius: 10px; overflow: hidden;
+      background-size: cover; background-position: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .book-cover-wrap::before {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none;
+    }
+    .book-cover-wrap .cover-title-overlay {
+      position: absolute; bottom: 6%; left: 6%; right: 6%; z-index: 2;
+      text-align: center;
+      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
+      font-weight: 500;
+      color: #d4a24b;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      line-height: 1.05;
+      font-size: 10px;
+      pointer-events: none;
+    }
+    .book-cover-wrap .cover-title-overlay span { display: block; }
+    .book-info { display: flex; flex-direction: column; min-width: 0; }
+    .book-title {
+      font-family: Georgia, serif; font-size: 22px; color: var(--gold);
+      margin: 0 0 4px; line-height: 1.15; letter-spacing: -0.01em; font-weight: normal;
+    }
+    .book-author {
+      font-family: Arial, sans-serif; font-size: 10px; color: var(--faint);
+      text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;
+    }
+    .book-tagline {
+      font-family: Georgia, serif; font-style: italic; font-size: 14px; line-height: 1.5;
+      color: var(--muted); margin: 0 0 12px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .book-meta {
+      display: flex; flex-wrap: wrap; gap: 8px; row-gap: 4px;
+      font-family: Arial, sans-serif; font-size: 12px; color: var(--faint);
+      margin-top: auto;
+    }
+    .book-meta .heat {
+      color: var(--gold); font-weight: 600; letter-spacing: 0.04em;
+    }
 
-    .book-cover { width: 110px; flex-shrink: 0; aspect-ratio: 2/3; object-fit: cover; border-radius: 10px; background: rgba(0,0,0,0.4); box-shadow: 0 8px 18px rgba(0,0,0,0.4); }
-
-    .book-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .book-title { font-family: Georgia, serif; font-size: 20px; color: var(--gold); margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
-    .book-author { font-family: Arial, sans-serif; font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; }
-    .book-tagline { font-family: Georgia, serif; font-size: 14px; line-height: 1.45; opacity: 0.82; margin: 6px 0 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .book-meta { display: flex; flex-wrap: wrap; gap: 10px; font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); margin-top: auto; padding-top: 10px; }
-    .book-meta .heat { color: var(--cta); font-weight: bold; letter-spacing: 0.04em; }
-
-    @media (max-width: 480px) {
-      .book-cover { width: 92px; }
+    @media (max-width: 900px) {
+      .lib-head h1 { font-size: 24px; }
+      .book-card { grid-template-columns: 90px 1fr; gap: 14px; padding: 14px; }
+      .book-cover-wrap { width: 90px; }
+      .book-cover-wrap .cover-title-overlay { font-size: 8px; letter-spacing: 0.08em; }
       .book-title { font-size: 18px; }
+      .book-tagline { -webkit-line-clamp: 2; font-size: 13px; }
     }
   </style>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-PKM537QM');</script>
-  <!-- End Google Tag Manager -->
-
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKM537QM"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-  <div id="topbar"></div>
+  <header class="m-header" id="shell-mheader">
+    <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+  </header>
+  <div class="dash">
+    <aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">
+        <a href="/stories.html" data-nav="home" class=""><span class="n-ico">🏠</span> Home</a>
+        <a href="/quiz2.html" data-nav="new" class=""><span class="n-ico">✎</span> New story</a>
+        <a href="#chat" data-nav="chat" class=""><span class="n-ico">💬</span> Chat</a>
+        <a href="/library/" data-nav="library" class="active"><span class="n-ico">📚</span> Library</a>
+        <a href="/settings.html" data-nav="settings" class=""><span class="n-ico">⚙️</span> Settings</a>
+      </nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>
+    <main class="main">
 
-  <main>
-    <div class="lib-head">
-      <h1>Library</h1>
-      <p class="sub" id="lib-sub">Loading…</p>
-    </div>
+      <div class="lib-head">
+        <h1>Library</h1>
+        <p class="sub" id="lib-sub">&nbsp;</p>
+      </div>
 
-    <div class="book-grid" id="grid"></div>
-  </main>
+      <div class="book-grid" id="grid"></div>
+
+    </main>
+  </div>
+  <nav class="bottom-nav" id="shell-bnav">
+    <a href="/stories.html" data-nav="home" class="bn-item "><span class="bn-ico">🏠</span>Home</a>
+    <a href="/library/" data-nav="library" class="bn-item active"><span class="bn-ico">📚</span>Library</a>
+    <a href="#chat" data-nav="chat" class="bn-item "><span class="bn-ico">💬</span>Chat</a>
+    <a href="/settings.html" data-nav="settings" class="bn-item "><span class="bn-ico">👤</span>You</a>
+  </nav>
 
   <script type="module">
-    import { requireAuth, renderTopbar, logEvent } from "/assets/lib.js";
-    await requireAuth();
-    renderTopbar();
+    import { renderShell, logEvent, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
+    await getSessionOrPreview({ users: [{ display_name: "Arturas" }] });
+    await renderShell({ activeNav: "library" });
 
     // Library catalog — add new books here.
     const BOOKS = [
@@ -67,7 +155,7 @@
         id: "where-the-wild-stays",
         title: "Where the Wild Stays",
         author: "Stuff So Sweet",
-        cover: "https://trippleu.com/wp-content/uploads/2026/06/book_1_cover.webp",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/where-the-wild-stays.jpg",
         tagline: "A wildlife biologist tracks a stationary signal deeper into the Bitterroot wilderness than she should. The man at the abandoned cabin knows her name before she gives it. And then her transmitter pings inside his heartbeat.",
         chapters: 10, words: 22000, readMins: 90, heat: "Spicy",
       },
@@ -75,7 +163,7 @@
         id: "foxlight",
         title: "Foxlight",
         author: "Stuff So Sweet",
-        cover: "https://trippleu.com/wp-content/uploads/2026/06/book_foxlight.webp",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/foxlight.jpg",
         tagline: "A London barrister inherits a small Welsh estate that comes with a copper-haired groundskeeper, an 1763 family compact, and a creature in the orchard at dusk with eyes the color of amber whiskey.",
         chapters: 10, words: 21000, readMins: 90, heat: "Spicy",
       },
@@ -83,7 +171,7 @@
         id: "the-penthouse-floor",
         title: "The Penthouse Floor",
         author: "Stuff So Sweet",
-        cover: "https://trippleu.com/wp-content/uploads/2026/06/penthouse.webp",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/the-penthouse-floor.jpg",
         tagline: "A Tribeca fashion editor meets the widower in the penthouse. He gets off the elevator on her floor to know her name before she disappears. The next morning a flat white shows up at her door.",
         chapters: 10, words: 24000, readMins: 95, heat: "Spicy",
       },
@@ -91,7 +179,7 @@
         id: "across-the-driveway",
         title: "Across the Driveway",
         author: "Stuff So Sweet",
-        cover: "https://trippleu.com/wp-content/uploads/2026/06/drivebay.webp",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/across-the-driveway.jpg",
         tagline: "A Greenwich heatwave, a fifty-eight-hour power outage, both spouses away. The architectural historian across the driveway brings his kids to her pool. Six weeks of an affair. A bittersweet end.",
         chapters: 10, words: 27000, readMins: 110, heat: "Very spicy",
       },
@@ -99,19 +187,37 @@
         id: "after-hours",
         title: "After Hours",
         author: "Stuff So Sweet",
-        cover: "https://trippleu.com/wp-content/uploads/2026/06/after_hours.webp",
+        cover: "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/after-hours.jpg",
         tagline: "A senior analyst and the senior partner at a Park Avenue investment firm. A power flicker. A drink across the street. He tells her he is experienced in things that might interest a curious mind. She has, in fact, been curious for six years.",
         chapters: 10, words: 31000, readMins: 125, heat: "Very explicit · BDSM",
       },
     ];
 
-    const sub = document.getElementById("lib-sub");
-    sub.textContent = BOOKS.length === 1 ? "1 book available" : `${BOOKS.length} books available`;
+    document.getElementById("lib-sub").textContent =
+      BOOKS.length === 1 ? "1 book · included with your subscription"
+                         : `${BOOKS.length} books · included with your subscription`;
 
-    const grid = document.getElementById("grid");
-    grid.innerHTML = BOOKS.map(b => `
+    function splitTitleForOverlay(title){
+      const t = String(title || "").trim();
+      if (t.length <= 14) return [t];
+      if (t.includes(",")) {
+        const parts = t.split(",").map(s => s.trim()).filter(Boolean);
+        if (parts.length >= 2) return parts.slice(0, 3);
+      }
+      const words = t.split(/\s+/);
+      if (words.length <= 2) return [t];
+      const mid = Math.ceil(words.length / 2);
+      return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+    }
+    function esc(s){ return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+
+    document.getElementById("grid").innerHTML = BOOKS.map(b => {
+      const overlay = splitTitleForOverlay(b.title).map(p => `<span>${esc(p)}</span>`).join("");
+      return `
       <a class="book-card" href="/library/book/${b.id}/">
-        <img class="book-cover" src="${b.cover}" alt="" loading="lazy">
+        <div class="book-cover-wrap" style="background-image: url('${b.cover}');">
+          <div class="cover-title-overlay">${overlay}</div>
+        </div>
         <div class="book-info">
           <div class="book-title">${b.title}</div>
           <div class="book-author">${b.author}</div>
@@ -123,10 +229,10 @@
             <span>· <span class="heat">${b.heat}</span></span>
           </div>
         </div>
-      </a>
-    `).join("");
+      </a>`;
+    }).join("");
 
-    logEvent("library_opened", {});
+    if (!isPreviewMode()) logEvent("library_opened", {});
   </script>
 </body>
 </html>

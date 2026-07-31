@@ -278,6 +278,195 @@ export function renderTopbar(target = "#topbar") {
   });
 }
 
+/* ===== Preview mode (localhost-only mock data) =====
+ * Every rebuilt page (story, chapter, library, settings, book) can pass its
+ * own mock data set and be walkable locally with `?preview=1` — no auth, no
+ * real DB, no risk of leaking (gated by hostname).
+ *
+ * Usage inside a page:
+ *   const session = await getSessionOrPreview({
+ *     users:   [{ display_name: "Arturas" }],
+ *     stories: [{ id, title, ...}, ...],
+ *     chapters: [...],
+ *   });
+ *
+ * On localhost with ?preview=1 → installs mock supabase.from() and returns
+ * a fake session. Otherwise → returns real requireAuth() result unchanged.
+ * ?preview=1 propagates through <a> clicks so the whole app is walkable. */
+export function isPreviewMode() {
+  if (typeof location === "undefined") return false;
+  const local = ["localhost", "127.0.0.1", "0.0.0.0"].includes(location.hostname);
+  return local && new URLSearchParams(location.search).has("preview");
+}
+export function installMockSupabase(mocks) {
+  supabase.from = (table) => {
+    const rows = (mocks && mocks[table]) || [];
+    const q = {
+      _rows: rows,
+      _countMode: false,
+      select(cols, opts) {
+        if (opts && opts.count === "exact" && opts.head) q._countMode = true;
+        return q;
+      },
+      eq() { return q; },
+      neq() { return q; },
+      gte() { return q; },
+      lte() { return q; },
+      order() { return q; },
+      limit(n) { q._rows = q._rows.slice(0, n); return q; },
+      single() { return Promise.resolve({ data: q._rows[0] || null, error: null }); },
+      maybeSingle() { return Promise.resolve({ data: q._rows[0] || null, error: null }); },
+      then(resolve) {
+        if (q._countMode) resolve({ count: q._rows.length, error: null });
+        else resolve({ data: q._rows, error: null });
+      },
+    };
+    return q;
+  };
+  // Neutralize functions.invoke + realtime channel so nothing hits real DB.
+  // supabase.functions is a lazy getter — assigning to it throws. We assign
+  // to the invoke method on the returned object instead, wrapped in try/catch
+  // because some SDK versions freeze it.
+  try { supabase.functions.invoke = async () => ({ data: { ok: true }, error: null }); } catch (_) {}
+  try {
+    supabase.channel = () => ({ on() { return this; }, subscribe() { return this; } });
+    supabase.removeChannel = () => {};
+  } catch (_) {}
+  console.info("[preview] mock supabase installed for tables:", Object.keys(mocks || {}));
+}
+export async function getSessionOrPreview(mocks) {
+  if (isPreviewMode()) {
+    installMockSupabase(mocks || {});
+    // Propagate ?preview=1 to any relative <a> the page renders so links stay
+    // in preview mode across navigation.
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[href]");
+      if (!a) return;
+      const url = a.getAttribute("href");
+      if (!url || url.startsWith("http") || url.startsWith("#") || url.startsWith("mailto:")) return;
+      if (url.includes("preview=")) return;
+      e.preventDefault();
+      const sep = url.includes("?") ? "&" : "?";
+      window.location.href = url + sep + "preview=1";
+    }, true);
+    return { user: { id: "preview-user", email: "arturas@stuffsosweet.com" } };
+  }
+  return await requireAuth();
+}
+
+/* ===== App shell (rail + mobile header + bottom nav) =====
+ * Newer helper that replaces renderTopbar() on redesigned pages.
+ * Injects the desktop left rail, the mobile-only top header, and the mobile
+ * bottom nav. Pages call this once after requireAuth().
+ *
+ *   renderShell({ activeNav: "home" | "chat" | "library" | "settings",
+ *                 mountRail: "#shell-rail",           // where to inject rail
+ *                 mountMobileHeader: "#shell-mheader",// where to inject m-header
+ *                 mountBottomNav: "#shell-bnav" })    // where to inject bottom-nav
+ *
+ * All mount points optional — helper looks for the standard ids if not given.
+ * User avatar/name populated async from session + public.users.display_name.
+ * "Chat" links go through buildChatUrl() so the SSO passthrough works.
+ * Shell CSS lives at /assets/app-shell.css — page must include it.
+ */
+export async function renderShell(opts = {}) {
+  const active = opts.activeNav || "home";
+  const railEl = document.querySelector(opts.mountRail || "#shell-rail");
+  const mhEl   = document.querySelector(opts.mountMobileHeader || "#shell-mheader");
+  const bnEl   = document.querySelector(opts.mountBottomNav || "#shell-bnav");
+
+  // Detect static shell markup baked into the page (preferred — prevents the
+  // layout flash where the rail is briefly empty before JS finishes). If the
+  // rail already has nav items, we skip re-rendering markup and just:
+  //   1. Mark the active nav item (in case the static HTML wasn't specific to this page)
+  //   2. Wire chat click handlers
+  //   3. Fill in the user avatar/name asynchronously
+  const railHasContent = railEl && railEl.querySelector(".rail-nav a");
+  const bnHasContent   = bnEl && bnEl.querySelector(".bn-item");
+
+  if (!railHasContent && railEl) {
+    // Legacy path — page didn't include static markup. Render it now.
+    const railItems = [
+      { key: "home",     href: "/stories.html",  ico: "🏠", label: "Home" },
+      { key: "new",      href: "/quiz2.html",    ico: "✎",  label: "New story" },
+      { key: "chat",     href: "#chat",          ico: "💬", label: "Chat" },
+      { key: "library",  href: "/library/",      ico: "📚", label: "Library" },
+      { key: "settings", href: "/settings.html", ico: "⚙️", label: "Settings" },
+    ];
+    const items = railItems.map(i =>
+      `<a href="${i.href}" class="${i.key === active ? "active" : ""}" data-nav="${i.key}">
+        <span class="n-ico">${i.ico}</span> ${i.label}
+      </a>`).join("");
+    railEl.outerHTML = `<aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">${items}</nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>`;
+  }
+  if (!mhEl?.querySelector(".m-brand") && mhEl) {
+    mhEl.outerHTML = `<header class="m-header" id="shell-mheader">
+      <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+    </header>`;
+  }
+  if (!bnHasContent && bnEl) {
+    const bnItems = [
+      { key: "home",    href: "/stories.html",  ico: "🏠", label: "Home" },
+      { key: "library", href: "/library/",      ico: "📚", label: "Library" },
+      { key: "chat",    href: "#chat",          ico: "💬", label: "Chat" },
+      { key: "settings",href: "/settings.html", ico: "👤", label: "You" },
+    ];
+    const items = bnItems.map(i =>
+      `<a href="${i.href}" class="bn-item ${i.key === active ? "active" : ""}" data-nav="${i.key}">
+        <span class="bn-ico">${i.ico}</span>${i.label}
+      </a>`).join("");
+    bnEl.outerHTML = `<nav class="bottom-nav" id="shell-bnav">${items}</nav>`;
+  }
+
+  // Ensure the correct nav item is marked active regardless of static/dynamic
+  document.querySelectorAll(".rail-nav a, .bn-item").forEach(a => {
+    if (a.dataset.nav === active) a.classList.add("active");
+    else a.classList.remove("active");
+  });
+
+  // Wire the "Chat" links to buildChatUrl() so cross-subdomain SSO works.
+  document.querySelectorAll('[data-nav="chat"]').forEach(a => {
+    a.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const url = await buildChatUrl();
+      window.location.href = url;
+    });
+  });
+
+  // Reveal main content — starts hidden via .main{opacity:0} so pages don't
+  // flash empty → filled during load. One frame after the shell is set up
+  // is enough for layout to settle.
+  requestAnimationFrame(() => {
+    document.querySelectorAll("main.main").forEach(m => m.classList.add("ready"));
+  });
+
+  // Fill in user's initial + display name in the rail (async, non-blocking).
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const email = session.user.email || "";
+      let name = email.split("@")[0].split("+")[0] || "there";
+      name = name.charAt(0).toUpperCase() + name.slice(1);
+      try {
+        const { data: u } = await supabase.from("users")
+          .select("display_name").eq("id", session.user.id).maybeSingle();
+        if (u?.display_name) name = u.display_name;
+      } catch (_) {}
+      const av = document.getElementById("railAv");
+      const nm = document.getElementById("railName");
+      if (av) av.textContent = name.charAt(0).toUpperCase();
+      if (nm) nm.textContent = name;
+    }
+  } catch (e) { /* rail user row is decorative — swallow */ }
+}
+
 /* ===== PWA service worker registration ===== */
 // Fire-and-forget; failures don't block anything.
 if ("serviceWorker" in navigator) {

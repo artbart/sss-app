@@ -8,223 +8,242 @@
   <link rel="apple-touch-icon" sizes="180x180" href="https://stuffsosweet.com/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
   <meta name="theme-color" content="#4b0018">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="robots" content="noindex,nofollow">
 
   <style>
-    .chapter-wrap { width: 100%; max-width: 640px; padding: 24px 20px 80px; margin: 0 auto; }
-    .back-link {
-      display: inline-block;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
-      margin-bottom: 16px;
-    }
+    /* ─── PAGE-SPECIFIC: reader canvas ─────────────────────────────── */
+    /* Reader lives inside main but is width-capped for readability */
+    .reader { max-width: 640px; margin: 0 auto; }
+
     .story-title {
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--very-faint);
-      text-align: center;
-      margin-bottom: 4px;
+      font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      text-align: center; margin-bottom: 4px;
     }
     .chapter-label {
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
-      text-align: center;
-      margin-bottom: 24px;
+      font-family: Arial, sans-serif; font-size: 13px; color: var(--faint);
+      text-align: center; margin-bottom: 24px;
     }
+    /* Prose sits directly on the page — no card background — so the reader
+       doesn't look like a "second tower" next to the rail. Same visual
+       treatment as the home hero, where content flows on the body. */
     .chapter-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 28px 24px;
-      margin-bottom: 22px;
+      background: transparent; border: none;
+      padding: 0; margin-bottom: 22px;
     }
     .chapter-card h1 {
-      font-size: clamp(24px, 5vw, 30px);
-      color: var(--gold);
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      margin-bottom: 18px;
-      text-align: left;
-      line-height: 1.15;
+      font-family: Georgia, serif; font-size: clamp(24px, 5vw, 30px);
+      color: var(--gold); font-weight: normal; letter-spacing: -0.01em;
+      margin: 0 0 18px; text-align: left; line-height: 1.15;
     }
     .prose p {
-      font-size: 17px;
-      line-height: 1.7;
-      margin: 0 0 16px;
+      font-family: Georgia, serif;
+      font-size: 17px; line-height: 1.7; margin: 0 0 16px;
       color: #f4ece1;
     }
     .prose p:last-child { margin-bottom: 0; }
 
+    /* Choose-next controls */
     .choose-label {
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      margin: 8px 0 14px;
+      font-family: Arial, sans-serif; font-size: 15px; font-weight: 600;
+      margin: 8px 0 14px; color: #fff;
     }
     .option-btn {
-      display: block;
-      width: 100%;
-      text-align: left;
-      background: var(--cta);
-      color: #fff;
-      padding: 16px 18px;
-      margin-bottom: 10px;
-      border: none;
-      border-radius: 14px;
-      font-family: Georgia, serif;
-      font-size: 15px;
-      line-height: 1.4;
-      cursor: pointer;
+      display: block; width: 100%; text-align: left; padding: 16px 18px;
+      margin-bottom: 10px; border: none; border-radius: 14px; cursor: pointer;
+      background: var(--cta); color: #fff;
+      font-family: Georgia, serif; font-size: 15px; line-height: 1.4;
       transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 6px 16px rgba(224,75,87,0.25);
     }
     .option-btn:hover { background: var(--cta-hover); }
     .option-btn:active { transform: translateY(1px); }
     .option-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .option-btn strong { font-weight: 700; }
 
-    .nav-row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 26px;
-      gap: 10px;
-    }
+    /* Prev/all/next nav row */
+    .nav-row { display: flex; justify-content: space-between; margin-top: 26px; gap: 10px; }
     .nav-btn {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      background: rgba(255,255,255,0.06);
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 12px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      text-decoration: none;
-      transition: background 0.15s;
+      flex: 1; padding: 12px; text-align: center; text-decoration: none;
+      background: rgba(255,255,255,0.05); color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.10); border-radius: 12px;
+      font-family: Arial, sans-serif; font-size: 13px;
+      transition: background 0.15s, color 0.15s;
     }
-    .nav-btn:hover { background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; }
+    .nav-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
     .nav-btn.primary {
-      background: var(--cta);
-      border-color: var(--cta);
-      color: #fff;
+      background: var(--cta); border-color: var(--cta); color: #fff;
     }
     .nav-btn.primary:hover { background: var(--cta-hover); }
     .nav-btn.disabled { opacity: 0.4; pointer-events: none; }
 
-    /* "Writing your next chapter" overlay states */
+    /* Waiting state — chapter N+1 being generated */
     .waiting-card {
-      background: rgba(240, 212, 140, 0.08);
-      border: 1px solid rgba(240, 212, 140, 0.25);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      margin-top: 16px;
+      background: rgba(240,212,140,0.06);
+      border: 1px solid rgba(240,212,140,0.22);
+      border-radius: 16px; padding: 24px; text-align: center; margin-top: 16px;
     }
-    .waiting-card .spinner { margin-bottom: 14px; }
     .waiting-card .label {
-      font-family: Arial, sans-serif;
-      font-size: 15px;
-      color: var(--muted);
-      margin-bottom: 6px;
+      font-family: Arial, sans-serif; font-size: 15px; color: #fff; margin-bottom: 6px;
     }
     .waiting-card .sublabel {
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      color: var(--faint);
+      font-family: Arial, sans-serif; font-size: 12px; color: var(--faint);
     }
     .waiting-progress {
-      width: 100%;
-      max-width: 240px;
-      height: 4px;
-      background: rgba(255,255,255,0.10);
-      border-radius: 4px;
-      margin: 16px auto 4px;
-      overflow: hidden;
+      width: 100%; max-width: 240px; height: 4px; margin: 16px auto 4px;
+      background: rgba(255,255,255,0.10); border-radius: 4px; overflow: hidden;
     }
     .waiting-progress-fill {
-      height: 100%;
-      width: 0%;
+      height: 100%; width: 0%;
       background: linear-gradient(90deg, var(--cta), var(--gold));
       transition: width 0.5s linear;
     }
 
     .final-note {
-      text-align: center;
-      font-family: Georgia, serif;
-      font-style: italic;
-      color: var(--faint);
-      padding: 18px;
+      text-align: center; font-family: Georgia, serif; font-style: italic;
+      color: var(--muted); padding: 18px; font-size: 15px; line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .chapter-card { padding: 20px 18px; border-radius: 14px; }
+      .chapter-card h1 { font-size: 22px; }
+      .prose p { font-size: 16px; line-height: 1.65; }
+    }
+
+    /* ─── Mobile "Back to top" floating button ────────────────────────
+       Hidden by default. Shows when scrolled >400px past the top.
+       Sits above the bottom nav in the lower-left corner. */
+    .to-top-btn {
+      position: fixed; z-index: 90;
+      left: 16px;
+      bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(224,75,87,0.9); backdrop-filter: blur(10px);
+      border: none; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .to-top-btn.visible { opacity: 1; transform: translateY(0); }
+    .to-top-btn:active { transform: translateY(0) scale(0.94); }
+    .to-top-btn svg { width: 22px; height: 22px; }
+    @media (max-width: 900px) {
+      .to-top-btn { display: flex; }
     }
   </style>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-PKM537QM');</script>
-  <!-- End Google Tag Manager -->
-
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKM537QM"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-  <div id="topbar"></div>
-  <div class="chapter-wrap">
-    <a class="back-link" href="#" id="backLink">← Back to story</a>
-    <div class="story-title" id="storyTitle"></div>
-    <div class="chapter-label" id="chapterLabel">Loading…</div>
+  <header class="m-header" id="shell-mheader">
+    <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+  </header>
+  <div class="dash">
+    <aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">
+        <a href="/stories.html" data-nav="home" class="active"><span class="n-ico">🏠</span> Home</a>
+        <a href="/quiz2.html" data-nav="new" class=""><span class="n-ico">✎</span> New story</a>
+        <a href="#chat" data-nav="chat" class=""><span class="n-ico">💬</span> Chat</a>
+        <a href="/library/" data-nav="library" class=""><span class="n-ico">📚</span> Library</a>
+        <a href="/settings.html" data-nav="settings" class=""><span class="n-ico">⚙️</span> Settings</a>
+      </nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>
+    <main class="main">
 
-    <div class="chapter-card" id="chapterCard" style="display:none">
-      <h1 id="chapterTitle"></h1>
-      <div class="prose" id="prose"></div>
-    </div>
+      <div class="reader">
+        <a class="back-link" href="#" id="backLink">← Back to story</a>
+        <div class="story-title" id="storyTitle"></div>
+        <div class="chapter-label" id="chapterLabel">&nbsp;</div>
 
-    <div id="optionsArea"></div>
-    <div id="navArea"></div>
+        <div class="chapter-card" id="chapterCard" style="display:none">
+          <h1 id="chapterTitle"></h1>
+          <div class="prose" id="prose"></div>
+        </div>
+
+        <div id="optionsArea"></div>
+        <div id="navArea"></div>
+      </div>
+
+    </main>
   </div>
+  <!-- Mobile-only floating scroll-to-top (long chapters) -->
+  <button class="to-top-btn" id="toTopBtn" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20 V5 M5 12 L12 5 L19 12"/>
+    </svg>
+  </button>
+
+  <nav class="bottom-nav" id="shell-bnav">
+    <a href="/stories.html" data-nav="home" class="bn-item active"><span class="bn-ico">🏠</span>Home</a>
+    <a href="/library/" data-nav="library" class="bn-item "><span class="bn-ico">📚</span>Library</a>
+    <a href="#chat" data-nav="chat" class="bn-item "><span class="bn-ico">💬</span>Chat</a>
+    <a href="/settings.html" data-nav="settings" class="bn-item "><span class="bn-ico">👤</span>You</a>
+  </nav>
 
   <script type="module">
-    import { requireAuth, supabase, renderTopbar, logEvent } from "/assets/lib.js";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
 
-    await requireAuth();
-    renderTopbar();
-
+    const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
     const storyId = params.get("story");
     const chapterN = parseInt(params.get("n") || "1", 10);
-    if (!storyId) { window.location.href = "/stories.html"; }
+    if (!storyId && !isPreviewMode()) { window.location.href = "/stories.html"; }
 
-    document.getElementById("backLink").href = "/story.html?id=" + encodeURIComponent(storyId);
-    await logEvent("chapter_viewed", { story_id: storyId, chapter_number: chapterN });
+    // Preview mock: a chapter with prose + 3 options waiting to be picked
+    await getSessionOrPreview({
+      users: [{ display_name: "Arturas" }],
+      stories: [{
+        id: storyId || "m1",
+        title: "Technically Off Limits",
+        target_chapter_count: 10,
+        current_chapter_number: chapterN,
+        status: "active",
+      }],
+      chapters: [{
+        chapter_number: chapterN,
+        text: "The elevator jams between floors seven and eight.\n\nShe doesn't look up from her phone at first — just makes the small annoyed sound of a woman who has been kept from something more important than she's letting on. Then the lights flicker once. Then again. Then not at all.\n\nYou hear her breathing before you see her face turn toward yours.\n\n\"You've got to be kidding me,\" she says. Not to you. Not really. To the elevator. To the day. To the whole architectural fact of shared enclosed spaces.\n\nYou reach for the emergency panel out of some vestigial politeness. She catches your hand at the wrist before your fingers hit the button. Her grip is warmer than the room.\n\n\"Don't,\" she says. \"Please. Give me — give me one full minute of not being on that call.\"\n\nYou lower your hand. She doesn't let go of your wrist for another beat, and then she does, and then she leans back against the elevator wall and closes her eyes.\n\nSixty seconds is a long time in an elevator.\n\nIt turns out to be a very long time.",
+        chosen_option: null,
+        option_1: "Break the silence. Ask what the call was about.",
+        option_2: "Let the silence hold. See who breaks it first.",
+        option_3: "Suggest the two of you get out at the next floor and take the stairs.",
+      }, { chapter_number: 4, chosen_option: 2 }],
+    });
+    await renderShell({ activeNav: "home" });
 
-    // Fetch story + this chapter + chapters list (to know prev/next)
+    $("backLink").href = "/story.html?id=" + encodeURIComponent(storyId || "m1") + (isPreviewMode() ? "&preview=1" : "");
+    if (!isPreviewMode()) await logEvent("chapter_viewed", { story_id: storyId, chapter_number: chapterN });
+
+    // Fetch story + this chapter + chapter list (for prev/next)
     const [storyR, chapterR, chapterListR] = await Promise.all([
       supabase.from("stories").select("title, target_chapter_count, current_chapter_number, status").eq("id", storyId).single(),
       supabase.from("chapters").select("*").eq("story_id", storyId).eq("chapter_number", chapterN).maybeSingle(),
       supabase.from("chapters").select("chapter_number, chosen_option").eq("story_id", storyId).order("chapter_number"),
     ]);
-
     const story = storyR.data;
     const chapter = chapterR.data;
     const all = chapterListR.data || [];
 
-    const labelEl   = document.getElementById("chapterLabel");
-    const cardEl    = document.getElementById("chapterCard");
-    const titleEl   = document.getElementById("chapterTitle");
-    const proseEl   = document.getElementById("prose");
-    const optionsEl = document.getElementById("optionsArea");
-    const navEl     = document.getElementById("navArea");
+    if (story) $("storyTitle").textContent = story.title || "";
 
-    if (story) document.getElementById("storyTitle").textContent = story.title || "";
-
-    // ===== Reading-position memory (localStorage) =====
+    // ── Reading-position memory (localStorage) ────────────────────
     // Save scroll Y debounced; restore on open. Skip restore when arriving fresh
     // from a "Read Chapter N+1" hand-off (user always wants to start at top).
     const POS_KEY = `pos:${storyId}:${chapterN}`;
@@ -234,8 +253,7 @@
 
     function rememberPos(key) {
       try {
-        const idx = JSON.parse(localStorage.getItem(POS_INDEX_KEY) || "[]")
-          .filter(k => k !== key);
+        const idx = JSON.parse(localStorage.getItem(POS_INDEX_KEY) || "[]").filter(k => k !== key);
         idx.unshift(key);
         while (idx.length > POS_MAX) {
           const dead = idx.pop();
@@ -244,79 +262,73 @@
         localStorage.setItem(POS_INDEX_KEY, JSON.stringify(idx));
       } catch (_) {}
     }
-
-    // Restore after prose render — give the browser a tick to lay out
     if (!camefrom_fresh) {
       window.requestAnimationFrame(() => {
         try {
           const saved = parseInt(localStorage.getItem(POS_KEY) || "0", 10);
-          if (saved > 100) {
-            window.scrollTo({ top: saved, behavior: "auto" });
-          }
+          if (saved > 100) window.scrollTo({ top: saved, behavior: "auto" });
         } catch (_) {}
       });
     }
-
-    // Save on scroll (debounced 600ms after motion stops)
     let posSaveTimer = null;
+    const toTopBtn = $("toTopBtn");
     window.addEventListener("scroll", () => {
       clearTimeout(posSaveTimer);
       posSaveTimer = setTimeout(() => {
         try {
           const y = window.scrollY;
-          if (y > 100) {
-            localStorage.setItem(POS_KEY, String(y));
-            rememberPos(POS_KEY);
-          } else {
-            // Cleared back to top — forget the position
-            localStorage.removeItem(POS_KEY);
-          }
+          if (y > 100) { localStorage.setItem(POS_KEY, String(y)); rememberPos(POS_KEY); }
+          else { localStorage.removeItem(POS_KEY); }
         } catch (_) {}
       }, 600);
+      // Toggle the "Back to top" button — visible after scrolling past 400px
+      if (toTopBtn) {
+        if (window.scrollY > 400) toTopBtn.classList.add("visible");
+        else toTopBtn.classList.remove("visible");
+      }
     }, { passive: true });
-    
+    // Smooth scroll to the very top (past the mobile header) on click
+    toTopBtn?.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 
+    // ── Render chapter ────────────────────────────────────────────
     if (!chapter || !chapter.text) {
-      labelEl.textContent = "This chapter hasn't been written yet.";
-      navEl.innerHTML = `<a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a>`;
+      $("chapterLabel").textContent = "This chapter hasn't been written yet.";
+      $("navArea").innerHTML = `<a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a>`;
     } else {
       const total = story?.target_chapter_count || 10;
-      labelEl.textContent = `Chapter ${chapterN} of ${total}`;
-      titleEl.textContent = story?.title || "";
-      proseEl.innerHTML = renderProse(chapter.text);
-      cardEl.style.display = "block";
+      $("chapterLabel").textContent = `Chapter ${chapterN} of ${total}`;
+      $("chapterTitle").textContent = story?.title || "";
+      $("prose").innerHTML = renderProse(chapter.text);
+      $("chapterCard").style.display = "block";
 
       const isFinal = chapterN >= total;
       const alreadyChose = chapter.chosen_option != null;
       const nextExists = all.some(c => c.chapter_number === chapterN + 1);
 
       if (isFinal) {
-        optionsEl.innerHTML = `
+        $("optionsArea").innerHTML = `
           <div class="final-note">
             You've reached the end of your story. <strong>One last thing</strong> — your finished book has just unlocked something new: a private conversation with any of its characters.
           </div>
           <div style="margin-top:16px;text-align:center;">
             <a class="nav-btn primary" id="chatUnlockBtn"
-               style="display:inline-block;padding:14px 26px;font-size:15px;text-decoration:none;cursor:pointer;"
-               href="#">
-              Chat with the characters  →
+               style="display:inline-block;padding:14px 26px;font-size:15px;text-decoration:none;cursor:pointer;" href="#">
+              Chat with the characters →
             </a>
           </div>
         `;
-        document.getElementById("chatUnlockBtn")?.addEventListener("click", async (e) => {
+        $("chatUnlockBtn")?.addEventListener("click", async (e) => {
           e.preventDefault();
-          const { buildChatUrl } = await import("/assets/lib.js");
           const url = await buildChatUrl(storyId);
           window.open(url, "_blank", "noopener");
         });
       } else if (alreadyChose && nextExists) {
-        // Already chose AND next chapter exists → show "Read next" button
         renderNavButtons(chapterN, total, all);
       } else if (alreadyChose && !nextExists) {
-        // Already clicked but next isn't here yet → waiting state with realtime
         renderWaitingState();
       } else {
-        // Show option buttons
         renderOptionButtons(chapter);
       }
     }
@@ -329,34 +341,25 @@
 
     function renderOptionButtons(chapter) {
       const opts = [chapter.option_1, chapter.option_2, chapter.option_3].filter(Boolean);
-      const html = `
+      $("optionsArea").innerHTML = `
         <p class="choose-label">Choose what happens next:</p>
         ${opts.map((opt, i) => `
           <button class="option-btn" data-i="${i + 1}">
             <strong>Option ${i + 1}.</strong> ${escapeHtml(opt)}
-          </button>
-        `).join("")}
+          </button>`).join("")}
       `;
-      optionsEl.innerHTML = html;
-
-      // Wire up clicks
-      optionsEl.querySelectorAll(".option-btn").forEach(btn => {
+      $("optionsArea").querySelectorAll(".option-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
-          const optIndex = parseInt(btn.dataset.i, 10);
-          await submitChoice(optIndex);
+          await submitChoice(parseInt(btn.dataset.i, 10));
         });
       });
-
-      // Prev nav if we have a previous chapter
       renderNavButtons(chapterN, story?.target_chapter_count || 10, all);
     }
 
     async function submitChoice(optionIndex) {
-      // Disable all options
-      optionsEl.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+      $("optionsArea").querySelectorAll(".option-btn").forEach(b => b.disabled = true);
       const SUPABASE_URL = "https://gmhbcxylqubhxozomhlt.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaGJjeHlscXViaHhvem9taGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTk5OTksImV4cCI6MjA5MjczNTk5OX0.GAM73P5X7fT1BIziTfvqUpFT2W_W5EtFb5Gze5cIFfY";
-
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-choice`, {
           method: "POST",
@@ -368,8 +371,10 @@
           body: JSON.stringify({ story_id: storyId, chapter_number: chapterN, option: optionIndex }),
         });
         const result = await res.json();
-        await logEvent("option_clicked", { story_id: storyId, chapter_number: chapterN, metadata: { option: optionIndex, status: result.status } });
-
+        await logEvent("option_clicked", {
+          story_id: storyId, chapter_number: chapterN,
+          metadata: { option: optionIndex, status: result.status },
+        });
         if (result.status === "ok" || result.status === "success" || result.status === "duplicate") {
           renderWaitingState();
         } else {
@@ -377,79 +382,70 @@
         }
       } catch (e) {
         console.error("submit-choice failed:", e);
-        optionsEl.innerHTML = `<div class="msg error">Couldn't submit your choice — ${escapeHtml(e.message)}. Refresh and try again.</div>`;
+        $("optionsArea").innerHTML =
+          `<div class="waiting-card"><div class="label">Couldn't submit your choice — ${escapeHtml(e.message)}</div>
+           <div class="sublabel">Refresh and try again.</div></div>`;
       }
     }
 
-    // Waiting state: realtime listener + fallback to email-when-ready.
-    // Cap is the point where the UI switches from spinner to "we'll email you"
-    // message. It does NOT stop generation — that continues in the background
-    // (Edge Function has ~6-min budget with retries + emergency fallback), and
-    // the user gets an email + the chapter shows next time they reload.
+    // Waiting state: realtime listener + 180s progress bar + email-fallback message.
     function renderWaitingState() {
-      optionsEl.innerHTML = `
+      $("optionsArea").innerHTML = `
         <div class="waiting-card">
-          <div class="spinner"></div>
           <div class="label">Writing your next chapter…</div>
           <div class="sublabel">Usually 60-90 seconds. Sometimes up to 3 minutes.</div>
           <div class="waiting-progress"><div class="waiting-progress-fill" id="waitProg"></div></div>
         </div>
       `;
-      navEl.innerHTML = `<div class="nav-row" style="margin-top:20px;"><a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a></div>`;
+      $("navArea").innerHTML = `<div class="nav-row" style="margin-top:20px;">
+        <a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">← Back to chapter list</a></div>`;
 
-      // Animate progress bar over 180s (3 min) — matches "up to 3 minutes" copy.
       let start = Date.now();
       const cap = 180000;
-      const progEl = document.getElementById("waitProg");
+      const progEl = $("waitProg");
       const tick = setInterval(() => {
         const pct = Math.min(100, ((Date.now() - start) / cap) * 100);
         if (progEl) progEl.style.width = pct + "%";
         if (pct >= 100) { clearInterval(tick); onTimeout(); }
       }, 500);
 
-      // Subscribe to new chapter insert
       const channel = supabase
         .channel(`chapter-next-${storyId}-${chapterN + 1}`)
         .on("postgres_changes", {
-          event: "INSERT",
-          schema: "public",
-          table: "chapters",
+          event: "INSERT", schema: "public", table: "chapters",
           filter: `story_id=eq.${storyId}`,
         }, async (payload) => {
           if (payload.new?.chapter_number === chapterN + 1) {
             clearInterval(tick);
             await logEvent("chapter_ready_in_app", { story_id: storyId, chapter_number: chapterN + 1 });
             supabase.removeChannel(channel);
-            optionsEl.innerHTML = `
-              <div class="waiting-card" style="background: rgba(95, 210, 143, 0.08); border-color: rgba(95, 210, 143, 0.3);">
+            $("optionsArea").innerHTML = `
+              <div class="waiting-card" style="background: rgba(95,210,143,0.08); border-color: rgba(95,210,143,0.3);">
                 <div class="label" style="color:#b6f0c8">Your next chapter is ready!</div>
-                <a class="nav-btn primary mt-16" style="display:inline-block;margin-top:14px" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}&fresh=1">Read Chapter ${chapterN + 1} →</a>
-              </div>
-            `;
+                <a class="nav-btn primary" style="display:inline-block;margin-top:14px" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}&fresh=1">
+                  Read Chapter ${chapterN + 1} →
+                </a>
+              </div>`;
           }
         })
         .subscribe();
 
       function onTimeout() {
         supabase.removeChannel(channel);
-        optionsEl.innerHTML = `
+        $("optionsArea").innerHTML = `
           <div class="waiting-card">
             <div class="label">Still writing — the story engine's taking its time.</div>
             <div class="sublabel">You can safely close this page. We'll email you within the next 10-15 minutes once your chapter is ready, and it'll also appear here.</div>
-            <button class="nav-btn primary mt-16" style="margin-top:14px" id="checkNowBtn">Check now</button>
-          </div>
-        `;
-        document.getElementById("checkNowBtn").addEventListener("click", async () => {
-          const { data: c } = await supabase
-            .from("chapters")
-            .select("chapter_number")
-            .eq("story_id", storyId)
-            .eq("chapter_number", chapterN + 1)
-            .maybeSingle();
+            <button class="nav-btn primary" style="margin-top:14px" id="checkNowBtn">Check now</button>
+          </div>`;
+        $("checkNowBtn").addEventListener("click", async () => {
+          const { data: c } = await supabase.from("chapters")
+            .select("chapter_number").eq("story_id", storyId)
+            .eq("chapter_number", chapterN + 1).maybeSingle();
           if (c) {
             window.location.href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=${chapterN + 1}&fresh=1`;
           } else {
-            document.getElementById("checkNowBtn").textContent = "Not ready yet — try again in a minute";
+            $("checkNowBtn").textContent = "Not ready yet — try again in a minute";
           }
         });
       }
@@ -458,13 +454,12 @@
     function renderNavButtons(n, total, allChapters) {
       const hasPrev = n > 1;
       const hasNext = allChapters.some(c => c.chapter_number === n + 1);
-      navEl.innerHTML = `
+      $("navArea").innerHTML = `
         <div class="nav-row">
           ${hasPrev ? `<a class="nav-btn" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${n - 1}">← Chapter ${n - 1}</a>` : ''}
           <a class="nav-btn" href="/story.html?id=${encodeURIComponent(storyId)}">All chapters</a>
           ${hasNext ? `<a class="nav-btn primary" href="/chapter.html?story=${encodeURIComponent(storyId)}&n=${n + 1}">Chapter ${n + 1} →</a>` : ''}
-        </div>
-      `;
+        </div>`;
     }
 
     function escapeHtml(s) {
