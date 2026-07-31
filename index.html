@@ -46,8 +46,8 @@
   <main class="center">
     <div class="card">
       <div class="brand-large">Stuff So <span class="gold">Sweet</span></div>
-      <h1>Sign in to <span class="gold">your stories</span>.</h1>
-      <p class="lede">We'll send a sign-in link to your email — the same one you used at signup.</p>
+      <h1 id="signinHeadline">Sign in to <span class="gold">your stories</span>.</h1>
+      <p class="lede" id="signinLede">We'll send a sign-in link to your email — the same one you used at signup.</p>
 
       <form id="signInForm">
         <input type="email" id="email" class="input" placeholder="you@example.com" autocomplete="email" required>
@@ -84,6 +84,17 @@
     // Pre-fill email from ?email= query (used by the marketing-site "Read your stories" CTA)
     const params = new URLSearchParams(location.search);
     if (params.get("email")) emailInput.value = params.get("email");
+
+    // Contextual headline: if user was bounced here from a chapter/story URL
+    // (via requireAuth() → /?next=<url>), swap the copy so they know why they
+    // landed on the sign-in form instead of the page they clicked.
+    const next = params.get("next") || "";
+    if (/^\/chapter\.html/.test(next) || /^\/story\.html/.test(next)) {
+      document.getElementById("signinHeadline").innerHTML =
+        `Sign in to <span class="gold">keep reading</span>.`;
+      document.getElementById("signinLede").textContent =
+        "Enter the email you used at signup and we'll send you a one-click link that opens right at your chapter.";
+    }
 
     let cooldownUntil = 0;
     form.addEventListener("submit", async (e) => {
