@@ -45,6 +45,9 @@
     .opt.multi.selected .check { background: #e04b57; border-color: #e04b57; color: #fff; }
     .opt.multi .lbl { flex: 1; }
     .opt-multi-note { font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); margin: 6px 2px 12px; }
+    /* Rich single-option (setup_depth Quick/Full) — bigger main label + subtitle underneath */
+    .opt .lbl-main { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+    .opt .lbl-sub  { font-size: 12.5px; color: var(--faint); line-height: 1.35; }
     .skip-section-label {
       font-family: Arial, sans-serif; font-size: 12px; text-transform: uppercase;
       letter-spacing: 0.06em; color: var(--faint); margin: 18px 2px 8px;
@@ -140,13 +143,18 @@
       { key: "you_name",   type: "you_name",   title: "Your name in the story",   showIf: (s) => s.in_story === "yes" },
       { key: "you_gender", type: "you_gender", title: "Your gender in the story", showIf: (s) => s.in_story === "yes" },
 
-      { key: "pairing", type: "single", title: "Who's the romance between?", options: [
-        { value: "wm",       label: "<span style='color:#ff8fa3'>♀</span><span style='color:#7fbfff;margin-right:8px'>♂</span> A woman and a man" },
-        { value: "ww",       label: "<span style='color:#ff8fa3'>♀</span><span style='color:#ff8fa3;margin-right:8px'>♀</span> Two women (F/F)" },
-        { value: "mm",       label: "<span style='color:#7fbfff'>♂</span><span style='color:#7fbfff;margin-right:8px'>♂</span> Two men (M/M)" },
-        { value: "queer",    label: "🏳️‍🌈 Queer — flexible / mixed" },
-        { value: "surprise", label: "🎲 Surprise me" },
-      ] },
+      // pairing: matches marketing renderSingleDynamic — "Surprise me" is hidden
+      // when the reader IS in the story (their gender is already picked, so
+      // "surprise" pairing doesn't fit). optionsFn resolves at render time.
+      { key: "pairing", type: "single", title: "Who's the romance between?",
+        optionsFn: (s) => [
+          { value: "wm",       label: "<span style='color:#ff8fa3'>♀</span><span style='color:#7fbfff;margin-right:8px'>♂</span> A woman and a man" },
+          { value: "ww",       label: "<span style='color:#ff8fa3'>♀</span><span style='color:#ff8fa3;margin-right:8px'>♀</span> Two women (F/F)" },
+          { value: "mm",       label: "<span style='color:#7fbfff'>♂</span><span style='color:#7fbfff;margin-right:8px'>♂</span> Two men (M/M)" },
+          { value: "queer",    label: "🏳️‍🌈 Queer — flexible / mixed" },
+          ...(s.in_story === "yes" ? [] : [{ value: "surprise", label: "🎲 Surprise me" }]),
+        ],
+      },
 
       { key: "world", type: "single", title: "What kind of world?", options: [
         { value: "contemporary",        label: "🏙 Contemporary — real world, present day" },
@@ -196,12 +204,13 @@
         { value: "multiple_partners", label: "👥 Multiple partners" },
       ] },
 
-      { key: "setup_depth", type: "single", title: "How deep should we go on the details?",
+      { key: "setup_depth", type: "single", title: "Want to fine-tune the details?",
+        sub: "Since you picked something spicy, we can use smart defaults or let you customize every detail.",
         // Only ask if user chose something spicy — matches marketing behavior
         showIf: (s) => s.spicy === "spicy" || s.spicy === "very_spicy",
         options: [
-          { value: "quick", label: "⚡ Quick — smart defaults, take me to the story" },
-          { value: "full",  label: "🎨 Full — customize every detail (~10 more questions)" },
+          { value: "quick", label: "⚡ Quick", subLabel: "Take me to the story. Smart defaults for the rest — I can refine my profile later." },
+          { value: "full",  label: "🎨 Full",  subLabel: "Customize every detail now (~10-15 more questions)." },
         ] },
 
       // SPECIFICS — values aligned with marketing quiz2
@@ -242,7 +251,7 @@
           { value: "deprivation", label: "🔇 Deprivation (blindfold + earplug)" },
         ] },
 
-      { key: "talk", type: "multi", title: "Style of intimate talk", sub: "Multi-select, up to 3.",
+      { key: "talk", type: "multi", title: "Style of intimate talk", sub: "Multi-select, up to 3.", max: 3,
         showIf: s => s.setup_depth === "full" && (s.specifics||[]).some(x => ["praise","instruction","filthy_talk"].includes(x)),
         options: [
           { value: "praise",        label: "🌟 Praise (\"perfect\", \"look at me\")" },
@@ -381,10 +390,19 @@
       const cur = state[q.key];
 
       if (q.type === "single_bool" || q.type === "single") {
-        body = `<div class="opt-list">` + q.options.map(o => `
-          <button class="opt ${cur === o.value ? "selected" : ""}" data-v='${JSON.stringify(o.value)}'>${o.label}</button>
-        `).join("") + `</div>`;
-        if (q.sub) body += `<div class="age-warn">${q.sub}</div>`;
+        // Support optionsFn(state) for dynamic option lists (pairing hides
+        // "surprise" when reader is in the story). Falls back to static options.
+        const opts = q.optionsFn ? q.optionsFn(state) : q.options;
+        // If an option provides subLabel, render a 2-line button (setup_depth's
+        // Quick / Full both show a subtitle beneath the main label).
+        body = (q.sub ? `<div class="opt-multi-note">${q.sub}</div>` : "") +
+          `<div class="opt-list">` + opts.map(o => {
+            const inner = o.subLabel
+              ? `<div class="lbl-main">${o.label}</div><div class="lbl-sub">${o.subLabel}</div>`
+              : o.label;
+            return `<button class="opt ${cur === o.value ? "selected" : ""}" data-v='${JSON.stringify(o.value)}'>${inner}</button>`;
+          }).join("") + `</div>`;
+        // (existing age-warn slot removed — sub now renders above via .opt-multi-note)
       } else if (q.type === "multi") {
         const arr = Array.isArray(cur) ? cur : [];
         body = (q.sub ? `<div class="opt-multi-note">${q.sub}</div>` : "") +
@@ -463,7 +481,13 @@
             const v = JSON.parse(el.dataset.v);
             const arr = Array.isArray(state[q.key]) ? state[q.key].slice() : [];
             const i = arr.indexOf(v);
-            if (i >= 0) arr.splice(i, 1); else arr.push(v);
+            if (i >= 0) {
+              arr.splice(i, 1);
+            } else {
+              // Enforce max-select cap when the question defines q.max (e.g. talk = 3).
+              if (typeof q.max === "number" && arr.length >= q.max) return;
+              arr.push(v);
+            }
             state[q.key] = arr;
             render();
           } else if (q.type === "you_gender" && el.dataset.gender) {
