@@ -236,8 +236,12 @@
       throw new Error("story not found");
     }
 
-    // Paint hero — prefer real AI cover, fall back to placeholder
-    const bookImg = story.cover_image_url || bookImageFor(story);
+    // Paint hero — prefer real AI cover, otherwise use the /media/loading.webp
+    // placeholder for pending stories (no title yet), else fall back to the
+    // rotating book placeholder for legacy stories that somehow lack a cover.
+    const bookImg = story.cover_image_url
+      ? story.cover_image_url
+      : (!story.title ? "/media/loading.webp" : bookImageFor(story));
     const gradient = coverGradientFor(story);
     $("storyCover").style.backgroundImage = `url('${bookImg}'), ${gradient}`;
     $("storyCover").href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=1`;

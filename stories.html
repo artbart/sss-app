@@ -1167,16 +1167,12 @@
         const palette = coverPaletteFor(s);
         const gradient = `linear-gradient(140deg, ${palette[0]}, ${palette[1]} 60%, ${palette[2]})`;
 
-        // Thumbnail: writing loader only for brand-new (no cover yet).
-        // For writingNext, keep the real cover — we already have one.
+        // Thumbnail: for brand-new (no cover yet) use the same /media/loading.webp
+        // placeholder the hero uses — keeps a unified "cover coming" visual across
+        // the page. For writingNext, keep the real cover we already have.
         const thumb = brandNew
-          ? `<div class="os-thumb writing" aria-label="Being written">
-               <svg class="pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                 <path d="M15 3l6 6-11 11H4v-6L15 3z"/>
-                 <path d="M14 4l6 6"/>
-               </svg>
-               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
-             </div>`
+          ? `<div class="os-thumb" aria-label="Being written"
+                  style="background:url('/media/loading.webp'), ${gradient}; background-size:cover; background-position:center;"></div>`
           : `<div class="os-thumb" style="background:url('${s.cover_image_url || bookImageFor(s)}'), ${gradient}; background-size:cover; background-position:center;">
                ${s.cover_image_url && s.title ? `<div class="cover-title-overlay">${escapeHtml(s.title.length > 20 ? s.title.slice(0, 20) + "…" : s.title)}</div>` : ""}
              </div>`;
