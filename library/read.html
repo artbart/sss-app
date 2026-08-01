@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library — Stuff So Sweet</title>
+  <link rel="icon" type="image/x-icon" href="https://stuffsosweet.com/favicon.ico">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/app-shell.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    /* ─── Book-page layout: hero + TOC + inline chapters + end ──────────────
+       Mirrors /library/book/<slug>/index.html exactly so DB-backed library
+       books look identical to the hand-crafted ones. Anything you tweak here
+       or there, tweak both. */
+    .book-hero { max-width: 720px; margin: 0 auto; padding: 32px 20px 28px; text-align: center; }
+    .book-hero .cover { width: 100%; max-width: 320px; aspect-ratio: 2/3; object-fit: cover; border-radius: 14px; margin: 0 auto 22px; display: block; box-shadow: 0 16px 40px rgba(0,0,0,0.45); }
+    .book-hero h1 { font-family: Georgia, serif; font-size: clamp(32px, 6vw, 44px); color: var(--gold); margin: 0 0 4px; letter-spacing: -0.01em; }
+    .book-hero .author { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 22px; }
+    .book-hero .summary { font-family: Georgia, serif; font-size: 16px; line-height: 1.65; opacity: 0.88; margin: 0 0 24px; text-align: left; }
+    .book-hero .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; font-family: Arial, sans-serif; font-size: 12px; color: var(--faint); margin-bottom: 28px; }
+    .book-hero .begin { display: inline-block; background: var(--cta); color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 14px; font-family: Georgia, serif; font-size: 16px; font-weight: bold; box-shadow: 0 8px 24px rgba(224,75,87,0.28); }
+
+    .toc { max-width: 560px; margin: 36px auto; padding: 8px 0; }
+    .toc h2 { font-family: Georgia, serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); font-weight: normal; margin: 0 0 14px; text-align: center; }
+    .toc ol { list-style: none; padding: 0; margin: 0; }
+    .toc li a { display: flex; align-items: baseline; gap: 10px; padding: 9px 4px; color: inherit; text-decoration: none; font-family: Georgia, serif; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color 0.15s; }
+    .toc li:last-child a { border-bottom: none; }
+    .toc li a:hover { color: var(--gold); }
+    .toc-num { color: var(--faint); font-variant-numeric: tabular-nums; min-width: 24px; }
+
+    .chapter { max-width: 640px; margin: 0 auto; padding: 56px 22px 28px; }
+    .ch-header { text-align: center; margin-bottom: 32px; }
+    .ch-num { font-family: Arial, sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--faint); margin-bottom: 8px; }
+    .ch-title { font-family: Georgia, serif; font-size: clamp(24px, 4vw, 32px); color: var(--gold); font-weight: normal; margin: 0; letter-spacing: -0.005em; }
+    .ch-body { font-family: Georgia, serif; font-size: 17px; line-height: 1.75; color: rgba(255,255,255,0.92); }
+    .ch-body p { margin: 0 0 18px; }
+    .ch-body em { font-style: italic; color: rgba(255,255,255,0.96); }
+    .ch-body hr.scene-break { border: none; height: 1px; background: rgba(240,212,140,0.18); width: 80px; margin: 32px auto; }
+
+    .book-end { max-width: 560px; margin: 48px auto 80px; padding: 32px 22px; text-align: center; }
+    .book-end .the-end { font-family: Georgia, serif; font-size: 22px; color: var(--gold); letter-spacing: 0.06em; margin: 0 0 26px; }
+    .book-end .back-link { display: inline-block; padding: 12px 26px; border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; color: inherit; text-decoration: none; font-family: Arial, sans-serif; font-size: 14px; }
+
+    @media (max-width: 540px) {
+      .ch-body { font-size: 16.5px; }
+    }
+
+    /* Gold Cinzel title overlay on the cover — same as the static books. */
+    .book-hero .cover-frame {
+      position: relative; display: inline-block; margin: 0 auto 22px;
+      max-width: 320px;
+    }
+    .book-hero .cover-frame::before {
+      content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 14px;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none;
+    }
+    .book-hero .cover-frame .cover-title-overlay {
+      position: absolute; bottom: 6%; left: 8%; right: 8%; z-index: 2;
+      text-align: center;
+      font-family: "Cinzel", "Trajan Pro", Georgia, serif;
+      font-weight: 500;
+      color: #d4a24b;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      line-height: 1.08;
+      font-size: 18px;
+      pointer-events: none;
+    }
+    .book-hero .cover-frame .cover-title-overlay span { display: block; }
+
+    .loading-state, .error-state {
+      max-width: 560px; margin: 80px auto; padding: 40px 22px; text-align: center;
+      font-family: Georgia, serif; color: var(--muted);
+    }
+    .loading-state h2, .error-state h2 {
+      font-family: Georgia, serif; color: #fff; font-weight: normal;
+      font-size: 22px; margin: 0 0 10px;
+    }
+  </style>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PKM537QM');</script>
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKM537QM"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <header class="m-header" id="shell-mheader">
+    <a href="/stories.html" class="m-brand">Stuff So <span>Sweet</span></a>
+  </header>
+  <div class="dash">
+    <aside class="rail" id="shell-rail">
+      <a href="/stories.html" class="rail-brand">Stuff So <span>Sweet</span></a>
+      <nav class="rail-nav">
+        <a href="/stories.html" data-nav="home" class=""><span class="n-ico">🏠</span> Home</a>
+        <a href="/quiz2.html" data-nav="new" class=""><span class="n-ico">✎</span> New story</a>
+        <a href="#chat" data-nav="chat" class=""><span class="n-ico">💬</span> Chat</a>
+        <a href="/library/" data-nav="library" class="active"><span class="n-ico">📚</span> Library</a>
+        <a href="/settings.html" data-nav="settings" class=""><span class="n-ico">⚙️</span> Settings</a>
+      </nav>
+      <a class="rail-user" href="/settings.html" title="Account settings">
+        <div class="u-av" id="railAv">…</div>
+        <div class="u-name" id="railName">…</div>
+      </a>
+    </aside>
+    <main id="main">
+      <div id="content"></div>
+    </main>
+  </div>
+  <nav class="bottom-nav" id="shell-bnav">
+    <a href="/stories.html" data-nav="home" class="bn-item "><span class="bn-ico">🏠</span>Home</a>
+    <a href="/library/" data-nav="library" class="bn-item active"><span class="bn-ico">📚</span>Library</a>
+    <a href="#chat" data-nav="chat" class="bn-item "><span class="bn-ico">💬</span>Chat</a>
+    <a href="/settings.html" data-nav="settings" class="bn-item "><span class="bn-ico">👤</span>You</a>
+  </nav>
+
+  <script type="module">
+    import { renderShell, logEvent, getSessionOrPreview, supabase } from "/assets/lib.js";
+    await getSessionOrPreview({ users: [{ display_name: "Arturas" }] });
+    await renderShell({ activeNav: "library" });
+
+    const content = document.getElementById("content");
+    const storyId = new URLSearchParams(location.search).get("id");
+
+    function esc(s){
+      return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    }
+    function splitTitleForOverlay(title){
+      const t = String(title || "").trim();
+      if (t.length <= 14) return [t];
+      if (t.includes(",")) {
+        const parts = t.split(",").map(s => s.trim()).filter(Boolean);
+        if (parts.length >= 2) return parts.slice(0, 3);
+      }
+      const words = t.split(/\s+/);
+      if (words.length <= 2) return [t];
+      const mid = Math.ceil(words.length / 2);
+      return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+    }
+    // Render chapter prose: escape first, then split into paragraphs on
+    // double-newline, restore *italic* markers, promote lone --- / *** into
+    // scene-break rules. Handles the shape our generator writes.
+    function renderChapterProse(rawText){
+      const safe = esc(rawText || "").replace(/\r\n/g, "\n");
+      const blocks = safe.split(/\n{2,}/);
+      const html = [];
+      for (const block of blocks) {
+        const t = block.trim();
+        if (!t) continue;
+        if (/^(-{3,}|\*{3,})$/.test(t)) {
+          html.push('<hr class="scene-break">');
+          continue;
+        }
+        // Restore *italics* — asterisks were escaped earlier as literal chars
+        // so this pattern still finds them. Non-greedy, single-line only.
+        const withEm = t.replace(/\*(?!\s)([^*\n]+?)(?<!\s)\*/g, "<em>$1</em>");
+        html.push(`<p>${withEm.replace(/\n/g, "<br>")}</p>`);
+      }
+      return html.join("\n");
+    }
+    function chapterTitleFor(ch){
+      // We don't store per-chapter titles for DB-backed stories, so derive a
+      // short label from the summary (first phrase, up to ~55 chars) or fall
+      // back to a plain "Chapter N".
+      const src = String(ch.summary || "").trim();
+      if (!src) return `Chapter ${ch.chapter_number}`;
+      const cut = src.split(/[.!?]/)[0].trim();
+      const short = cut.length > 55 ? cut.slice(0, 52).replace(/[\s,;:]*$/,"") + "…" : cut;
+      return short || `Chapter ${ch.chapter_number}`;
+    }
+    function tocLabelFor(ch){
+      // TOC gets an even shorter cut so lines don't wrap awkwardly.
+      const t = chapterTitleFor(ch);
+      return t.length > 42 ? t.slice(0, 40).replace(/[\s,;:]*$/,"") + "…" : t;
+    }
+    function metaLineFor(story, totalChars){
+      const parts = [];
+      const chapters = story.target_chapter_count || 10;
+      parts.push(`${chapters} chapters`);
+      if (totalChars) {
+        const words = Math.round(totalChars / 5 / 1000);
+        parts.push(`~${words}k words`);
+        const mins = Math.round((totalChars / 5) / 240);
+        parts.push(`~${mins} min read`);
+      }
+      const heat = String(story.heat_level || "").trim();
+      if (heat) parts.push(heat.charAt(0).toUpperCase() + heat.slice(1).toLowerCase());
+      return parts.join(" · ");
+    }
+
+    if (!storyId) {
+      content.innerHTML = `<div class="error-state">
+        <h2>Book not found</h2>
+        <p>No book id in the URL. <a href="/library/" style="color:var(--gold)">Back to library →</a></p>
+      </div>`;
+    } else {
+      content.innerHTML = `<div class="loading-state">
+        <h2>Loading…</h2>
+        <p>Fetching the book.</p>
+      </div>`;
+
+      try {
+        // Fetch story + all chapters in parallel. RLS policy
+        // `stories_select_library` opens up read for stories where
+        // user_id IS NULL, which is exactly the library set.
+        const [storyR, chaptersR] = await Promise.all([
+          supabase.from("stories")
+            .select("id, title, heat_level, hook, opening_premise, target_chapter_count, cover_image_url, user_id")
+            .eq("id", storyId).maybeSingle(),
+          supabase.from("chapters")
+            .select("chapter_number, summary, text")
+            .eq("story_id", storyId).order("chapter_number", { ascending: true }),
+        ]);
+
+        if (storyR.error || !storyR.data) throw new Error(storyR.error?.message || "Book not found");
+        const story = storyR.data;
+        if (story.user_id) throw new Error("This isn't a library book.");
+        const chapters = chaptersR.data || [];
+
+        const totalChars = chapters.reduce((sum, c) => sum + (c.text?.length || 0), 0);
+        const title = story.title || "Untitled";
+        const summary = story.opening_premise || story.hook || "";
+        const cover = story.cover_image_url ||
+          "https://gmhbcxylqubhxozomhlt.supabase.co/storage/v1/object/public/covers/library/across-the-driveway.jpg";
+        const overlay = splitTitleForOverlay(title).map(p => `<span>${esc(p)}</span>`).join("");
+
+        const tocHtml = chapters.map(c => `
+          <li><a href="#chapter-${c.chapter_number}"><span class="toc-num">${c.chapter_number}.</span> ${esc(tocLabelFor(c))}</a></li>
+        `).join("");
+
+        const chaptersHtml = chapters.map(c => `
+          <article class="chapter" id="chapter-${c.chapter_number}">
+            <header class="ch-header">
+              <div class="ch-num">Chapter ${c.chapter_number}</div>
+              <h2 class="ch-title">${esc(chapterTitleFor(c))}</h2>
+            </header>
+            <div class="ch-body">
+              ${renderChapterProse(c.text)}
+            </div>
+          </article>
+        `).join("");
+
+        content.innerHTML = `
+          <section class="book-hero">
+            <div class="cover-frame">
+              <img class="cover" src="${esc(cover)}" alt="">
+              <div class="cover-title-overlay">${overlay}</div>
+            </div>
+            <h1>${esc(title)}</h1>
+            <div class="author">Stuff So Sweet</div>
+            <p class="summary">${esc(summary)}</p>
+            <div class="meta">${esc(metaLineFor(story, totalChars))}</div>
+            <a href="#chapter-1" class="begin">Begin reading ↓</a>
+          </section>
+
+          <nav class="toc" aria-label="Table of Contents">
+            <h2>Contents</h2>
+            <ol>${tocHtml}</ol>
+          </nav>
+
+          ${chaptersHtml}
+
+          <section class="book-end">
+            <div class="the-end">The End</div>
+            <a class="back-link" href="/library/">← Back to library</a>
+          </section>
+        `;
+
+        document.title = `${title} — Stuff So Sweet Library`;
+        try { await logEvent("library_book_opened", { story_id: storyId, title }); } catch (_) {}
+      } catch (e) {
+        content.innerHTML = `<div class="error-state">
+          <h2>Couldn't open this book</h2>
+          <p>${esc(e.message || "Unknown error")}. <a href="/library/" style="color:var(--gold)">Back to library →</a></p>
+        </div>`;
+      }
+    }
+  </script>
+</body>
+</html>

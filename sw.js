@@ -6,7 +6,7 @@
 //
 // Cache versioning: bump CACHE_VERSION when shipping a breaking change.
 
-const CACHE_VERSION = "sss-app-v26";
+const CACHE_VERSION = "sss-app-v27";
 const SHELL = [
   "/",
   "/index.html",
@@ -18,6 +18,7 @@ const SHELL = [
   "/quiz.html",
   "/quiz2.html",
   "/library/",
+  "/library/read.html",
   "/library/book/where-the-wild-stays/",
   "/library/book/foxlight/",
   "/library/book/the-penthouse-floor/",
