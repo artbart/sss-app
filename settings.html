@@ -100,6 +100,7 @@
       font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;
       color: var(--muted); margin: 0 0 18px;
     }
+    .save-flow-card a { color: var(--gold); }
     .flow-reasons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
     .flow-reason { width: 100%; text-align: left; padding: 12px 14px; cursor: pointer; }
     .save-flow-card .cta-primary { display: block; width: 100%; cursor: pointer; border: 0; }
@@ -237,7 +238,7 @@
   </nav>
 
   <script type="module">
-    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
+    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode, posthog, posthogReady } from "/assets/lib.js";
 
     const session = await getSessionOrPreview({
       users: [{
@@ -374,10 +375,14 @@
     // Deno-side and never served to the browser.
     //
     // Two rules govern every screen below:
-    //   1. There is always a visible way out — nothing here may trap someone
-    //      who wants to leave.
-    //   2. Nothing cancels a subscription unless the user asked for that, or
-    //      the offer machinery is genuinely unusable (see invokeRetention).
+    //   1. Cancelling is always one visible click away — nothing here may trap
+    //      someone who wants to leave.
+    //   2. Nothing cancels a subscription unless the user asked it to. Rule 1
+    //      is about keeping the exit AVAILABLE; it is never a licence to take
+    //      the exit on someone's behalf because our machinery broke. The one
+    //      place a failure falls through to plain cancel is when the flow could
+    //      not start at all (record_reason) — and there the user had just
+    //      pressed "Cancel subscription", so it honours the button they pressed.
     const REASON_LABELS = {
       too_expensive: "It's too expensive",
       not_using:     "I'm not using it enough",
@@ -431,6 +436,25 @@
     const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+    // PostHog-only mirror, for the two events the SERVER already writes to
+    // `events`: cancel_reason_selected (written by record_reason) and
+    // retention_offer_accepted (written by logOffer). Those server rows are the
+    // authoritative ones — the eligibility guard queries them — and a second
+    // client-side row would inflate the churn-reason counts this whole feature
+    // exists to produce. This is not a second analytics path: it is the same
+    // posthog client lib.js exports and initialises, called with the same
+    // property shape logEvent uses (metadata flattened, surface: "app"), so the
+    // events look identical in PostHog whichever way they were sent.
+    // Everything the server does NOT write still goes through logEvent.
+    function capturePosthog(event_type, metadata) {
+      if (!posthogReady) return;
+      try {
+        posthog.capture(event_type, { ...metadata, surface: "app" });
+      } catch (e) {
+        console.warn("[save-flow] posthog capture failed:", e);
+      }
+    }
+
     // One place that knows how retention-offer fails. supabase-js resolves
     // (never throws) and hands back a FunctionsHttpError whose `context` is the
     // raw Response — the status only exists there, and the body is still
@@ -439,15 +463,28 @@
     // supabase-js 2.45.4: invoke() throws FunctionsHttpError(response) before
     // touching the body, and catches it into { data: null, error }.)
     //
-    // The five failure codes do NOT mean the same thing:
-    //   409 → this particular offer is unavailable, but the user still has a
-    //         choice. Never cancel on this; say so and let them pick.
+    // The failure codes do NOT mean the same thing:
+    //   409 → a guard fired: already discounted/paused, an offer already
+    //         accepted, or the 30-minute window lapsed. Carries a server
+    //         sentence worth showing the user verbatim.
     //   502 → offer machinery is down (unset Stripe secret, or Stripe failed).
     //   500 → server error (failed write, failed eligibility lookup).
     //   404 → no subscription/account on file.
     //   400 → our own client sent something malformed. A bug, not a user state.
-    // Everything except 409 means "we cannot offer anything" → the caller falls
-    // through to plain cancel rather than stranding the user mid-flow.
+    //   null → network/CORS: no HTTP response at all.
+    //
+    // What to DO about a failure depends on which call failed, not only on the
+    // code:
+    //   • record_reason failed — the flow can't even start, and the user
+    //     pressed "Cancel subscription". Honour the button they pressed and
+    //     fall through to plain cancel; never leave them in a dead modal.
+    //   • an offer action failed — the user pressed "keep me". Cancelling them
+    //     because OUR machinery broke is the opposite of what they asked for,
+    //     so no failure on this path ever cancels. "Never trap someone who
+    //     wants to leave" means cancellation must stay AVAILABLE, not that we
+    //     cancel on their behalf. See showOfferUnavailable().
+    // 502/500/404/400 error strings are deliberately generic server-side (they
+    // must not leak coupon or price ids), so only 409's message is surfaced.
     async function invokeRetention(body) {
       const { data, error } = await supabase.functions.invoke("retention-offer", { body });
       if (!error) {
@@ -538,10 +575,10 @@
       const label = btn.textContent;
       document.querySelectorAll(".flow-reason").forEach((b) => { b.disabled = true; });
       btn.textContent = "…";
-      // Mirrors to PostHog as well as the events table. The function records
-      // its own server-side copy (which is what arms the 30-minute offer
-      // window); this one is what makes the funnel visible in PostHog.
-      await logEvent("cancel_reason_selected", { metadata: { reason } });
+      // PostHog only: record_reason writes the authoritative `events` row
+      // itself (and that row is what arms the 30-minute offer window), so a
+      // client-side insert here would double-count every churn reason.
+      capturePosthog("cancel_reason_selected", { reason });
       const res = await invokeRetention({ action: "record_reason", reason, declined: flowDeclined });
       if (!flowActive) return;
       // record_reason cannot 409. Any failure here means we cannot make an
@@ -573,6 +610,9 @@
       const r = RUNGS[rung];
 
       if (rung === "support") {
+        // Full logEvent here, unlike the rungs below: support never calls
+        // retention-offer, so the server writes no row for it. Skipping the
+        // insert would make support acceptances invisible in `events`.
         await logEvent("retention_offer_accepted", { metadata: { reason: flowReason, rung } });
         if (!flowActive) return;
         window.location.href = SUPPORT_MAILTO;
@@ -591,16 +631,14 @@
       btn.disabled = true; btn.textContent = "…";
       const res = await invokeRetention({ action: r.action, reason: flowReason, declined: flowDeclined });
 
+      // NO failure here cancels anything. This user clicked an offer, i.e.
+      // "I want to stay" — a guard firing (409) or our own machinery being
+      // broken (502 from an unset Stripe secret, which is the expected state
+      // until the coupon and Lite price exist) are both our problem, not a
+      // request to cancel. Say it didn't work, keep the choice theirs.
       if (!res.ok) {
         if (!flowActive) return;
-        // 409: a guard fired (already discounted, already paused, an offer
-        // already accepted, or the 30-minute window lapsed). The user clicked
-        // "keep me" — cancelling them because a guard fired would be worse
-        // than not having the guard. Show what the server said, keep the choice.
-        if (res.conflict) return showOfferUnavailable(rung, res.message);
-        // 502/500/404/400/network: no offer can be made at all. Fall through
-        // to plain cancel rather than stranding the user in a dead modal.
-        return finishCancel();
+        return showOfferUnavailable(rung, res);
       }
 
       // Lifetime is not an acceptance yet — nobody has paid. The function
@@ -616,7 +654,10 @@
         return;
       }
 
-      await logEvent("retention_offer_accepted", { metadata: { reason: flowReason, rung } });
+      // PostHog only: the function's logOffer() already wrote the
+      // retention_offer_accepted row server-side, and that row is what the
+      // anti-stacking guard reads.
+      capturePosthog("retention_offer_accepted", { reason: flowReason, rung });
       closeFlow();
       $("subStatus").textContent = res.data.message || "Done ✓";
       $("subStatus").className = "save-status ok";
@@ -636,12 +677,19 @@
       showRung(res.data.rung);
     }
 
-    // 409 only. The offer is off the table but the user is not — they asked to
-    // stay, so never cancel from here without another click.
-    function showOfferUnavailable(rung, message) {
+    // Every accept-path failure lands here. The offer is off the table but the
+    // user is not — they asked to stay, so nothing cancels without another
+    // explicit click. Only the wording varies: a 409 means "that offer is no
+    // longer available" and the server phrased it, everything else means
+    // "something broke on our end" and the server's copy is too generic to show.
+    function showOfferUnavailable(rung, res) {
+      const title = res.conflict ? "That offer isn't available" : "That didn't go through";
+      const body = res.conflict
+        ? (res.message || "That offer isn't available on your account.")
+        : "Something went wrong on our end, so we couldn't apply that. Your subscription hasn't changed.";
       renderFlow(`
-        <h3 id="flowTitle">We couldn't apply that</h3>
-        <p>${escHtml(message || "That offer isn't available on your account.")}</p>
+        <h3 id="flowTitle">${escHtml(title)}</h3>
+        <p>${escHtml(body)}</p>
         <button type="button" class="cta-primary" id="flowOther">Show me another option</button>
         <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
         ${keepLink()}
@@ -652,8 +700,11 @@
     }
 
     // Deliberately not declineRung(): the user did not decline this offer, it
-    // failed. So this logs nothing, and — critically — an exhausted ladder
-    // ends on a screen, not on a cancellation.
+    // failed on us. So this logs no decline, and — critically — an exhausted
+    // ladder ends on a screen, not on a cancellation.
+    // Re-running record_reason also re-arms the server's 30-minute window,
+    // which is what makes the stale-window flavour of 409 self-heal on the
+    // next rung.
     async function tryAnotherRung(rung) {
       const btn = $("flowOther");
       btn.disabled = true; btn.textContent = "…";
@@ -664,10 +715,14 @@
       showRung(res.data.rung);
     }
 
+    // The terminal screen for a failed offer — reached when the ladder has
+    // nothing left, including the case where the FINAL rung of a branch failed.
+    // It has to leave the user with somewhere to go, so it says plainly that
+    // nothing changed and offers a human: stay, write to us, or cancel.
     function showNoAlternatives() {
       renderFlow(`
         <h3 id="flowTitle">Nothing else we can offer</h3>
-        <p>We don't have another option for your account right now. Your subscription is unchanged — it's still active, and it stays that way unless you cancel below.</p>
+        <p>We don't have another option for your account right now. Your subscription is unchanged — still active, and it stays that way unless you cancel below. If it was that offer you wanted, email <a href="mailto:hello@stuffsosweet.com">hello@stuffsosweet.com</a> and we'll sort it out by hand.</p>
         <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
         ${keepLink(true)}
       `);
