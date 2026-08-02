@@ -75,6 +75,44 @@
     .save-status.ok  { color: #8eff6d; }
     .save-status.err { color: var(--err, #ff6b7d); }
 
+    /* ─── Cancellation save-flow modal ─────────────────────────────── */
+    /* z-index sits above the sticky header (90) and the bottom nav (100),
+       or the modal would be tucked under them on mobile. */
+    .save-flow-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.62);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow-y: auto; z-index: 200;
+    }
+    .save-flow-card {
+      /* --card is translucent and would vanish over the backdrop; use the
+         opaque page bottom colour instead. */
+      background: var(--bg-bottom); color: var(--text);
+      border: 1px solid var(--card-hi); border-radius: 16px;
+      padding: 24px; max-width: 380px; width: 100%;
+      max-height: calc(100vh - 40px); overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .save-flow-card h3 {
+      font-family: Georgia, serif; font-size: 20px; font-weight: normal;
+      color: var(--gold); margin: 0 0 10px;
+    }
+    .save-flow-card p {
+      font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;
+      color: var(--muted); margin: 0 0 18px;
+    }
+    .flow-reasons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+    .flow-reason { width: 100%; text-align: left; padding: 12px 14px; cursor: pointer; }
+    .save-flow-card .cta-primary { display: block; width: 100%; cursor: pointer; border: 0; }
+    .save-flow-card .cta-primary[disabled],
+    .save-flow-card .cta-secondary[disabled] { opacity: 0.55; cursor: default; }
+    .flow-dismiss {
+      display: block; width: 100%; margin-top: 12px; padding: 8px;
+      background: none; border: 0; text-decoration: underline; cursor: pointer;
+      font-family: Arial, sans-serif; font-size: 13px; color: var(--faint);
+    }
+    .flow-dismiss:hover { color: var(--text); }
+    .flow-dismiss[disabled] { opacity: 0.55; cursor: default; text-decoration: none; }
+
     .danger-zone {
       margin-top: 24px; padding: 20px; text-align: center;
       background: rgba(0,0,0,0.18); border: 1px dashed rgba(255,255,255,0.10);
@@ -329,10 +367,329 @@
       setTimeout(() => { $("subStatus").textContent = ""; $("subStatus").className = "save-status"; }, 4000);
     }
 
-    $("cancelSubBtn").addEventListener("click", (e) => {
-      if (!confirm("Cancel your subscription? You'll keep full access until the end of your current paid period.")) return;
-      manageSub("cancel", e.currentTarget);
-    });
+    // ── Cancellation save-flow ─────────────────────────
+    // Reason capture, then at most two offers, branched on the reason.
+    // The server (retention-offer) owns the ladder and tells us which rung to
+    // show; only the display copy lives here, because _shared/retention.ts is
+    // Deno-side and never served to the browser.
+    //
+    // Two rules govern every screen below:
+    //   1. There is always a visible way out — nothing here may trap someone
+    //      who wants to leave.
+    //   2. Nothing cancels a subscription unless the user asked for that, or
+    //      the offer machinery is genuinely unusable (see invokeRetention).
+    const REASON_LABELS = {
+      too_expensive: "It's too expensive",
+      not_using:     "I'm not using it enough",
+      ran_out:       "I ran out of stories I want to read",
+      broken:        "Something isn't working",
+    };
+
+    const RUNGS = {
+      discount: {
+        title: "Stay for half price",
+        body: "Take 50% off your next renewal. Same 3 stories a month, nothing else changes.",
+        cta: "Apply 50% off",
+        action: "discount",
+      },
+      lifetime: {
+        title: "Pay once, keep it forever",
+        body: "One payment of $79 and your account stays open for good — 3 stories every month, no more renewals. That's less than two renewals.",
+        cta: "Get lifetime access — $79",
+        action: "lifetime_checkout",
+      },
+      pause: {
+        title: "Pause instead?",
+        body: "Put your subscription on hold for 4 weeks. You won't be charged, and everything is waiting when you come back.",
+        cta: "Pause for 4 weeks",
+        action: "pause",
+      },
+      downgrade: {
+        title: "Try the lighter plan",
+        body: "$9.99 every 4 weeks for 1 story a month. Keeps your library and your account open.",
+        cta: "Switch to $9.99",
+        action: "downgrade",
+      },
+      support: {
+        title: "Let us fix it",
+        body: "Tell us what broke and we'll sort it out. Replies usually land within a day.",
+        cta: "Email support",
+        action: "support",
+      },
+    };
+
+    const SUPPORT_MAILTO = "mailto:hello@stuffsosweet.com?subject=Something%20isn%27t%20working";
+
+    let flowReason = null;
+    let flowDeclined = [];
+    // True only while the modal is on screen. Every await below re-checks it:
+    // if the user dismissed the flow while a request was in flight, we must not
+    // re-open a screen on top of them — and above all must not fall through to
+    // cancelling a subscription they just chose to keep.
+    let flowActive = false;
+
+    const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    // One place that knows how retention-offer fails. supabase-js resolves
+    // (never throws) and hands back a FunctionsHttpError whose `context` is the
+    // raw Response — the status only exists there, and the body is still
+    // unread at that point, so it can be parsed for the server's own wording.
+    // (Verified against @supabase/functions-js 2.4.1, the version bundled by
+    // supabase-js 2.45.4: invoke() throws FunctionsHttpError(response) before
+    // touching the body, and catches it into { data: null, error }.)
+    //
+    // The five failure codes do NOT mean the same thing:
+    //   409 → this particular offer is unavailable, but the user still has a
+    //         choice. Never cancel on this; say so and let them pick.
+    //   502 → offer machinery is down (unset Stripe secret, or Stripe failed).
+    //   500 → server error (failed write, failed eligibility lookup).
+    //   404 → no subscription/account on file.
+    //   400 → our own client sent something malformed. A bug, not a user state.
+    // Everything except 409 means "we cannot offer anything" → the caller falls
+    // through to plain cancel rather than stranding the user mid-flow.
+    async function invokeRetention(body) {
+      const { data, error } = await supabase.functions.invoke("retention-offer", { body });
+      if (!error) {
+        if (data && data.ok) return { ok: true, data };
+        console.error("[save-flow] retention-offer returned 2xx without ok:true:", data);
+        return { ok: false, status: null, conflict: false, message: null };
+      }
+      const status = typeof error?.context?.status === "number" ? error.context.status : null;
+      let message = null;
+      if (error?.context && typeof error.context.json === "function") {
+        try {
+          const parsed = await error.context.json();
+          if (parsed && typeof parsed.error === "string") message = parsed.error;
+        } catch (_) { /* non-JSON error body (gateway page, empty body) */ }
+      }
+      if (status === 400) {
+        console.error("[save-flow] retention-offer rejected our request as malformed (400).",
+          "This is a client bug. Body was:", body, "Server said:", message);
+      } else if (status === null) {
+        console.warn("[save-flow] retention-offer failed with no HTTP status (network/CORS):", error);
+      } else if (status !== 409) {
+        console.warn(`[save-flow] retention-offer failed (${status}):`, message || error.message);
+      }
+      return { ok: false, status, conflict: status === 409, message };
+    }
+
+    function onFlowKeydown(e) {
+      // Escape only ever closes the flow — it never cancels anything.
+      if (e.key === "Escape") closeFlow();
+    }
+
+    function closeFlow() {
+      flowActive = false;
+      const el = $("saveFlow");
+      if (el) el.remove();
+      document.removeEventListener("keydown", onFlowKeydown);
+      const opener = $("cancelSubBtn");
+      if (opener && opener.style.display !== "none") opener.focus();
+    }
+
+    function renderFlow(inner) {
+      const existing = $("saveFlow");
+      if (existing) existing.remove();
+      const wrap = document.createElement("div");
+      wrap.id = "saveFlow";
+      wrap.className = "save-flow-backdrop";
+      flowActive = true;
+      wrap.innerHTML = `<div class="save-flow-card" role="dialog" aria-modal="true" aria-labelledby="flowTitle">${inner}</div>`;
+      document.body.appendChild(wrap);
+      document.addEventListener("keydown", onFlowKeydown);
+      // Focus the safe control, never a destructive one: screens whose first
+      // button cancels the subscription opt the "keep" link in instead, so a
+      // stray Enter can't end someone's subscription.
+      (wrap.querySelector("[data-autofocus]") || wrap.querySelector("button"))?.focus();
+      return wrap;
+    }
+
+    // Every screen carries this: an explicit, unhidden way to leave.
+    function keepLink(autofocus) {
+      return `<button type="button" class="flow-dismiss" id="flowClose"${autofocus ? " data-autofocus" : ""}>Never mind, keep my subscription</button>`;
+    }
+    function bindKeep() {
+      $("flowClose").addEventListener("click", closeFlow);
+    }
+
+    function openReasonStep() {
+      flowReason = null;
+      flowDeclined = [];
+      const opts = Object.entries(REASON_LABELS)
+        .map(([k, label]) => `<button type="button" class="cta-secondary flow-reason" data-reason="${k}">${escHtml(label)}</button>`)
+        .join("");
+      const wrap = renderFlow(`
+        <h3 id="flowTitle">Before you go</h3>
+        <p>What's the main reason you're cancelling?</p>
+        <div class="flow-reasons">${opts}</div>
+        ${keepLink()}
+      `);
+      wrap.querySelectorAll(".flow-reason").forEach((b) => {
+        b.addEventListener("click", () => chooseReason(b));
+      });
+      bindKeep();
+    }
+
+    async function chooseReason(btn) {
+      const reason = btn.dataset.reason;
+      flowReason = reason;
+      flowDeclined = [];
+      const label = btn.textContent;
+      document.querySelectorAll(".flow-reason").forEach((b) => { b.disabled = true; });
+      btn.textContent = "…";
+      // Mirrors to PostHog as well as the events table. The function records
+      // its own server-side copy (which is what arms the 30-minute offer
+      // window); this one is what makes the funnel visible in PostHog.
+      await logEvent("cancel_reason_selected", { metadata: { reason } });
+      const res = await invokeRetention({ action: "record_reason", reason, declined: flowDeclined });
+      if (!flowActive) return;
+      // record_reason cannot 409. Any failure here means we cannot make an
+      // offer at all, and the user already asked to cancel — don't trap them.
+      if (!res.ok) return finishCancel();
+      btn.textContent = label;
+      showRung(res.data.rung);
+    }
+
+    function showRung(rung) {
+      // "cancel" is the server saying the ladder is exhausted. Reaching here
+      // always follows an explicit "cancel my subscription" click.
+      if (rung === "cancel" || !RUNGS[rung]) return finishCancel();
+      const r = RUNGS[rung];
+      renderFlow(`
+        <h3 id="flowTitle">${escHtml(r.title)}</h3>
+        <p>${escHtml(r.body)}</p>
+        <button type="button" class="cta-primary" id="flowAccept">${escHtml(r.cta)}</button>
+        <button type="button" class="flow-dismiss" id="flowDecline">No thanks, cancel my subscription</button>
+        ${keepLink()}
+      `);
+      $("flowAccept").addEventListener("click", () => acceptRung(rung));
+      $("flowDecline").addEventListener("click", () => declineRung(rung));
+      bindKeep();
+      logEvent("retention_offer_shown", { metadata: { reason: flowReason, rung } });
+    }
+
+    async function acceptRung(rung) {
+      const r = RUNGS[rung];
+
+      if (rung === "support") {
+        await logEvent("retention_offer_accepted", { metadata: { reason: flowReason, rung } });
+        if (!flowActive) return;
+        window.location.href = SUPPORT_MAILTO;
+        renderFlow(`
+          <h3 id="flowTitle">Your email is open</h3>
+          <p>Tell us what went wrong and send it over — we'll pick it up. If nothing opened, write to hello@stuffsosweet.com.</p>
+          <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription anyway</button>
+          ${keepLink(true)}
+        `);
+        $("flowCancelAnyway").addEventListener("click", () => declineRung(rung));
+        bindKeep();
+        return;
+      }
+
+      const btn = $("flowAccept");
+      btn.disabled = true; btn.textContent = "…";
+      const res = await invokeRetention({ action: r.action, reason: flowReason, declined: flowDeclined });
+
+      if (!res.ok) {
+        if (!flowActive) return;
+        // 409: a guard fired (already discounted, already paused, an offer
+        // already accepted, or the 30-minute window lapsed). The user clicked
+        // "keep me" — cancelling them because a guard fired would be worse
+        // than not having the guard. Show what the server said, keep the choice.
+        if (res.conflict) return showOfferUnavailable(rung, res.message);
+        // 502/500/404/400/network: no offer can be made at all. Fall through
+        // to plain cancel rather than stranding the user in a dead modal.
+        return finishCancel();
+      }
+
+      // Lifetime is not an acceptance yet — nobody has paid. The function
+      // records `lifetime_checkout_started`; the webhook records the purchase.
+      // Writing retention_offer_accepted here would also arm the server's
+      // anti-stacking guard, which deliberately exempts lifetime_checkout so
+      // that abandoning Stripe's page and coming back still works.
+      if (res.data.checkout_url) {
+        // Dismissed while Stripe was creating the session: leave them where
+        // they are rather than yanking them to a checkout page. The unused
+        // session costs nothing and expires on its own.
+        if (flowActive) window.location.href = res.data.checkout_url;
+        return;
+      }
+
+      await logEvent("retention_offer_accepted", { metadata: { reason: flowReason, rung } });
+      closeFlow();
+      $("subStatus").textContent = res.data.message || "Done ✓";
+      $("subStatus").className = "save-status ok";
+      await refreshSub();
+    }
+
+    async function declineRung(rung) {
+      const btn = $("flowDecline") || $("flowCancelAnyway");
+      if (btn) { btn.disabled = true; btn.textContent = "…"; }
+      await logEvent("retention_offer_declined", { metadata: { reason: flowReason, rung } });
+      if (!flowDeclined.includes(rung)) flowDeclined.push(rung);
+      const res = await invokeRetention({ action: "record_reason", reason: flowReason, declined: flowDeclined });
+      if (!flowActive) return;
+      // The user just clicked "cancel my subscription", so cancelling on a
+      // failed lookup matches what they asked for.
+      if (!res.ok) return finishCancel();
+      showRung(res.data.rung);
+    }
+
+    // 409 only. The offer is off the table but the user is not — they asked to
+    // stay, so never cancel from here without another click.
+    function showOfferUnavailable(rung, message) {
+      renderFlow(`
+        <h3 id="flowTitle">We couldn't apply that</h3>
+        <p>${escHtml(message || "That offer isn't available on your account.")}</p>
+        <button type="button" class="cta-primary" id="flowOther">Show me another option</button>
+        <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
+        ${keepLink()}
+      `);
+      $("flowOther").addEventListener("click", () => tryAnotherRung(rung));
+      $("flowCancelAnyway").addEventListener("click", finishCancel);
+      bindKeep();
+    }
+
+    // Deliberately not declineRung(): the user did not decline this offer, it
+    // failed. So this logs nothing, and — critically — an exhausted ladder
+    // ends on a screen, not on a cancellation.
+    async function tryAnotherRung(rung) {
+      const btn = $("flowOther");
+      btn.disabled = true; btn.textContent = "…";
+      if (!flowDeclined.includes(rung)) flowDeclined.push(rung);
+      const res = await invokeRetention({ action: "record_reason", reason: flowReason, declined: flowDeclined });
+      if (!flowActive) return;
+      if (!res.ok || res.data.rung === "cancel" || !RUNGS[res.data.rung]) return showNoAlternatives();
+      showRung(res.data.rung);
+    }
+
+    function showNoAlternatives() {
+      renderFlow(`
+        <h3 id="flowTitle">Nothing else we can offer</h3>
+        <p>We don't have another option for your account right now. Your subscription is unchanged — it's still active, and it stays that way unless you cancel below.</p>
+        <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
+        ${keepLink(true)}
+      `);
+      $("flowCancelAnyway").addEventListener("click", finishCancel);
+      bindKeep();
+    }
+
+    async function refreshSub() {
+      const { data: u2 } = await supabase.from("users")
+        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+        .eq("id", session.user.id).maybeSingle();
+      renderSub(u2);
+    }
+
+    // Plain cancellation is untouched: it stays in cancel-subscription, via
+    // the same manageSub() path that worked before this flow existed.
+    function finishCancel() {
+      closeFlow();
+      manageSub("cancel", $("cancelSubBtn"));
+    }
+
+    $("cancelSubBtn").addEventListener("click", openReasonStep);
     $("reactivateBtn").addEventListener("click", (e) => manageSub("reactivate", e.currentTarget));
 
     renderSub(user);
