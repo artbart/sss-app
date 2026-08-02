@@ -75,6 +75,45 @@
     .save-status.ok  { color: #8eff6d; }
     .save-status.err { color: var(--err, #ff6b7d); }
 
+    /* ─── Cancellation save-flow modal ─────────────────────────────── */
+    /* z-index sits above the sticky header (90) and the bottom nav (100),
+       or the modal would be tucked under them on mobile. */
+    .save-flow-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.62);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow-y: auto; z-index: 200;
+    }
+    .save-flow-card {
+      /* --card is translucent and would vanish over the backdrop; use the
+         opaque page bottom colour instead. */
+      background: var(--bg-bottom); color: var(--text);
+      border: 1px solid var(--card-hi); border-radius: 16px;
+      padding: 24px; max-width: 380px; width: 100%;
+      max-height: calc(100vh - 40px); overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .save-flow-card h3 {
+      font-family: Georgia, serif; font-size: 20px; font-weight: normal;
+      color: var(--gold); margin: 0 0 10px;
+    }
+    .save-flow-card p {
+      font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;
+      color: var(--muted); margin: 0 0 18px;
+    }
+    .save-flow-card a { color: var(--gold); }
+    .flow-reasons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+    .flow-reason { width: 100%; text-align: left; padding: 12px 14px; cursor: pointer; }
+    .save-flow-card .cta-primary { display: block; width: 100%; cursor: pointer; border: 0; }
+    .save-flow-card .cta-primary[disabled],
+    .save-flow-card .cta-secondary[disabled] { opacity: 0.55; cursor: default; }
+    .flow-dismiss {
+      display: block; width: 100%; margin-top: 12px; padding: 8px;
+      background: none; border: 0; text-decoration: underline; cursor: pointer;
+      font-family: Arial, sans-serif; font-size: 13px; color: var(--faint);
+    }
+    .flow-dismiss:hover { color: var(--text); }
+    .flow-dismiss[disabled] { opacity: 0.55; cursor: default; text-decoration: none; }
+
     .danger-zone {
       margin-top: 24px; padding: 20px; text-align: center;
       background: rgba(0,0,0,0.18); border: 1px dashed rgba(255,255,255,0.10);
@@ -199,7 +238,7 @@
   </nav>
 
   <script type="module">
-    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
+    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode, posthog, posthogReady } from "/assets/lib.js";
 
     const session = await getSessionOrPreview({
       users: [{
@@ -220,7 +259,7 @@
 
     // Load current user profile
     const { data: user, error } = await supabase.from("users")
-      .select("display_name, notification_preference, marketing_email_opt_in, subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+      .select("display_name, notification_preference, marketing_email_opt_in, subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
       .eq("id", session.user.id).maybeSingle();
 
     if (error) {
@@ -286,10 +325,64 @@
       catch (_) { return ""; }
     }
     function renderSub(u) {
-      if (!u || !u.stripe_subscription_id) { $("subSection").style.display = "none"; return; }
+      if (!u) { $("subSection").style.display = "none"; return; }
+      // Lifetime holders first, before the stripe_subscription_id guard below:
+      // a lifetime purchase makes the webhook CANCEL the underlying Stripe
+      // subscription, so a lifetime holder can have no stripe_subscription_id
+      // at all and would otherwise fall straight through to "hide the
+      // section" — the one case where a lifetime buyer sees no confirmation
+      // of what they paid for. Lifetime is a permanent entitlement, not a
+      // subscription: no renewal date, no cancel button, no reactivate button
+      // — there is nothing to cancel or reactivate.
+      //
+      // EXCEPT when the subscription is still billing. stripe-webhook grants
+      // lifetime FIRST and only then calls stripe.subscriptions.cancel(); that
+      // cancel is deliberately allowed to fail (it must never throw after the
+      // grant, or Stripe retries a paid-for entitlement). So "lifetime_at set
+      // AND a live subscription" is a state the system explicitly permits, and
+      // in it the user is still being charged every period. Hiding the cancel
+      // button there leaves them no in-app way to stop the charge. Keep it.
+      // Safe by construction: cancel-subscription only sets
+      // cancel_at_period_end on the Stripe subscription — it never touches
+      // users.lifetime_at — so cancelling from this state cannot revoke
+      // lifetime access.
+      if (u.lifetime_at) {
+        $("subSection").style.display = "";
+        const subLive = ["active", "trialing", "past_due"].includes(u.subscription_status);
+        if (subLive && !u.cancel_at_period_end) {
+          const nextCharge = fmtDate(u.current_period_end);
+          $("subStatusLine").textContent =
+            "Lifetime access — yours permanently, 3 stories every month. You also still have a paid subscription"
+            + (nextCharge ? ` billing again on ${nextCharge}` : " that is still billing")
+            + ". You don't need it any more — cancelling it keeps your lifetime access untouched.";
+          $("cancelSubBtn").style.display = "";
+          $("reactivateBtn").style.display = "none";
+          return;
+        }
+        if (subLive && u.cancel_at_period_end) {
+          // Already winding down. Nothing left to do, and offering "reactivate"
+          // would only re-start a charge a lifetime holder does not need.
+          const end = fmtDate(u.current_period_end);
+          $("subStatusLine").textContent =
+            "Lifetime access — yours permanently, 3 stories every month. Your old paid subscription is set to end"
+            + (end ? ` on ${end}` : "") + " and won't be charged again.";
+          $("cancelSubBtn").style.display = "none";
+          $("reactivateBtn").style.display = "none";
+          return;
+        }
+        $("subStatusLine").textContent = "Lifetime access — you're all set. 3 stories every month, no renewals, nothing to cancel.";
+        $("cancelSubBtn").style.display = "none";
+        $("reactivateBtn").style.display = "none";
+        return;
+      }
+      if (!u.stripe_subscription_id) { $("subSection").style.display = "none"; return; }
       $("subSection").style.display = "";
       const end = fmtDate(u.current_period_end);
       const active = u.current_period_end && new Date(u.current_period_end) >= new Date();
+      // Downgraded (lite) users must not be told they're on the standard
+      // plan — only the label changes; the active/cancel/reactivate rules
+      // below are untouched for them.
+      const planName = u.plan_tier === "lite" ? "Lighter plan" : "Active";
       if (u.cancel_at_period_end) {
         $("subStatusLine").textContent = active
           ? `Your subscription is set to end on ${end}. You keep full access until then.`
@@ -297,7 +390,7 @@
         $("cancelSubBtn").style.display = "none";
         $("reactivateBtn").style.display = active ? "" : "none";
       } else if (active) {
-        $("subStatusLine").textContent = `Active — renews on ${end}.`;
+        $("subStatusLine").textContent = `${planName} — renews on ${end}.`;
         $("cancelSubBtn").style.display = "";
         $("reactivateBtn").style.display = "none";
       } else {
@@ -319,7 +412,7 @@
         return;
       }
       const { data: u2 } = await supabase.from("users")
-        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
         .eq("id", session.user.id).maybeSingle();
       btn.disabled = false; btn.textContent = original;
       renderSub(u2);
@@ -329,13 +422,619 @@
       setTimeout(() => { $("subStatus").textContent = ""; $("subStatus").className = "save-status"; }, 4000);
     }
 
-    $("cancelSubBtn").addEventListener("click", (e) => {
-      if (!confirm("Cancel your subscription? You'll keep full access until the end of your current paid period.")) return;
-      manageSub("cancel", e.currentTarget);
-    });
+    // ── Cancellation save-flow ─────────────────────────
+    // Reason capture, then at most two offers, branched on the reason.
+    // The server (retention-offer) owns the ladder and tells us which rung to
+    // show; only the display copy lives here, because _shared/retention.ts is
+    // Deno-side and never served to the browser.
+    //
+    // Two rules govern every screen below:
+    //   1. Cancelling is always one visible click away — nothing here may trap
+    //      someone who wants to leave.
+    //   2. Nothing cancels a subscription unless the user asked it to. Rule 1
+    //      is about keeping the exit AVAILABLE; it is never a licence to take
+    //      the exit on someone's behalf because our machinery broke. The one
+    //      place a failure falls through to plain cancel is when the flow could
+    //      not start at all (record_reason) — and there the user had just
+    //      pressed "Cancel subscription", so it honours the button they pressed.
+    const REASON_LABELS = {
+      too_expensive: "It's too expensive",
+      not_using:     "I'm not using it enough",
+      ran_out:       "I ran out of stories I want to read",
+      broken:        "Something isn't working",
+    };
+
+    const RUNGS = {
+      discount: {
+        title: "Stay for half price",
+        body: "Take 50% off your next renewal. Same 3 stories a month, nothing else changes.",
+        cta: "Apply 50% off",
+        action: "discount",
+      },
+      lifetime: {
+        title: "Pay once, keep it forever",
+        body: "One payment of $79 and your account stays open for good — 3 stories every month, no more renewals. That's less than two renewals.",
+        cta: "Get lifetime access — $79",
+        action: "lifetime_checkout",
+      },
+      pause: {
+        title: "Pause instead?",
+        body: "Put your subscription on hold for 4 weeks. You won't be charged, and everything is waiting when you come back.",
+        cta: "Pause for 4 weeks",
+        action: "pause",
+      },
+      downgrade: {
+        title: "Try the lighter plan",
+        body: "$9.99 every 4 weeks for 1 story a month. Keeps your library and your account open.",
+        cta: "Switch to $9.99",
+        action: "downgrade",
+      },
+      support: {
+        title: "Let us fix it",
+        body: "Tell us what broke and we'll sort it out. Replies usually land within a day.",
+        cta: "Email support",
+        action: "support",
+      },
+    };
+
+    const SUPPORT_MAILTO = "mailto:hello@stuffsosweet.com?subject=Something%20isn%27t%20working";
+
+    let flowReason = null;
+    let flowDeclined = [];
+
+    // Generation token, not a boolean. Every request captures `flowGen` when it
+    // starts and re-checks it after each await; both closeFlow() and
+    // renderFlow() bump it, so work belonging to a dismissed flow — or to a
+    // screen that has since been replaced — can never act, not even if the user
+    // has reopened the modal. A boolean would be reset to "open" by the new
+    // flow and let a stale failure cancel a subscription while the user is
+    // looking at a fresh reason list.
+    let flowGen = 0;
+    const flowStale = (gen) => gen !== flowGen;
+
+    const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    // PostHog-only mirror, for the two events the SERVER already writes to
+    // `events`: cancel_reason_selected (written by record_reason) and
+    // retention_offer_accepted (written by logOffer). Those server rows are the
+    // authoritative ones — the eligibility guard queries them — and a second
+    // client-side row would inflate the churn-reason counts this whole feature
+    // exists to produce. This is not a second analytics path: it is the same
+    // posthog client lib.js exports and initialises, called with the same
+    // property shape logEvent uses (metadata flattened, surface: "app"), so the
+    // events look identical in PostHog whichever way they were sent.
+    // Everything the server does NOT write still goes through logEvent.
+    function capturePosthog(event_type, metadata) {
+      if (!posthogReady) return;
+      try {
+        posthog.capture(event_type, { ...metadata, surface: "app" });
+      } catch (e) {
+        console.warn("[save-flow] posthog capture failed:", e);
+      }
+    }
+
+    // One place that knows how retention-offer fails. supabase-js resolves
+    // (never throws) and hands back a FunctionsHttpError whose `context` is the
+    // raw Response — the status only exists there, and the body is still
+    // unread at that point, so it can be parsed for the server's own wording.
+    // (Verified against @supabase/functions-js 2.4.1, the version bundled by
+    // supabase-js 2.45.4: invoke() throws FunctionsHttpError(response) before
+    // touching the body, and catches it into { data: null, error }.)
+    //
+    // The failure codes do NOT mean the same thing:
+    //   409 → a guard fired: already discounted/paused, an offer already
+    //         accepted, or the 30-minute window lapsed. Carries a server
+    //         sentence worth showing the user verbatim.
+    //   502 → offer machinery is down (unset Stripe secret, or Stripe failed).
+    //   500 → server error (failed write, failed eligibility lookup).
+    //   404 → no subscription/account on file.
+    //   400 → our own client sent something malformed. A bug, not a user state.
+    //   null → network/CORS: no HTTP response at all.
+    //
+    // What to DO about a failure depends on which call failed, not only on the
+    // code:
+    //   • record_reason failed — the flow can't even start, and the user
+    //     pressed "Cancel subscription". Honour the button they pressed and
+    //     fall through to plain cancel; never leave them in a dead modal.
+    //   • an offer action failed — the user pressed "keep me". Cancelling them
+    //     because OUR machinery broke is the opposite of what they asked for,
+    //     so no failure on this path ever cancels. "Never trap someone who
+    //     wants to leave" means cancellation must stay AVAILABLE, not that we
+    //     cancel on their behalf. See showOfferUnavailable().
+    // 502/500/404/400 error strings are deliberately generic server-side (they
+    // must not leak coupon or price ids), so only 409's message is surfaced.
+    async function invokeRetention(body) {
+      const { data, error } = await supabase.functions.invoke("retention-offer", { body });
+      if (!error) {
+        if (data && data.ok) return { ok: true, data };
+        console.error("[save-flow] retention-offer returned 2xx without ok:true:", data);
+        return { ok: false, status: null, conflict: false, message: null };
+      }
+      const status = typeof error?.context?.status === "number" ? error.context.status : null;
+      let message = null;
+      if (error?.context && typeof error.context.json === "function") {
+        try {
+          const parsed = await error.context.json();
+          if (parsed && typeof parsed.error === "string") message = parsed.error;
+        } catch (_) { /* non-JSON error body (gateway page, empty body) */ }
+      }
+      if (status === 400) {
+        console.error("[save-flow] retention-offer rejected our request as malformed (400).",
+          "This is a client bug. Body was:", body, "Server said:", message);
+      } else if (status === null) {
+        console.warn("[save-flow] retention-offer failed with no HTTP status (network/CORS):", error);
+      } else if (status !== 409) {
+        console.warn(`[save-flow] retention-offer failed (${status}):`, message || error.message);
+      }
+      return { ok: false, status, conflict: status === 409, message };
+    }
+
+    const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+
+    function onFlowKeydown(e) {
+      // Escape only ever closes the flow — it never cancels anything.
+      if (e.key === "Escape") { closeFlow(); return; }
+      // Focus trap. aria-modal tells a screen reader the page behind is inert;
+      // it does nothing for the Tab key, so keep the ring inside the card.
+      if (e.key !== "Tab") return;
+      const card = document.querySelector("#saveFlow .save-flow-card");
+      if (!card) return;
+      const items = Array.from(card.querySelectorAll(FOCUSABLE));
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      const inside = card.contains(document.activeElement);
+      if (e.shiftKey && (!inside || document.activeElement === first)) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && (!inside || document.activeElement === last)) {
+        e.preventDefault(); first.focus();
+      }
+    }
+
+    function closeFlow() {
+      // Invalidate anything still in flight before the DOM goes away.
+      flowGen++;
+      const el = $("saveFlow");
+      if (el) el.remove();
+      document.removeEventListener("keydown", onFlowKeydown);
+      document.body.style.overflow = "";
+      const opener = $("cancelSubBtn");
+      if (opener && opener.style.display !== "none") opener.focus();
+    }
+
+    function renderFlow(inner) {
+      // Each SCREEN is a generation, not just each open/close. Work started on
+      // a screen must not act once that screen is gone, however it went away.
+      // (Checked: no path captures a generation, renders, and then re-checks
+      // it — every flowStale() test precedes the render it guards — so this
+      // cannot invalidate the very request doing the rendering.)
+      flowGen++;
+      const existing = $("saveFlow");
+      if (existing) existing.remove();
+      const wrap = document.createElement("div");
+      wrap.id = "saveFlow";
+      wrap.className = "save-flow-backdrop";
+      wrap.innerHTML = `<div class="save-flow-card" role="dialog" aria-modal="true" aria-labelledby="flowTitle">${inner}</div>`;
+      document.body.appendChild(wrap);
+      document.addEventListener("keydown", onFlowKeydown);
+      document.body.style.overflow = "hidden";
+      // Focus the safe control, never a destructive one: screens whose first
+      // button cancels the subscription opt the "keep" link in instead, so a
+      // stray Enter can't end someone's subscription.
+      (wrap.querySelector("[data-autofocus]") || wrap.querySelector("button"))?.focus();
+      return wrap;
+    }
+
+    // Disable EVERY control in the card for the duration of a request, not just
+    // the one that was pressed. Leaving the others live let a user click
+    // "Apply 50% off" and then, while it was still applying, click "No thanks,
+    // cancel my subscription" — two concurrent requests, ending in a discounted
+    // AND cancelled subscription.
+    // "Never mind, keep my subscription" stays live, deliberately: it starts no
+    // request, so it cannot race, and it means a hung call never leaves the
+    // user staring at a card where every control is dead. Dismissing mid-flight
+    // just bumps the generation and the stale reply is discarded. It also keeps
+    // one focusable element in the card, so the Tab trap always has somewhere
+    // to put focus.
+    function lockFlow(btn, label = "…") {
+      const card = document.querySelector("#saveFlow .save-flow-card");
+      if (card) {
+        card.querySelectorAll("button").forEach((b) => {
+          if (b.id !== "flowClose") b.disabled = true;
+        });
+      }
+      if (btn) btn.textContent = label;
+    }
+
+    // The client only has display copy for the rungs it knows. Anything else —
+    // a rung added server-side, a malformed body, or "cancel" — is NOT a
+    // licence to cancel; callers decide, and only the decline path treats
+    // "cancel" as the user's own request. Object.hasOwn so a rung called
+    // "constructor" or "__proto__" can't resolve to a prototype member.
+    const isKnownRung = (rung) => typeof rung === "string" && Object.hasOwn(RUNGS, rung);
+
+    // Every screen carries this: an explicit, unhidden way to leave.
+    function keepLink(autofocus) {
+      return `<button type="button" class="flow-dismiss" id="flowClose"${autofocus ? " data-autofocus" : ""}>Never mind, keep my subscription</button>`;
+    }
+    function bindKeep() {
+      $("flowClose").addEventListener("click", closeFlow);
+    }
+
+    function openReasonStep() {
+      flowReason = null;
+      flowDeclined = [];
+      const opts = Object.entries(REASON_LABELS)
+        .map(([k, label]) => `<button type="button" class="cta-secondary flow-reason" data-reason="${k}">${escHtml(label)}</button>`)
+        .join("");
+      const wrap = renderFlow(`
+        <h3 id="flowTitle">Before you go</h3>
+        <p>What's the main reason you're cancelling?</p>
+        <div class="flow-reasons">${opts}</div>
+        ${keepLink()}
+      `);
+      wrap.querySelectorAll(".flow-reason").forEach((b) => {
+        b.addEventListener("click", () => chooseReason(b));
+      });
+      bindKeep();
+    }
+
+    async function chooseReason(btn) {
+      const gen = flowGen;
+      const reason = btn.dataset.reason;
+      flowReason = reason;
+      flowDeclined = [];
+      lockFlow(btn);
+      // PostHog only: record_reason writes the authoritative `events` row
+      // itself (and that row is what arms the 30-minute offer window), so a
+      // client-side insert here would double-count every churn reason.
+      capturePosthog("cancel_reason_selected", { reason });
+      const res = await invokeRetention({ action: "record_reason", reason, declined: flowDeclined });
+      if (flowStale(gen)) return;
+      // record_reason cannot 409. Any failure here means we cannot make an
+      // offer at all, and the user already asked to cancel — don't trap them.
+      if (!res.ok) return finishCancel();
+      // A rung we can't render is not consent to cancel. Picking a reason is a
+      // survey answer, not a confirmation, so an empty ladder ends on a
+      // terminal screen with the choice still in the user's hands — the
+      // confirm() this flow replaced at least asked once, and so must we.
+      if (!isKnownRung(res.data.rung)) return showNothingToOffer(res.data.rung);
+      showRung(res.data.rung);
+    }
+
+    function showRung(rung) {
+      // Defensive: callers screen with isKnownRung() first. Never cancel here —
+      // an unrenderable rung means our copy and the server disagree, which is
+      // our problem, not grounds to end someone's subscription.
+      if (!isKnownRung(rung)) {
+        console.error("[save-flow] showRung called with an unrenderable rung:", rung);
+        return showNoAlternatives();
+      }
+      const r = RUNGS[rung];
+      renderFlow(`
+        <h3 id="flowTitle">${escHtml(r.title)}</h3>
+        <p>${escHtml(r.body)}</p>
+        <button type="button" class="cta-primary" id="flowAccept">${escHtml(r.cta)}</button>
+        <button type="button" class="flow-dismiss" id="flowDecline">No thanks, cancel my subscription</button>
+        ${keepLink()}
+      `);
+      $("flowAccept").addEventListener("click", () => acceptRung(rung));
+      $("flowDecline").addEventListener("click", () => declineRung(rung));
+      bindKeep();
+      logEvent("retention_offer_shown", { metadata: { reason: flowReason, rung } });
+    }
+
+    async function acceptRung(rung) {
+      const gen = flowGen;
+      const r = RUNGS[rung];
+
+      if (rung === "support") {
+        // Same lock discipline as every other accept, even though this branch
+        // makes no network call: it still awaits, and while it awaited, the
+        // decline button next to it stayed live. Clicking both raced a
+        // record_reason to "cancel" against this branch's confirmation screen
+        // and cancelled the subscription while the user read "Your email is
+        // open". An await is enough to need the lock; a request is not required.
+        lockFlow($("flowAccept"));
+        // Full logEvent here, unlike the rungs below: support never calls
+        // retention-offer, so the server writes no row for it, and skipping the
+        // insert would make support acceptances invisible in `events`.
+        // Consequence for whoever queries that table: retention_offer_accepted
+        // rows come from two independent writers with two independently
+        // maintained shapes — logEvent's metadata here, logOffer's server-side
+        // for the other rungs. They agree on { reason, rung } today, and the
+        // surrounding columns are filled from different sources (session vs
+        // profile), but nothing enforces either. Any accept-side analysis is
+        // unioning two schemas, not reading one.
+        await logEvent("retention_offer_accepted", { metadata: { reason: flowReason, rung } });
+        if (flowStale(gen)) return;
+        window.location.href = SUPPORT_MAILTO;
+        renderFlow(`
+          <h3 id="flowTitle">Your email is open</h3>
+          <p>Tell us what went wrong and send it over — we'll pick it up. If nothing opened, write to hello@stuffsosweet.com.</p>
+          <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription anyway</button>
+          ${keepLink(true)}
+        `);
+        $("flowCancelAnyway").addEventListener("click", () => declineRung(rung));
+        bindKeep();
+        return;
+      }
+
+      lockFlow($("flowAccept"));
+      const res = await invokeRetention({ action: r.action, reason: flowReason, declined: flowDeclined });
+
+      // NO failure here cancels anything. This user clicked an offer, i.e.
+      // "I want to stay" — a guard firing (409) or our own machinery being
+      // broken (502 from an unset Stripe secret, which is the expected state
+      // until the coupon and Lite price exist) are both our problem, not a
+      // request to cancel. Say it didn't work, keep the choice theirs.
+      if (!res.ok) {
+        if (flowStale(gen)) return;
+        return showOfferUnavailable(rung, res);
+      }
+
+      // Lifetime is not an acceptance yet — nobody has paid. The function
+      // records `lifetime_checkout_started`; the webhook records the purchase.
+      // Writing retention_offer_accepted here would also arm the server's
+      // anti-stacking guard, which deliberately exempts lifetime_checkout so
+      // that abandoning Stripe's page and coming back still works.
+      if (res.data.checkout_url) {
+        // Dismissed while Stripe was creating the session: leave them where
+        // they are rather than yanking them to a checkout page. The unused
+        // session costs nothing and expires on its own.
+        if (!flowStale(gen)) window.location.href = res.data.checkout_url;
+        return;
+      }
+
+      // Deliberately NOT gated on flowStale: the offer really was applied, so
+      // the confirmation and the refreshed subscription state are correct even
+      // if the user dismissed the modal while it landed. This is the one path
+      // where a stale response should still take effect — it reports something
+      // that happened rather than acting on the user's behalf.
+      //
+      // PostHog only: the function's logOffer() already wrote the
+      // retention_offer_accepted row server-side, and that row is what the
+      // anti-stacking guard reads.
+      capturePosthog("retention_offer_accepted", { reason: flowReason, rung });
+      closeFlow();
+      $("subStatus").textContent = res.data.message || "Done ✓";
+      $("subStatus").className = "save-status ok";
+      await refreshSub();
+      setTimeout(() => { $("subStatus").textContent = ""; $("subStatus").className = "save-status"; }, 4000);
+    }
+
+    async function declineRung(rung) {
+      const gen = flowGen;
+      lockFlow($("flowDecline") || $("flowCancelAnyway"));
+      await logEvent("retention_offer_declined", { metadata: { reason: flowReason, rung } });
+      // Checked before record_reason, not only after it: that call writes a
+      // server-side cancel_reason_selected row and re-arms the 30-minute
+      // eligibility window, neither of which should happen for a flow the user
+      // has already dismissed.
+      if (flowStale(gen)) return;
+      if (!flowDeclined.includes(rung)) flowDeclined.push(rung);
+      const res = await invokeRetention({ action: "record_reason", reason: flowReason, declined: flowDeclined });
+      if (flowStale(gen)) return;
+      // The user just clicked "cancel my subscription", so cancelling on a
+      // failed lookup matches what they asked for.
+      if (!res.ok) return finishCancel();
+      // Here — and only here — "cancel" is the user's own instruction: the
+      // ladder is exhausted and they asked to cancel. Any OTHER unrenderable
+      // rung is our bug, and parks them safely instead.
+      if (res.data.rung === "cancel") return finishCancel();
+      if (!isKnownRung(res.data.rung)) {
+        console.error("[save-flow] record_reason returned an unrenderable rung:", res.data.rung);
+        return showNoAlternatives();
+      }
+      showRung(res.data.rung);
+    }
+
+    // Every accept-path failure lands here. The offer is off the table but the
+    // user is not — they asked to stay, so nothing cancels without another
+    // explicit click. Only the wording varies: a 409 means "that offer is no
+    // longer available" and the server phrased it, everything else means
+    // "something broke on our end" and the server's copy is too generic to show.
+    function showOfferUnavailable(rung, res) {
+      const title = res.conflict ? "That offer isn't available" : "That didn't go through";
+      const body = res.conflict
+        ? (res.message || "That offer isn't available on your account.")
+        : "Something went wrong on our end, so we couldn't apply that. Your subscription hasn't changed.";
+      renderFlow(`
+        <h3 id="flowTitle">${escHtml(title)}</h3>
+        <p>${escHtml(body)}</p>
+        <button type="button" class="cta-primary" id="flowOther">Show me another option</button>
+        <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
+        ${keepLink()}
+      `);
+      $("flowOther").addEventListener("click", () => tryAnotherRung(rung));
+      $("flowCancelAnyway").addEventListener("click", finishCancel);
+      bindKeep();
+    }
+
+    // Deliberately not declineRung(): the user did not decline this offer, it
+    // failed on us. So this logs no decline, and — critically — an exhausted
+    // ladder ends on a screen, not on a cancellation.
+    // Re-running record_reason also re-arms the server's 30-minute window,
+    // which is what makes the stale-window flavour of 409 self-heal on the
+    // next rung.
+    async function tryAnotherRung(rung) {
+      const gen = flowGen;
+      lockFlow($("flowOther"));
+      if (!flowDeclined.includes(rung)) flowDeclined.push(rung);
+      const res = await invokeRetention({ action: "record_reason", reason: flowReason, declined: flowDeclined });
+      if (flowStale(gen)) return;
+      if (!res.ok || !isKnownRung(res.data.rung)) return showNoAlternatives();
+      showRung(res.data.rung);
+    }
+
+    // The terminal screen for a failed offer — reached when the ladder has
+    // nothing left, including the case where the FINAL rung of a branch failed.
+    // It has to leave the user with somewhere to go, so it says plainly that
+    // nothing changed and offers a human: stay, write to us, or cancel.
+    function showNoAlternatives() {
+      renderFlow(`
+        <h3 id="flowTitle">Nothing else we can offer</h3>
+        <p>We don't have another option for your account right now. Your subscription is unchanged — still active, and it stays that way unless you cancel below. If it was that offer you wanted, email <a href="mailto:hello@stuffsosweet.com">hello@stuffsosweet.com</a> and we'll sort it out by hand.</p>
+        <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
+        ${keepLink(true)}
+      `);
+      $("flowCancelAnyway").addEventListener("click", finishCancel);
+      bindKeep();
+    }
+
+    // Terminal screen for "the ladder was empty from the start" — already
+    // paused, already discounted, an offer accepted inside the window, or a
+    // rung this client has no copy for. Distinct from showNoAlternatives(),
+    // which follows an offer the user actually saw.
+    //
+    // This screen is the reason the flow is still honest without the confirm()
+    // it replaced: picking a reason is answering a survey, and a survey answer
+    // must not silently execute an irreversible action. Cancelling from here
+    // takes a second, explicit click.
+    function showNothingToOffer(rung) {
+      if (rung !== "cancel") {
+        console.error("[save-flow] record_reason returned an unrenderable rung:", rung);
+      }
+      renderFlow(`
+        <h3 id="flowTitle">We don't have an offer for you</h3>
+        <p>There's nothing we can offer on your account right now — you may already be paused or on a discount. Nothing has changed yet. If you cancel, you keep full access until the end of the period you've already paid for.</p>
+        <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
+        ${keepLink(true)}
+      `);
+      $("flowCancelAnyway").addEventListener("click", finishCancel);
+      bindKeep();
+    }
+
+    async function refreshSub() {
+      const { data: u2 } = await supabase.from("users")
+        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
+        .eq("id", session.user.id).maybeSingle();
+      renderSub(u2);
+    }
+
+    // Plain cancellation is untouched: it stays in cancel-subscription, via
+    // the same manageSub() path that worked before this flow existed.
+    function finishCancel() {
+      closeFlow();
+      manageSub("cancel", $("cancelSubBtn"));
+    }
+
+    $("cancelSubBtn").addEventListener("click", openReasonStep);
     $("reactivateBtn").addEventListener("click", (e) => manageSub("reactivate", e.currentTarget));
 
     renderSub(user);
+
+    // Stripe sends the user back here as settings.html?lifetime=success right
+    // after a lifetime checkout completes. That flag is proof checkout
+    // succeeded — it is NOT proof the profile has been updated: lifetime_at
+    // is written by the lifetime-checkout webhook when Stripe delivers
+    // checkout.session.completed, and that delivery can lag this redirect by
+    // several seconds. So ?lifetime=success can be true while `user` (loaded
+    // above, before this param existed) still has no lifetime_at.
+    //
+    // The query string is the ONLY record Stripe gives us that a purchase is
+    // in flight, and we strip it below (a shareable/infinitely-retriggerable
+    // ?lifetime=success link is worse than losing it) — so before stripping,
+    // persist an in-flight marker in sessionStorage. Without that, a reload
+    // or tab-restore that lands before the webhook fires would have zero
+    // evidence a purchase was ever in progress: the query param is gone, so
+    // this block would never re-enter, and renderSub(user) alone would hit
+    // the plain !stripe_subscription_id guard and hide the whole Subscription
+    // section for a first-time buyer — the exact "sees nothing after paying"
+    // symptom this task exists to fix, reproduced in a narrower window.
+    const LIFETIME_PENDING_KEY = "sss_lifetime_pending_since";
+    // Stripe's webhook usually lands within seconds, but under retries/
+    // backoff (rate limiting, a transient 5xx from our own function) delivery
+    // can take several minutes. 10 minutes is generous enough to ride that
+    // out across a few reloads, while still bounding how long a marker can
+    // strand someone in "Finalizing…" if fulfilment genuinely never arrives.
+    const LIFETIME_PENDING_TTL_MS = 10 * 60 * 1000;
+
+    // sessionStorage throws in some environments (Safari private browsing on
+    // older versions, locked-down embedded webviews) — and lifetimePendingSince()
+    // runs on EVERY settings.html load, not just the checkout-return one, so an
+    // unguarded read would break Settings for every user in those environments,
+    // not just lifetime buyers. Same house pattern as assets/lib.js's
+    // `try { logEvent("logout"); } catch (_) {}`: swallow and fail open to
+    // "no marker" rather than let the exception propagate out of top-level
+    // script and abort everything after it (including the sign-out listener).
+    function setLifetimePending() {
+      // A failed write must not break finalization for THIS page load — the
+      // in-memory poll below still runs and the section still stays visible
+      // either way; losing the marker only costs the reload-resilience it
+      // buys, which degrades to the pre-marker (round 1) behaviour, not to
+      // the "section hidden" bug the marker exists to prevent.
+      try { sessionStorage.setItem(LIFETIME_PENDING_KEY, String(Date.now())); } catch (_) {}
+    }
+    function clearLifetimePending() {
+      try { sessionStorage.removeItem(LIFETIME_PENDING_KEY); } catch (_) {}
+    }
+    function lifetimePendingSince() {
+      // A failed read must be indistinguishable from "no marker": return
+      // null, don't throw, don't log — this runs on every ordinary page load.
+      let raw;
+      try { raw = sessionStorage.getItem(LIFETIME_PENDING_KEY); } catch (_) { return null; }
+      if (!raw) return null;
+      const ts = Number(raw);
+      if (!Number.isFinite(ts) || Date.now() - ts > LIFETIME_PENDING_TTL_MS) {
+        clearLifetimePending();
+        return null;
+      }
+      return ts;
+    }
+
+    const cameFromLifetimeCheckout = new URLSearchParams(location.search).get("lifetime") === "success";
+    if (cameFromLifetimeCheckout) {
+      setLifetimePending();
+      history.replaceState({}, "", location.pathname);
+    }
+
+    // Trigger on the query param (first landing) OR a live marker (a reload/
+    // tab-restore that happened before the webhook wrote lifetime_at). An
+    // expired marker was already cleared by lifetimePendingSince() above, so
+    // that case falls through and renders exactly whatever the profile says
+    // — no stale "Finalizing…" left behind forever.
+    if (cameFromLifetimeCheckout || lifetimePendingSince()) {
+      if (user && user.lifetime_at) {
+        clearLifetimePending();
+        $("subStatus").textContent = "Lifetime access unlocked ✓";
+        $("subStatus").className = "save-status ok";
+      } else {
+        // Force the section visible even though renderSub(user) may just have
+        // hidden it — a brand-new lifetime buyer who was never a subscriber
+        // has no stripe_subscription_id either, so the normal guard would
+        // otherwise leave this confirmation invisible.
+        $("subSection").style.display = "";
+        $("subStatusLine").textContent = "Finalizing your lifetime purchase…";
+        $("cancelSubBtn").style.display = "none";
+        $("reactivateBtn").style.display = "none";
+        $("subStatus").textContent = "Payment received — this can take a few seconds.";
+        $("subStatus").className = "save-status ok";
+        (async () => {
+          for (let i = 0; i < 5; i++) {
+            await new Promise((r) => setTimeout(r, 2000));
+            const { data: u2 } = await supabase.from("users")
+              .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
+              .eq("id", session.user.id).maybeSingle();
+            if (u2 && u2.lifetime_at) {
+              clearLifetimePending();
+              renderSub(u2);
+              $("subStatus").textContent = "Lifetime access unlocked ✓";
+              $("subStatus").className = "save-status ok";
+              return;
+            }
+          }
+          // Still not landed after ~10s of polling on THIS load: the marker
+          // stays in sessionStorage (until it hits the TTL above), so this is
+          // now an accurate thing to say — reloading really does resume the
+          // same finalizing state and poll again, it does not lose the
+          // in-flight record the way it did before the marker existed.
+          $("subStatus").textContent = "Payment received — still finalizing. Reloading this page in a minute will pick up right where this left off.";
+          $("subStatus").className = "save-status ok";
+        })();
+      }
+    }
+
     $("signOutBtn2").addEventListener("click", () => signOut("/"));
   </script>
 </body>

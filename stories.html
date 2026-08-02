@@ -867,7 +867,7 @@
   </nav>
 
   <script type="module">
-    import { requireAuth, supabase, logEvent, buildChatUrl } from "/assets/lib.js";
+    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js";
 
     // ─── LOCALHOST PREVIEW MODE (mock data, no auth, no DB) ────────────
     // On localhost with ?preview=1, skip auth and inject realistic mock
@@ -1266,22 +1266,33 @@
     //  and desktop, always visible.)
 
     // ─── Quota (used stories this calendar month) ───────────────────────
-    // Enforces the 3/month cap in the UI (backend cap lives in
-    // start-authenticated-story-v2). The rail quota widget was removed when
-    // the rail got simplified (STORIES_HOME_V2_LOCKED.md rule 4) — so this
-    // only writes to the header pill now. Any legacy rail-widget elements
-    // are written to defensively (via optional chaining) so a missing DOM
-    // node never silently disables the button-block below.
+    // Enforces the per-plan monthly cap in the UI (backend cap lives in
+    // start-authenticated-story-v2). The limit is tier-dependent — 3/month on
+    // `standard`, 1/month on `lite` — so it is read from the users row via the
+    // shared storyLimitFor(), the same table lib.js's gateNewStoryNav uses.
+    // Failure is permissive by design: a missing/failed profile read falls back
+    // to the standard limit rather than dimming the nav for a paying user.
+    // The rail quota widget was removed when the rail got simplified
+    // (STORIES_HOME_V2_LOCKED.md rule 4) — so this only writes to the header
+    // pill now. Any legacy rail-widget elements are written to defensively
+    // (via optional chaining) so a missing DOM node never silently disables
+    // the button-block below.
     async function loadQuota() {
       try {
+        // Lifetime affects access, not quota — a lifetime holder's plan_tier
+        // stays "standard", so they keep the same 3/month cap.
+        const { data: prof } = await supabase.from("users")
+          .select("plan_tier").eq("id", session.user.id).maybeSingle();
+        const limit = storyLimitFor(prof?.plan_tier);
+
         const now = new Date();
         const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
         const { count } = await supabase.from("stories")
           .select("id", { count: "exact", head: true })
           .eq("user_id", session.user.id)
           .gte("created_at", monthStart);
-        const used = count || 0, limit = 3, left = Math.max(0, limit - used);
-        const pct = Math.round((used / limit) * 100);
+        const used = count || 0, left = Math.max(0, limit - used);
+        const pct = Math.min(100, Math.round((used / limit) * 100));
 
         // Legacy rail-widget writes — kept for safety if the elements are
         // re-added later. Optional chaining prevents a null throw from
