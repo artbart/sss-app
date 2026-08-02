@@ -259,7 +259,7 @@
 
     // Load current user profile
     const { data: user, error } = await supabase.from("users")
-      .select("display_name, notification_preference, marketing_email_opt_in, subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+      .select("display_name, notification_preference, marketing_email_opt_in, subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
       .eq("id", session.user.id).maybeSingle();
 
     if (error) {
@@ -325,10 +325,30 @@
       catch (_) { return ""; }
     }
     function renderSub(u) {
-      if (!u || !u.stripe_subscription_id) { $("subSection").style.display = "none"; return; }
+      if (!u) { $("subSection").style.display = "none"; return; }
+      // Lifetime holders first, before the stripe_subscription_id guard below:
+      // a lifetime purchase makes the webhook CANCEL the underlying Stripe
+      // subscription, so a lifetime holder can have no stripe_subscription_id
+      // at all and would otherwise fall straight through to "hide the
+      // section" — the one case where a lifetime buyer sees no confirmation
+      // of what they paid for. Lifetime is a permanent entitlement, not a
+      // subscription: no renewal date, no cancel button, no reactivate button
+      // — there is nothing to cancel or reactivate.
+      if (u.lifetime_at) {
+        $("subSection").style.display = "";
+        $("subStatusLine").textContent = "Lifetime access — you're all set. 3 stories every month, no renewals, nothing to cancel.";
+        $("cancelSubBtn").style.display = "none";
+        $("reactivateBtn").style.display = "none";
+        return;
+      }
+      if (!u.stripe_subscription_id) { $("subSection").style.display = "none"; return; }
       $("subSection").style.display = "";
       const end = fmtDate(u.current_period_end);
       const active = u.current_period_end && new Date(u.current_period_end) >= new Date();
+      // Downgraded (lite) users must not be told they're on the standard
+      // plan — only the label changes; the active/cancel/reactivate rules
+      // below are untouched for them.
+      const planName = u.plan_tier === "lite" ? "Lighter plan" : "Active";
       if (u.cancel_at_period_end) {
         $("subStatusLine").textContent = active
           ? `Your subscription is set to end on ${end}. You keep full access until then.`
@@ -336,7 +356,7 @@
         $("cancelSubBtn").style.display = "none";
         $("reactivateBtn").style.display = active ? "" : "none";
       } else if (active) {
-        $("subStatusLine").textContent = `Active — renews on ${end}.`;
+        $("subStatusLine").textContent = `${planName} — renews on ${end}.`;
         $("cancelSubBtn").style.display = "";
         $("reactivateBtn").style.display = "none";
       } else {
@@ -358,7 +378,7 @@
         return;
       }
       const { data: u2 } = await supabase.from("users")
-        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
         .eq("id", session.user.id).maybeSingle();
       btn.disabled = false; btn.textContent = original;
       renderSub(u2);
@@ -853,7 +873,7 @@
 
     async function refreshSub() {
       const { data: u2 } = await supabase.from("users")
-        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+        .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
         .eq("id", session.user.id).maybeSingle();
       renderSub(u2);
     }
@@ -869,6 +889,60 @@
     $("reactivateBtn").addEventListener("click", (e) => manageSub("reactivate", e.currentTarget));
 
     renderSub(user);
+
+    // Stripe sends the user back here as settings.html?lifetime=success right
+    // after a lifetime checkout completes. That flag is proof checkout
+    // succeeded — it is NOT proof the profile has been updated: lifetime_at
+    // is written by the lifetime-checkout webhook when Stripe delivers
+    // checkout.session.completed, and that delivery can lag this redirect by
+    // several seconds. So ?lifetime=success can be true while `user` (loaded
+    // above, before this param existed) still has no lifetime_at.
+    //
+    // We must not claim lifetime is active before we've actually seen it, and
+    // we must not say anything went wrong while it's merely in flight. So:
+    // strip the query string immediately (a refresh must not re-trigger
+    // this), then either confirm outright (if lifetime_at is already there)
+    // or show an honest "payment received, finalizing" state and poll briefly
+    // for the webhook's write, handing off to the normal renderSub() the
+    // instant it lands. If it still hasn't landed after ~10s we say so
+    // plainly and point at "refresh shortly" rather than raising an error —
+    // a later page load re-runs the profile query above and will show the
+    // confirmed state as soon as the webhook catches up.
+    if (new URLSearchParams(location.search).get("lifetime") === "success") {
+      history.replaceState({}, "", location.pathname);
+      if (user && user.lifetime_at) {
+        $("subStatus").textContent = "Lifetime access unlocked ✓";
+        $("subStatus").className = "save-status ok";
+      } else {
+        // Force the section visible even though renderSub(user) may just have
+        // hidden it — a brand-new lifetime buyer who was never a subscriber
+        // has no stripe_subscription_id either, so the normal guard would
+        // otherwise leave this confirmation invisible.
+        $("subSection").style.display = "";
+        $("subStatusLine").textContent = "Finalizing your lifetime purchase…";
+        $("cancelSubBtn").style.display = "none";
+        $("reactivateBtn").style.display = "none";
+        $("subStatus").textContent = "Payment received — this can take a few seconds.";
+        $("subStatus").className = "save-status ok";
+        (async () => {
+          for (let i = 0; i < 5; i++) {
+            await new Promise((r) => setTimeout(r, 2000));
+            const { data: u2 } = await supabase.from("users")
+              .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
+              .eq("id", session.user.id).maybeSingle();
+            if (u2 && u2.lifetime_at) {
+              renderSub(u2);
+              $("subStatus").textContent = "Lifetime access unlocked ✓";
+              $("subStatus").className = "save-status ok";
+              return;
+            }
+          }
+          $("subStatus").textContent = "Payment received — your lifetime access will appear here shortly. Refresh in a minute if you don't see it.";
+          $("subStatus").className = "save-status ok";
+        })();
+      }
+    }
+
     $("signOutBtn2").addEventListener("click", () => signOut("/"));
   </script>
 </body>
