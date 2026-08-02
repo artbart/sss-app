@@ -484,9 +484,13 @@ export async function renderShell(opts = {}) {
  * supabase/functions/_shared/access.ts — keep the two in sync. This is a
  * display hint only; the server enforces the real limit. Unknown/missing
  * tiers fall back to the standard limit (never the tighter lite limit) so
- * a bad value can't lock out a paying user. */
+ * a bad value can't lock out a paying user.
+ * EXPORTED because stories.html builds its shell inline and therefore runs
+ * its own quota widget (loadQuota) instead of gateNewStoryNav below — both
+ * must derive the limit from the same table or the home page will disagree
+ * with Settings and story.html for a `lite` user. */
 const STORY_LIMITS = { standard: 3, lite: 1 };
-function storyLimitFor(planTier) { return STORY_LIMITS[planTier] ?? STORY_LIMITS.standard; }
+export function storyLimitFor(planTier) { return STORY_LIMITS[planTier] ?? STORY_LIMITS.standard; }
 
 async function gateNewStoryNav() {
   const navItems = document.querySelectorAll('[data-nav="new"]');

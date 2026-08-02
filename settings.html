@@ -334,8 +334,42 @@
       // of what they paid for. Lifetime is a permanent entitlement, not a
       // subscription: no renewal date, no cancel button, no reactivate button
       // — there is nothing to cancel or reactivate.
+      //
+      // EXCEPT when the subscription is still billing. stripe-webhook grants
+      // lifetime FIRST and only then calls stripe.subscriptions.cancel(); that
+      // cancel is deliberately allowed to fail (it must never throw after the
+      // grant, or Stripe retries a paid-for entitlement). So "lifetime_at set
+      // AND a live subscription" is a state the system explicitly permits, and
+      // in it the user is still being charged every period. Hiding the cancel
+      // button there leaves them no in-app way to stop the charge. Keep it.
+      // Safe by construction: cancel-subscription only sets
+      // cancel_at_period_end on the Stripe subscription — it never touches
+      // users.lifetime_at — so cancelling from this state cannot revoke
+      // lifetime access.
       if (u.lifetime_at) {
         $("subSection").style.display = "";
+        const subLive = ["active", "trialing", "past_due"].includes(u.subscription_status);
+        if (subLive && !u.cancel_at_period_end) {
+          const nextCharge = fmtDate(u.current_period_end);
+          $("subStatusLine").textContent =
+            "Lifetime access — yours permanently, 3 stories every month. You also still have a paid subscription"
+            + (nextCharge ? ` billing again on ${nextCharge}` : " that is still billing")
+            + ". You don't need it any more — cancelling it keeps your lifetime access untouched.";
+          $("cancelSubBtn").style.display = "";
+          $("reactivateBtn").style.display = "none";
+          return;
+        }
+        if (subLive && u.cancel_at_period_end) {
+          // Already winding down. Nothing left to do, and offering "reactivate"
+          // would only re-start a charge a lifetime holder does not need.
+          const end = fmtDate(u.current_period_end);
+          $("subStatusLine").textContent =
+            "Lifetime access — yours permanently, 3 stories every month. Your old paid subscription is set to end"
+            + (end ? ` on ${end}` : "") + " and won't be charged again.";
+          $("cancelSubBtn").style.display = "none";
+          $("reactivateBtn").style.display = "none";
+          return;
+        }
         $("subStatusLine").textContent = "Lifetime access — you're all set. 3 stories every month, no renewals, nothing to cancel.";
         $("cancelSubBtn").style.display = "none";
         $("reactivateBtn").style.display = "none";
