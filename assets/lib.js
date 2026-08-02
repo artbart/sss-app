@@ -475,11 +475,18 @@ export async function renderShell(opts = {}) {
 }
 
 /* ===== New-story quota gate (shared across every page's rail nav) =====
- * Queries this month's story count; if the user is at the 3/month cap,
- * dims the "New story" nav item + intercepts clicks with a tooltip. Only
- * touches the rail nav item; the header pill on stories.html has its own
- * gate. Backend enforcement lives in start-authenticated-story-v2. */
-const MONTHLY_STORY_LIMIT = 3;
+ * Queries this month's story count; if the user is at the plan's monthly
+ * cap, dims the "New story" nav item + intercepts clicks with a tooltip.
+ * Only touches the rail nav item; the header pill on stories.html has its
+ * own gate. Backend enforcement lives in start-authenticated-story-v2. */
+
+/* Monthly story quota per plan tier. Mirrors storyLimitFor() in
+ * supabase/functions/_shared/access.ts — keep the two in sync. This is a
+ * display hint only; the server enforces the real limit. Unknown/missing
+ * tiers fall back to the standard limit (never the tighter lite limit) so
+ * a bad value can't lock out a paying user. */
+const STORY_LIMITS = { standard: 3, lite: 1 };
+function storyLimitFor(planTier) { return STORY_LIMITS[planTier] ?? STORY_LIMITS.standard; }
 
 async function gateNewStoryNav() {
   const navItems = document.querySelectorAll('[data-nav="new"]');
@@ -487,6 +494,12 @@ async function gateNewStoryNav() {
   if (isPreviewMode()) return;                     // preview mode has no real quota
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return;                      // signed out — no gate
+
+  // Lifetime affects access, not quota — a lifetime holder's plan_tier stays
+  // "standard", so they get the same 3/month cap as any standard subscriber.
+  const { data: prof } = await supabase.from("users")
+    .select("plan_tier, lifetime_at").eq("id", session.user.id).maybeSingle();
+  const limit = storyLimitFor(prof?.plan_tier);
 
   const now = new Date();
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
@@ -497,7 +510,7 @@ async function gateNewStoryNav() {
   if (error) return;                               // silent fail — better to allow
 
   const used = count || 0;
-  const left = Math.max(0, MONTHLY_STORY_LIMIT - used);
+  const left = Math.max(0, limit - used);
 
   navItems.forEach((a) => {
     // Append a small quota hint so the label always shows N left OR reset date.
@@ -513,7 +526,7 @@ async function gateNewStoryNav() {
       a.style.pointerEvents = "none";
       a.setAttribute("aria-disabled", "true");
       a.setAttribute("title",
-        `You've used all ${MONTHLY_STORY_LIMIT} of your stories this month. Quota resets on the 1st.`);
+        `You've used all ${limit} of your stories this month. Quota resets on the 1st.`);
       a.addEventListener("click", (e) => { e.preventDefault(); return false; });
     }
   });
