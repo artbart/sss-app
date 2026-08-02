@@ -786,21 +786,46 @@
         return;
       }
 
-      // Deliberately NOT gated on flowStale: the offer really was applied, so
-      // the confirmation and the refreshed subscription state are correct even
-      // if the user dismissed the modal while it landed. This is the one path
-      // where a stale response should still take effect — it reports something
-      // that happened rather than acting on the user's behalf.
-      //
       // PostHog only: the function's logOffer() already wrote the
       // retention_offer_accepted row server-side, and that row is what the
       // anti-stacking guard reads.
       capturePosthog("retention_offer_accepted", { reason: flowReason, rung });
-      closeFlow();
-      $("subStatus").textContent = res.data.message || "Done ✓";
-      $("subStatus").className = "save-status ok";
       await refreshSub();
+
+      // If they dismissed the modal while the offer was landing, do NOT
+      // re-open it — that would yank a card back in front of someone who
+      // deliberately closed it. Leave the note in the status line instead.
+      // The offer really was applied either way, which is why this path is
+      // otherwise ungated: it reports something that happened rather than
+      // acting on the user's behalf.
+      if (flowStale(gen)) {
+        setSubStatus(res.data.message || "Done ✓");
+        return;
+      }
+      showOfferApplied(res.data.message);
+    }
+
+    // Small helper so the transient status line reads the same everywhere.
+    function setSubStatus(msg) {
+      $("subStatus").textContent = msg;
+      $("subStatus").className = "save-status ok";
       setTimeout(() => { $("subStatus").textContent = ""; $("subStatus").className = "save-status"; }, 4000);
+    }
+
+    // Confirmation screen after an offer lands. Replaces the previous
+    // behaviour of closing the modal instantly and writing to a status line
+    // that cleared after 4s — in real use the modal vanished before the
+    // message could be read. The user dismisses this themselves.
+    function showOfferApplied(message) {
+      renderFlow(`
+        <h3>All set</h3>
+        <p>${escHtml(message || "That's applied to your subscription.")}</p>
+        <button type="button" class="cta-primary" id="flowDone" data-autofocus>Back to settings</button>
+      `);
+      $("flowDone").addEventListener("click", () => {
+        closeFlow();
+        setSubStatus(message || "Done ✓");
+      });
     }
 
     async function declineRung(rung) {
