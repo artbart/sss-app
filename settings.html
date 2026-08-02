@@ -898,19 +898,49 @@
     // several seconds. So ?lifetime=success can be true while `user` (loaded
     // above, before this param existed) still has no lifetime_at.
     //
-    // We must not claim lifetime is active before we've actually seen it, and
-    // we must not say anything went wrong while it's merely in flight. So:
-    // strip the query string immediately (a refresh must not re-trigger
-    // this), then either confirm outright (if lifetime_at is already there)
-    // or show an honest "payment received, finalizing" state and poll briefly
-    // for the webhook's write, handing off to the normal renderSub() the
-    // instant it lands. If it still hasn't landed after ~10s we say so
-    // plainly and point at "refresh shortly" rather than raising an error —
-    // a later page load re-runs the profile query above and will show the
-    // confirmed state as soon as the webhook catches up.
-    if (new URLSearchParams(location.search).get("lifetime") === "success") {
+    // The query string is the ONLY record Stripe gives us that a purchase is
+    // in flight, and we strip it below (a shareable/infinitely-retriggerable
+    // ?lifetime=success link is worse than losing it) — so before stripping,
+    // persist an in-flight marker in sessionStorage. Without that, a reload
+    // or tab-restore that lands before the webhook fires would have zero
+    // evidence a purchase was ever in progress: the query param is gone, so
+    // this block would never re-enter, and renderSub(user) alone would hit
+    // the plain !stripe_subscription_id guard and hide the whole Subscription
+    // section for a first-time buyer — the exact "sees nothing after paying"
+    // symptom this task exists to fix, reproduced in a narrower window.
+    const LIFETIME_PENDING_KEY = "sss_lifetime_pending_since";
+    // Stripe's webhook usually lands within seconds, but under retries/
+    // backoff (rate limiting, a transient 5xx from our own function) delivery
+    // can take several minutes. 10 minutes is generous enough to ride that
+    // out across a few reloads, while still bounding how long a marker can
+    // strand someone in "Finalizing…" if fulfilment genuinely never arrives.
+    const LIFETIME_PENDING_TTL_MS = 10 * 60 * 1000;
+
+    function lifetimePendingSince() {
+      const raw = sessionStorage.getItem(LIFETIME_PENDING_KEY);
+      if (!raw) return null;
+      const ts = Number(raw);
+      if (!Number.isFinite(ts) || Date.now() - ts > LIFETIME_PENDING_TTL_MS) {
+        sessionStorage.removeItem(LIFETIME_PENDING_KEY);
+        return null;
+      }
+      return ts;
+    }
+
+    const cameFromLifetimeCheckout = new URLSearchParams(location.search).get("lifetime") === "success";
+    if (cameFromLifetimeCheckout) {
+      sessionStorage.setItem(LIFETIME_PENDING_KEY, String(Date.now()));
       history.replaceState({}, "", location.pathname);
+    }
+
+    // Trigger on the query param (first landing) OR a live marker (a reload/
+    // tab-restore that happened before the webhook wrote lifetime_at). An
+    // expired marker was already cleared by lifetimePendingSince() above, so
+    // that case falls through and renders exactly whatever the profile says
+    // — no stale "Finalizing…" left behind forever.
+    if (cameFromLifetimeCheckout || lifetimePendingSince()) {
       if (user && user.lifetime_at) {
+        sessionStorage.removeItem(LIFETIME_PENDING_KEY);
         $("subStatus").textContent = "Lifetime access unlocked ✓";
         $("subStatus").className = "save-status ok";
       } else {
@@ -931,13 +961,19 @@
               .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
               .eq("id", session.user.id).maybeSingle();
             if (u2 && u2.lifetime_at) {
+              sessionStorage.removeItem(LIFETIME_PENDING_KEY);
               renderSub(u2);
               $("subStatus").textContent = "Lifetime access unlocked ✓";
               $("subStatus").className = "save-status ok";
               return;
             }
           }
-          $("subStatus").textContent = "Payment received — your lifetime access will appear here shortly. Refresh in a minute if you don't see it.";
+          // Still not landed after ~10s of polling on THIS load: the marker
+          // stays in sessionStorage (until it hits the TTL above), so this is
+          // now an accurate thing to say — reloading really does resume the
+          // same finalizing state and poll again, it does not lose the
+          // in-flight record the way it did before the marker existed.
+          $("subStatus").textContent = "Payment received — still finalizing. Reloading this page in a minute will pick up right where this left off.";
           $("subStatus").className = "save-status ok";
         })();
       }
