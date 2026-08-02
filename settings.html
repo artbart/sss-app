@@ -427,11 +427,15 @@
 
     let flowReason = null;
     let flowDeclined = [];
-    // True only while the modal is on screen. Every await below re-checks it:
-    // if the user dismissed the flow while a request was in flight, we must not
-    // re-open a screen on top of them — and above all must not fall through to
-    // cancelling a subscription they just chose to keep.
-    let flowActive = false;
+
+    // Generation token, not a boolean. Every request captures `flowGen` when it
+    // starts and re-checks it after each await; closeFlow() bumps it, so work
+    // belonging to a dismissed flow can never act — not even if the user has
+    // since reopened the modal. A boolean would be reset to "open" by the new
+    // flow and let a stale failure cancel a subscription while the user is
+    // looking at a fresh reason list.
+    let flowGen = 0;
+    const flowStale = (gen) => gen !== flowGen;
 
     const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -511,16 +515,34 @@
       return { ok: false, status, conflict: status === 409, message };
     }
 
+    const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+
     function onFlowKeydown(e) {
       // Escape only ever closes the flow — it never cancels anything.
-      if (e.key === "Escape") closeFlow();
+      if (e.key === "Escape") { closeFlow(); return; }
+      // Focus trap. aria-modal tells a screen reader the page behind is inert;
+      // it does nothing for the Tab key, so keep the ring inside the card.
+      if (e.key !== "Tab") return;
+      const card = document.querySelector("#saveFlow .save-flow-card");
+      if (!card) return;
+      const items = Array.from(card.querySelectorAll(FOCUSABLE));
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      const inside = card.contains(document.activeElement);
+      if (e.shiftKey && (!inside || document.activeElement === first)) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && (!inside || document.activeElement === last)) {
+        e.preventDefault(); first.focus();
+      }
     }
 
     function closeFlow() {
-      flowActive = false;
+      // Invalidate anything still in flight before the DOM goes away.
+      flowGen++;
       const el = $("saveFlow");
       if (el) el.remove();
       document.removeEventListener("keydown", onFlowKeydown);
+      document.body.style.overflow = "";
       const opener = $("cancelSubBtn");
       if (opener && opener.style.display !== "none") opener.focus();
     }
@@ -531,16 +553,44 @@
       const wrap = document.createElement("div");
       wrap.id = "saveFlow";
       wrap.className = "save-flow-backdrop";
-      flowActive = true;
       wrap.innerHTML = `<div class="save-flow-card" role="dialog" aria-modal="true" aria-labelledby="flowTitle">${inner}</div>`;
       document.body.appendChild(wrap);
       document.addEventListener("keydown", onFlowKeydown);
+      document.body.style.overflow = "hidden";
       // Focus the safe control, never a destructive one: screens whose first
       // button cancels the subscription opt the "keep" link in instead, so a
       // stray Enter can't end someone's subscription.
       (wrap.querySelector("[data-autofocus]") || wrap.querySelector("button"))?.focus();
       return wrap;
     }
+
+    // Disable EVERY control in the card for the duration of a request, not just
+    // the one that was pressed. Leaving the others live let a user click
+    // "Apply 50% off" and then, while it was still applying, click "No thanks,
+    // cancel my subscription" — two concurrent requests, ending in a discounted
+    // AND cancelled subscription.
+    // "Never mind, keep my subscription" stays live, deliberately: it starts no
+    // request, so it cannot race, and it means a hung call never leaves the
+    // user staring at a card where every control is dead. Dismissing mid-flight
+    // just bumps the generation and the stale reply is discarded. It also keeps
+    // one focusable element in the card, so the Tab trap always has somewhere
+    // to put focus.
+    function lockFlow(btn, label = "…") {
+      const card = document.querySelector("#saveFlow .save-flow-card");
+      if (card) {
+        card.querySelectorAll("button").forEach((b) => {
+          if (b.id !== "flowClose") b.disabled = true;
+        });
+      }
+      if (btn) btn.textContent = label;
+    }
+
+    // The client only has display copy for the rungs it knows. Anything else —
+    // a rung added server-side, a malformed body, or "cancel" — is NOT a
+    // licence to cancel; callers decide, and only the decline path treats
+    // "cancel" as the user's own request. Object.hasOwn so a rung called
+    // "constructor" or "__proto__" can't resolve to a prototype member.
+    const isKnownRung = (rung) => typeof rung === "string" && Object.hasOwn(RUNGS, rung);
 
     // Every screen carries this: an explicit, unhidden way to leave.
     function keepLink(autofocus) {
@@ -569,29 +619,36 @@
     }
 
     async function chooseReason(btn) {
+      const gen = flowGen;
       const reason = btn.dataset.reason;
       flowReason = reason;
       flowDeclined = [];
-      const label = btn.textContent;
-      document.querySelectorAll(".flow-reason").forEach((b) => { b.disabled = true; });
-      btn.textContent = "…";
+      lockFlow(btn);
       // PostHog only: record_reason writes the authoritative `events` row
       // itself (and that row is what arms the 30-minute offer window), so a
       // client-side insert here would double-count every churn reason.
       capturePosthog("cancel_reason_selected", { reason });
       const res = await invokeRetention({ action: "record_reason", reason, declined: flowDeclined });
-      if (!flowActive) return;
+      if (flowStale(gen)) return;
       // record_reason cannot 409. Any failure here means we cannot make an
       // offer at all, and the user already asked to cancel — don't trap them.
       if (!res.ok) return finishCancel();
-      btn.textContent = label;
+      // A rung we can't render is not consent to cancel. Picking a reason is a
+      // survey answer, not a confirmation, so an empty ladder ends on a
+      // terminal screen with the choice still in the user's hands — the
+      // confirm() this flow replaced at least asked once, and so must we.
+      if (!isKnownRung(res.data.rung)) return showNothingToOffer(res.data.rung);
       showRung(res.data.rung);
     }
 
     function showRung(rung) {
-      // "cancel" is the server saying the ladder is exhausted. Reaching here
-      // always follows an explicit "cancel my subscription" click.
-      if (rung === "cancel" || !RUNGS[rung]) return finishCancel();
+      // Defensive: callers screen with isKnownRung() first. Never cancel here —
+      // an unrenderable rung means our copy and the server disagree, which is
+      // our problem, not grounds to end someone's subscription.
+      if (!isKnownRung(rung)) {
+        console.error("[save-flow] showRung called with an unrenderable rung:", rung);
+        return showNoAlternatives();
+      }
       const r = RUNGS[rung];
       renderFlow(`
         <h3 id="flowTitle">${escHtml(r.title)}</h3>
@@ -607,14 +664,22 @@
     }
 
     async function acceptRung(rung) {
+      const gen = flowGen;
       const r = RUNGS[rung];
 
       if (rung === "support") {
         // Full logEvent here, unlike the rungs below: support never calls
-        // retention-offer, so the server writes no row for it. Skipping the
+        // retention-offer, so the server writes no row for it, and skipping the
         // insert would make support acceptances invisible in `events`.
+        // Consequence for whoever queries that table: retention_offer_accepted
+        // rows come from two independent writers with two independently
+        // maintained shapes — logEvent's metadata here, logOffer's server-side
+        // for the other rungs. They agree on { reason, rung } today, and the
+        // surrounding columns are filled from different sources (session vs
+        // profile), but nothing enforces either. Any accept-side analysis is
+        // unioning two schemas, not reading one.
         await logEvent("retention_offer_accepted", { metadata: { reason: flowReason, rung } });
-        if (!flowActive) return;
+        if (flowStale(gen)) return;
         window.location.href = SUPPORT_MAILTO;
         renderFlow(`
           <h3 id="flowTitle">Your email is open</h3>
@@ -627,8 +692,7 @@
         return;
       }
 
-      const btn = $("flowAccept");
-      btn.disabled = true; btn.textContent = "…";
+      lockFlow($("flowAccept"));
       const res = await invokeRetention({ action: r.action, reason: flowReason, declined: flowDeclined });
 
       // NO failure here cancels anything. This user clicked an offer, i.e.
@@ -637,7 +701,7 @@
       // until the coupon and Lite price exist) are both our problem, not a
       // request to cancel. Say it didn't work, keep the choice theirs.
       if (!res.ok) {
-        if (!flowActive) return;
+        if (flowStale(gen)) return;
         return showOfferUnavailable(rung, res);
       }
 
@@ -650,10 +714,16 @@
         // Dismissed while Stripe was creating the session: leave them where
         // they are rather than yanking them to a checkout page. The unused
         // session costs nothing and expires on its own.
-        if (flowActive) window.location.href = res.data.checkout_url;
+        if (!flowStale(gen)) window.location.href = res.data.checkout_url;
         return;
       }
 
+      // Deliberately NOT gated on flowStale: the offer really was applied, so
+      // the confirmation and the refreshed subscription state are correct even
+      // if the user dismissed the modal while it landed. This is the one path
+      // where a stale response should still take effect — it reports something
+      // that happened rather than acting on the user's behalf.
+      //
       // PostHog only: the function's logOffer() already wrote the
       // retention_offer_accepted row server-side, and that row is what the
       // anti-stacking guard reads.
@@ -662,18 +732,32 @@
       $("subStatus").textContent = res.data.message || "Done ✓";
       $("subStatus").className = "save-status ok";
       await refreshSub();
+      setTimeout(() => { $("subStatus").textContent = ""; $("subStatus").className = "save-status"; }, 4000);
     }
 
     async function declineRung(rung) {
-      const btn = $("flowDecline") || $("flowCancelAnyway");
-      if (btn) { btn.disabled = true; btn.textContent = "…"; }
+      const gen = flowGen;
+      lockFlow($("flowDecline") || $("flowCancelAnyway"));
       await logEvent("retention_offer_declined", { metadata: { reason: flowReason, rung } });
+      // Checked before record_reason, not only after it: that call writes a
+      // server-side cancel_reason_selected row and re-arms the 30-minute
+      // eligibility window, neither of which should happen for a flow the user
+      // has already dismissed.
+      if (flowStale(gen)) return;
       if (!flowDeclined.includes(rung)) flowDeclined.push(rung);
       const res = await invokeRetention({ action: "record_reason", reason: flowReason, declined: flowDeclined });
-      if (!flowActive) return;
+      if (flowStale(gen)) return;
       // The user just clicked "cancel my subscription", so cancelling on a
       // failed lookup matches what they asked for.
       if (!res.ok) return finishCancel();
+      // Here — and only here — "cancel" is the user's own instruction: the
+      // ladder is exhausted and they asked to cancel. Any OTHER unrenderable
+      // rung is our bug, and parks them safely instead.
+      if (res.data.rung === "cancel") return finishCancel();
+      if (!isKnownRung(res.data.rung)) {
+        console.error("[save-flow] record_reason returned an unrenderable rung:", res.data.rung);
+        return showNoAlternatives();
+      }
       showRung(res.data.rung);
     }
 
@@ -706,12 +790,12 @@
     // which is what makes the stale-window flavour of 409 self-heal on the
     // next rung.
     async function tryAnotherRung(rung) {
-      const btn = $("flowOther");
-      btn.disabled = true; btn.textContent = "…";
+      const gen = flowGen;
+      lockFlow($("flowOther"));
       if (!flowDeclined.includes(rung)) flowDeclined.push(rung);
       const res = await invokeRetention({ action: "record_reason", reason: flowReason, declined: flowDeclined });
-      if (!flowActive) return;
-      if (!res.ok || res.data.rung === "cancel" || !RUNGS[res.data.rung]) return showNoAlternatives();
+      if (flowStale(gen)) return;
+      if (!res.ok || !isKnownRung(res.data.rung)) return showNoAlternatives();
       showRung(res.data.rung);
     }
 
@@ -723,6 +807,29 @@
       renderFlow(`
         <h3 id="flowTitle">Nothing else we can offer</h3>
         <p>We don't have another option for your account right now. Your subscription is unchanged — still active, and it stays that way unless you cancel below. If it was that offer you wanted, email <a href="mailto:hello@stuffsosweet.com">hello@stuffsosweet.com</a> and we'll sort it out by hand.</p>
+        <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
+        ${keepLink(true)}
+      `);
+      $("flowCancelAnyway").addEventListener("click", finishCancel);
+      bindKeep();
+    }
+
+    // Terminal screen for "the ladder was empty from the start" — already
+    // paused, already discounted, an offer accepted inside the window, or a
+    // rung this client has no copy for. Distinct from showNoAlternatives(),
+    // which follows an offer the user actually saw.
+    //
+    // This screen is the reason the flow is still honest without the confirm()
+    // it replaced: picking a reason is answering a survey, and a survey answer
+    // must not silently execute an irreversible action. Cancelling from here
+    // takes a second, explicit click.
+    function showNothingToOffer(rung) {
+      if (rung !== "cancel") {
+        console.error("[save-flow] record_reason returned an unrenderable rung:", rung);
+      }
+      renderFlow(`
+        <h3 id="flowTitle">We don't have an offer for you</h3>
+        <p>There's nothing we can offer on your account right now — you may already be paused or on a discount. Nothing has changed yet. If you cancel, you keep full access until the end of the period you've already paid for.</p>
         <button type="button" class="flow-dismiss" id="flowCancelAnyway">Cancel my subscription</button>
         ${keepLink(true)}
       `);
