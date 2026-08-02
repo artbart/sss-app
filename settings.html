@@ -916,12 +916,34 @@
     // strand someone in "Finalizing…" if fulfilment genuinely never arrives.
     const LIFETIME_PENDING_TTL_MS = 10 * 60 * 1000;
 
+    // sessionStorage throws in some environments (Safari private browsing on
+    // older versions, locked-down embedded webviews) — and lifetimePendingSince()
+    // runs on EVERY settings.html load, not just the checkout-return one, so an
+    // unguarded read would break Settings for every user in those environments,
+    // not just lifetime buyers. Same house pattern as assets/lib.js's
+    // `try { logEvent("logout"); } catch (_) {}`: swallow and fail open to
+    // "no marker" rather than let the exception propagate out of top-level
+    // script and abort everything after it (including the sign-out listener).
+    function setLifetimePending() {
+      // A failed write must not break finalization for THIS page load — the
+      // in-memory poll below still runs and the section still stays visible
+      // either way; losing the marker only costs the reload-resilience it
+      // buys, which degrades to the pre-marker (round 1) behaviour, not to
+      // the "section hidden" bug the marker exists to prevent.
+      try { sessionStorage.setItem(LIFETIME_PENDING_KEY, String(Date.now())); } catch (_) {}
+    }
+    function clearLifetimePending() {
+      try { sessionStorage.removeItem(LIFETIME_PENDING_KEY); } catch (_) {}
+    }
     function lifetimePendingSince() {
-      const raw = sessionStorage.getItem(LIFETIME_PENDING_KEY);
+      // A failed read must be indistinguishable from "no marker": return
+      // null, don't throw, don't log — this runs on every ordinary page load.
+      let raw;
+      try { raw = sessionStorage.getItem(LIFETIME_PENDING_KEY); } catch (_) { return null; }
       if (!raw) return null;
       const ts = Number(raw);
       if (!Number.isFinite(ts) || Date.now() - ts > LIFETIME_PENDING_TTL_MS) {
-        sessionStorage.removeItem(LIFETIME_PENDING_KEY);
+        clearLifetimePending();
         return null;
       }
       return ts;
@@ -929,7 +951,7 @@
 
     const cameFromLifetimeCheckout = new URLSearchParams(location.search).get("lifetime") === "success";
     if (cameFromLifetimeCheckout) {
-      sessionStorage.setItem(LIFETIME_PENDING_KEY, String(Date.now()));
+      setLifetimePending();
       history.replaceState({}, "", location.pathname);
     }
 
@@ -940,7 +962,7 @@
     // — no stale "Finalizing…" left behind forever.
     if (cameFromLifetimeCheckout || lifetimePendingSince()) {
       if (user && user.lifetime_at) {
-        sessionStorage.removeItem(LIFETIME_PENDING_KEY);
+        clearLifetimePending();
         $("subStatus").textContent = "Lifetime access unlocked ✓";
         $("subStatus").className = "save-status ok";
       } else {
@@ -961,7 +983,7 @@
               .select("subscription_status, current_period_end, cancel_at_period_end, stripe_subscription_id, lifetime_at, plan_tier")
               .eq("id", session.user.id).maybeSingle();
             if (u2 && u2.lifetime_at) {
-              sessionStorage.removeItem(LIFETIME_PENDING_KEY);
+              clearLifetimePending();
               renderSub(u2);
               $("subStatus").textContent = "Lifetime access unlocked ✓";
               $("subStatus").className = "save-status ok";
