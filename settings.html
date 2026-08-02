@@ -429,9 +429,10 @@
     let flowDeclined = [];
 
     // Generation token, not a boolean. Every request captures `flowGen` when it
-    // starts and re-checks it after each await; closeFlow() bumps it, so work
-    // belonging to a dismissed flow can never act — not even if the user has
-    // since reopened the modal. A boolean would be reset to "open" by the new
+    // starts and re-checks it after each await; both closeFlow() and
+    // renderFlow() bump it, so work belonging to a dismissed flow — or to a
+    // screen that has since been replaced — can never act, not even if the user
+    // has reopened the modal. A boolean would be reset to "open" by the new
     // flow and let a stale failure cancel a subscription while the user is
     // looking at a fresh reason list.
     let flowGen = 0;
@@ -548,6 +549,12 @@
     }
 
     function renderFlow(inner) {
+      // Each SCREEN is a generation, not just each open/close. Work started on
+      // a screen must not act once that screen is gone, however it went away.
+      // (Checked: no path captures a generation, renders, and then re-checks
+      // it — every flowStale() test precedes the render it guards — so this
+      // cannot invalidate the very request doing the rendering.)
+      flowGen++;
       const existing = $("saveFlow");
       if (existing) existing.remove();
       const wrap = document.createElement("div");
@@ -668,6 +675,13 @@
       const r = RUNGS[rung];
 
       if (rung === "support") {
+        // Same lock discipline as every other accept, even though this branch
+        // makes no network call: it still awaits, and while it awaited, the
+        // decline button next to it stayed live. Clicking both raced a
+        // record_reason to "cancel" against this branch's confirmation screen
+        // and cancelled the subscription while the user read "Your email is
+        // open". An await is enough to need the lock; a request is not required.
+        lockFlow($("flowAccept"));
         // Full logEvent here, unlike the rungs below: support never calls
         // retention-offer, so the server writes no row for it, and skipping the
         // insert would make support acceptances invisible in `events`.
