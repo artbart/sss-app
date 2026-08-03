@@ -799,7 +799,7 @@
           <div class="sect-lbl">Your other stories</div>
           <div class="other-stories" id="otherStories"></div>
           <div class="view-all-row" id="viewAllRow" style="display:none;">
-            <a href="#more-stories" id="viewAllLink" class="view-all">View all →</a>
+            <a href="#" id="viewAllLink" class="view-all">View all →</a>
           </div>
         </div>
 
@@ -1035,6 +1035,9 @@
     $("chatLinkMobile").addEventListener("click", goChat);
 
     // ─── Load stories (all, ordered by most-recently-updated chapter) ───
+    // IMPORTANT: exclude library books (user_id IS NULL). RLS opens them up to
+    // every authenticated reader so /library/read.html can serve them; without
+    // this filter they'd flood the home "other stories" rail.
     const { data: stories, error: storiesErr } = await supabase
       .from("stories")
       .select(`
@@ -1042,6 +1045,7 @@
         hook, genre, heat_level, cover_image_url, created_at, updated_at, lead_email,
         chapters(id, chapter_number, chosen_option, option_1, option_2, option_3, next_chapter_tone_hint, mood)
       `)
+      .not("user_id", "is", null)
       .order("updated_at", { ascending: false });
 
     if (storiesErr) {
@@ -1138,15 +1142,26 @@
     }
 
     // ─── Populate "other stories" list ─────────────────────────────────
-    function paintOthers(list) {
+    // `showAll` — when true, render every story instead of the first 6.
+    // The "View all →" link flips this and re-paints inline (no navigation),
+    // then hides itself.
+    function paintOthers(list, showAll = false) {
       if (!list.length) return;
       $("otherBlock").style.display = "";
       const MAX_VISIBLE = 6;
-      const visible = list.slice(0, MAX_VISIBLE);
-      // Show "View all →" link only if there are more than MAX_VISIBLE
-      if (list.length > MAX_VISIBLE) {
+      const visible = showAll ? list : list.slice(0, MAX_VISIBLE);
+      // Show "View all →" link only if there are more than MAX_VISIBLE AND we
+      // haven't already expanded. +1 in the count accounts for the hero story.
+      if (list.length > MAX_VISIBLE && !showAll) {
         $("viewAllRow").style.display = "";
         $("viewAllLink").textContent = `View all ${list.length + 1} stories →`;
+        $("viewAllLink").onclick = (e) => {
+          e.preventDefault();
+          paintOthers(list, true);
+          $("viewAllRow").style.display = "none";
+        };
+      } else {
+        $("viewAllRow").style.display = "none";
       }
       $("otherStories").innerHTML = visible.map(s => {
         const total = s.target_chapter_count || 10;
@@ -1196,7 +1211,7 @@
           showBar = true;
         }
 
-        return `<a class="os-card" href="/library/read.html?id=${encodeURIComponent(s.id)}">
+        return `<a class="os-card" href="/story.html?id=${encodeURIComponent(s.id)}">
           ${thumb}
           <div class="os-body">
             ${titleHtml}
