@@ -5,9 +5,10 @@
    State is persisted in localStorage["sss.readingTheme" | "sss.readingPalette"]
    by /assets/reading-mode.js. This file is CSS-only.
 
-   Included by: chapter.html, /library/read.html, and every /library/book/*/
-   static book page. app-shell + style.css always load first; this file
-   only overrides variables + a handful of hardcoded prose colors. */
+   Included by: chapter.html, /library/read.html, and every
+   /library/book/[slug]/ static book page. app-shell + style.css always
+   load first; this file only overrides variables + a handful of
+   hardcoded prose colors. */
 
 /* ═══ LIGHT — SEPIA (Apple iBooks / Kobo style) ═══════════════════
    Warmest of the three. Cream paper, warm-brown text, deeper gold.
