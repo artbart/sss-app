@@ -472,6 +472,31 @@ export async function renderShell(opts = {}) {
     else a.classList.remove("active");
   });
 
+  // Inject a permanent "Buy story pack" item at the bottom of the rail nav.
+  // Every page has its own static rail markup (to prevent layout flash), so
+  // rather than editing all of them, we add this one via JS on shell render.
+  // Skipped when it's already present (idempotent on multi-render). Click
+  // opens the modal on stories.html or routes there with ?openpack=1.
+  const rNav = document.querySelector(".rail-nav");
+  if (rNav && !rNav.querySelector('[data-action="buy-pack"]')) {
+    const a = document.createElement("a");
+    a.href = "/stories.html?openpack=1";
+    a.dataset.action = "buy-pack";
+    a.title = "One-time $4.99 · adds 3 stories · credits never expire";
+    a.innerHTML = `<span class="n-ico">🎟️</span> Buy story pack`;
+    a.style.marginTop = "8px";
+    a.style.opacity = "0.85";
+    a.addEventListener("click", (e) => {
+      // If we're already on a page that hosts the modal, open it inline.
+      if (window.__sssPackModalRendered) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("sss:open-pack-modal"));
+      }
+      // else fall through to /stories.html?openpack=1 which auto-opens
+    });
+    rNav.appendChild(a);
+  }
+
   // Wire the "Chat" links to buildChatUrl() so cross-subdomain SSO works.
   document.querySelectorAll('[data-nav="chat"]').forEach(a => {
     a.addEventListener("click", async (e) => {
@@ -617,14 +642,13 @@ async function gateNewStoryNav() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return;                      // signed out — no gate
 
-  // Lifetime affects access, not quota — a lifetime holder's plan_tier stays
-  // "standard", so they get the same 3/month cap as any standard subscriber.
-  // extra_story_credits are lifetime top-up tokens ($4.99 = 3) — they stack
-  // on top of the monthly limit and don't reset.
+  // Lifetime affects access, not quota; extra_story_credits stack on top of
+  // the monthly limit and don't reset. Total quota = base + credits.
   const { data: prof } = await supabase.from("users")
     .select("plan_tier, lifetime_at, extra_story_credits").eq("id", session.user.id).maybeSingle();
   const limit = storyLimitFor(prof?.plan_tier);
   const credits = Number(prof?.extra_story_credits ?? 0) || 0;
+  const total = limit + credits;
 
   const now = new Date();
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
@@ -635,45 +659,34 @@ async function gateNewStoryNav() {
   if (error) return;                               // silent fail — better to allow
 
   const used = count || 0;
-  const monthlyLeft = Math.max(0, limit - used);
-  const effectiveLeft = monthlyLeft + credits;
+  const blocked = used >= total;
 
+  // Display format: used/total (e.g. 0/3, 3/6, 3/9). No "extra" wording — one
+  // number tells the user what matters: can I write another story right now?
   navItems.forEach((a) => {
-    // Append a small quota hint so the label always shows N left OR the
-    // buy-pack call-to-action when both monthly + credits are exhausted.
     let hint = a.querySelector('.n-quota');
     if (!hint) {
       hint = document.createElement('span');
       hint.className = 'n-quota';
       a.appendChild(hint);
     }
-    if (effectiveLeft === 0) {
-      hint.textContent = ' · Buy more →';
+    hint.textContent = ` · ${used}/${total}`;
+    if (blocked) {
       a.setAttribute("data-quota-blocked", "1");
       a.setAttribute("title",
-        `You've used all ${limit} monthly stories and you have no extra credits. ` +
-        `Buy a story pack to keep going, or wait for the monthly reset.`);
-      // Reroute the click to open the pack modal instead of following the
-      // /quiz2.html link. Pages that host the modal (stories.html) listen
-      // for the "sss:open-pack-modal" event; pages that don't fall back to
-      // a full-page redirect that stories.html handles via ?openpack=1.
+        `You've used all your stories (${used}/${total}). Buy a pack or wait for the monthly reset.`);
+      // Reroute click to open the pack modal instead of following /quiz2.html
       a.addEventListener("click", (e) => {
         e.preventDefault();
         window.dispatchEvent(new CustomEvent("sss:open-pack-modal"));
-        // If nothing on this page picks it up, bounce to home which does.
         setTimeout(() => {
-          const stillHere = location.pathname !== "/stories.html";
-          if (stillHere && !window.__sssPackModalRendered) {
+          if (location.pathname !== "/stories.html" && !window.__sssPackModalRendered) {
             location.href = "/stories.html?openpack=1";
           }
         }, 120);
         return false;
       });
     } else {
-      // Show both counters when the user has extras; else just monthly.
-      hint.textContent = credits > 0
-        ? ` · ${monthlyLeft} + ${credits}`
-        : ` · ${monthlyLeft} left`;
       a.removeAttribute("data-quota-blocked");
     }
   });

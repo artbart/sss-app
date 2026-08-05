@@ -726,10 +726,12 @@
             <span class="ns-plus">+</span> New story
             <span class="ns-quota" id="newStoryQuota"></span>
           </a>
-          <!-- Always-visible pack CTA: lets the eager user stockpile
-               credits without waiting to be blocked. Bumps to the modal. -->
+          <!-- Contextual pack CTA — hidden until the user is fully blocked
+               (used === total). At all other quota levels the chip stays out
+               of the way; the permanent "Buy story pack" rail item + the
+               Settings page section are the always-available paths. -->
           <button type="button" id="buyPackChip" title="Buy 3 more stories for $4.99"
-            style="background:rgba(240,212,140,0.08);border:1px solid rgba(240,212,140,0.3);color:var(--gold,#f0d48c);font-family:Arial,sans-serif;font-size:12px;padding:8px 12px;border-radius:999px;cursor:pointer;letter-spacing:0.02em;white-space:nowrap;transition:background 0.15s"
+            style="display:none;background:rgba(240,212,140,0.08);border:1px solid rgba(240,212,140,0.3);color:var(--gold,#f0d48c);font-family:Arial,sans-serif;font-size:12px;padding:8px 12px;border-radius:999px;cursor:pointer;letter-spacing:0.02em;white-space:nowrap;transition:background 0.15s"
             onmouseenter="this.style.background='rgba(240,212,140,0.16)'"
             onmouseleave="this.style.background='rgba(240,212,140,0.08)'">
             + Buy pack · $4.99
@@ -877,7 +879,7 @@
   </nav>
 
   <script type="module">
-    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js";
+    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js?v=45";
 
     // ─── LOCALHOST PREVIEW MODE (mock data, no auth, no DB) ────────────
     // On localhost with ?preview=1, skip auth and inject realistic mock
@@ -1304,13 +1306,13 @@
     // the button-block below.
     async function loadQuota() {
       try {
-        // Lifetime affects access, not quota — a lifetime holder's plan_tier
-        // stays "standard", so they keep the same 3/month cap. Story-pack
-        // credits (extra_story_credits) stack on top of the monthly limit.
+        // Lifetime affects access, not quota. Story-pack credits stack on
+        // top of the base monthly limit. Total quota = base + credits.
         const { data: prof } = await supabase.from("users")
           .select("plan_tier, extra_story_credits").eq("id", session.user.id).maybeSingle();
         const limit = storyLimitFor(prof?.plan_tier);
         const credits = Number(prof?.extra_story_credits ?? 0) || 0;
+        const total = limit + credits;
 
         const now = new Date();
         const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
@@ -1319,47 +1321,33 @@
           .eq("user_id", session.user.id)
           .gte("created_at", monthStart);
         const used = count || 0;
-        const monthlyLeft = Math.max(0, limit - used);
-        const effectiveLeft = monthlyLeft + credits;
-        const pct = Math.min(100, Math.round((used / limit) * 100));
+        const blocked = used >= total;
+        const pct = Math.min(100, Math.round((used / total) * 100));
 
-        // Legacy rail-widget writes — kept for safety if the elements are
-        // re-added later. Optional chaining prevents a null throw.
+        // Legacy rail-widget writes — kept for safety if re-added later.
         const rq = $("railQuota");
         if (rq) {
           const qc = rq.querySelector(".q-count");
-          if (qc) qc.innerHTML = `<b>${effectiveLeft}</b> of ${limit + credits} stories left`;
+          if (qc) qc.innerHTML = `<b>${Math.max(0, total - used)}</b> of ${total} stories left`;
         }
         const rqb = $("railQuotaBar");
         if (rqb) rqb.style.width = pct + "%";
 
-        // Header pill — source of truth for the visible quota. Now shows
-        // "3 left" (base only) or "3 + 6 extra" (base + credits) or
-        // "Buy more →" (both exhausted).
+        // Header pill — used/total (e.g. 0/3, 3/6, 3/9). One number to parse.
         const btn = $("newStoryBtn");
         const qLabel = $("newStoryQuota");
-        if (qLabel) {
-          qLabel.textContent = credits > 0
-            ? `· ${monthlyLeft} + ${credits} extra`
-            : `· ${monthlyLeft} left`;
-        }
-        if (btn && effectiveLeft === 0) {
-          // No monthly, no credits. Rewrite the pill to a buy-CTA and
-          // reroute the click to open the pack modal instead of the quiz.
-          btn.style.opacity = "";                              // clear the old dim
-          btn.style.pointerEvents = "";
-          btn.removeAttribute("aria-disabled");
-          btn.setAttribute("title", `You've used all ${limit} monthly stories and have no extra credits.`);
-          if (qLabel) qLabel.textContent = "· Buy more →";
+        if (qLabel) qLabel.textContent = `· ${used}/${total}`;
+        if (btn && blocked) {
+          btn.setAttribute("title", `You've used all your stories (${used}/${total}). Buy a pack or wait for the monthly reset.`);
+          // Blocked click opens the pack modal instead of the quiz
           btn.addEventListener("click", (e) => {
             e.preventDefault();
             openPackModal();
             return false;
           }, { once: true });
         }
-        // Rail nav "New story" item — mirror same behaviour. renderShell()'s
-        // gateNewStoryNav doesn't run here because stories.html builds its
-        // shell inline.
+
+        // Rail nav "New story" item — same used/total format
         document.querySelectorAll('[data-nav="new"]').forEach((a) => {
           if (!a.querySelector('.n-quota')) {
             const hint = document.createElement('span');
@@ -1367,23 +1355,24 @@
             a.appendChild(hint);
           }
           const hint = a.querySelector('.n-quota');
-          if (effectiveLeft === 0) {
-            hint.textContent = ' · Buy more →';
-            a.setAttribute("title", `You've used all ${limit} monthly stories and have no extra credits.`);
+          hint.textContent = ` · ${used}/${total}`;
+          if (blocked) {
+            a.setAttribute("title", `You've used all your stories (${used}/${total}).`);
             a.addEventListener("click", (e) => {
               e.preventDefault();
               openPackModal();
               return false;
             }, { once: true });
-          } else {
-            hint.textContent = credits > 0
-              ? ` · ${monthlyLeft} + ${credits}`
-              : ` · ${monthlyLeft} left`;
           }
         });
 
-        // Cache for the modal's "You currently have X credits" line.
-        window.__sssPackContext = { limit, credits, monthlyLeft, used };
+        // Buy-pack chip visibility: only when fully blocked. When the user
+        // has any remaining story, the chip stays hidden — no upsell noise.
+        const chip = document.getElementById("buyPackChip");
+        if (chip) chip.style.display = blocked ? "" : "none";
+
+        // Cache for the modal's context line.
+        window.__sssPackContext = { limit, credits, used, total };
       } catch (e) { console.warn("quota load failed:", e); }
     }
     loadQuota();
@@ -1427,7 +1416,7 @@
         const err = document.getElementById("packErr");
         btn.disabled = true; btn.textContent = "Opening Stripe…";
         err.style.display = "none";
-        const { startStoryPackCheckout } = await import("/assets/lib.js?v=44");
+        const { startStoryPackCheckout } = await import("/assets/lib.js?v=45");
         const { ok, error } = await startStoryPackCheckout({ returnPath: "/stories.html" });
         if (!ok) {
           err.textContent = error || "Couldn't reach checkout.";

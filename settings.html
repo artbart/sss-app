@@ -245,6 +245,19 @@
           <div class="save-status" id="subStatus"></div>
         </div>
 
+        <!-- ─── Story pack (top-up) ──────────────────────────────────
+             Permanent home for the pack purchase — same modal as the
+             one on stories.html, works on mobile via bottom-nav "You". -->
+        <div class="section" id="packSection" style="margin-top:24px;">
+          <h2>Story pack</h2>
+          <div class="field-readonly" id="packQuotaLine" style="margin-bottom:10px;">…</div>
+          <p style="font-family:Arial,sans-serif;font-size:13px;color:var(--faint);margin:0 0 14px;line-height:1.5;">
+            $4.99 · adds 3 personalized stories to your account. Credits never expire, no cap on how many packs you buy.
+          </p>
+          <button type="button" class="cta-secondary" id="buyPackSettingsBtn">Buy story pack — $4.99</button>
+          <div class="save-status" id="packStatus"></div>
+        </div>
+
         <div class="danger-zone">
           <p>Signing out only removes this device. Your stories stay safe.</p>
           <button type="button" class="cta-secondary" id="signOutBtn2">Sign out</button>
@@ -261,7 +274,7 @@
   </nav>
 
   <script type="module">
-    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode, posthog, posthogReady, setPassword } from "/assets/lib.js";
+    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode, posthog, posthogReady, setPassword, storyLimitFor, startStoryPackCheckout } from "/assets/lib.js?v=45";
 
     const session = await getSessionOrPreview({
       users: [{
@@ -370,6 +383,70 @@
       }
       btn.disabled = false; btn.textContent = "Set password";
       setTimeout(() => { if (status.classList.contains("ok")) { status.textContent = ""; status.className = "save-status"; } }, 6000);
+    });
+
+    // ── Story pack (top-up) — buy $4.99 = 3 extra stories ──
+    // Same edge function as the home-page modal. This is the permanent
+    // home for the purchase; the home-page chip only surfaces when the
+    // user is fully depleted. Mobile users reach this via bottom-nav
+    // "You" → Settings → Story pack.
+    (async function initPackSection() {
+      try {
+        const { data: prof } = await supabase.from("users")
+          .select("plan_tier, extra_story_credits")
+          .eq("id", session.user.id).maybeSingle();
+        const limit = storyLimitFor(prof?.plan_tier);
+        const credits = Number(prof?.extra_story_credits ?? 0) || 0;
+        const total = limit + credits;
+        const now = new Date();
+        const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+        const { count } = await supabase.from("stories")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", session.user.id)
+          .gte("created_at", monthStart);
+        const used = count || 0;
+        const line = document.getElementById("packQuotaLine");
+        if (line) {
+          line.innerHTML = credits > 0
+            ? `<b>${used}/${total}</b> stories used this cycle · ${credits} credit${credits === 1 ? "" : "s"} on account`
+            : `<b>${used}/${total}</b> stories used this cycle`;
+        }
+      } catch (_) {}
+    })();
+    // Return-URL handler for purchases initiated from THIS page.
+    (function handlePackReturn() {
+      const q = new URLSearchParams(location.search);
+      const state = q.get("pack");
+      if (!state) return;
+      const clean = new URL(location.href);
+      clean.searchParams.delete("pack");
+      clean.searchParams.delete("session_id");
+      history.replaceState(null, "", clean.pathname + (clean.search || "") + clean.hash);
+      const status = document.getElementById("packStatus");
+      if (!status) return;
+      if (state === "ok") {
+        status.textContent = "3 stories added to your account ✓";
+        status.className = "save-status ok";
+        try { logEvent("story_pack_purchase_confirmed", { metadata: { origin: "settings" } }); } catch (_) {}
+      } else if (state === "cancel") {
+        status.textContent = "No charge — pack not purchased.";
+        status.className = "save-status";
+      }
+      setTimeout(() => { if (status.classList.contains("ok")) { status.textContent = ""; status.className = "save-status"; } }, 8000);
+    })();
+
+    document.getElementById("buyPackSettingsBtn")?.addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      const status = document.getElementById("packStatus");
+      btn.disabled = true; btn.textContent = "Opening Stripe…";
+      status.textContent = ""; status.className = "save-status";
+      const { ok, error } = await startStoryPackCheckout({ returnPath: "/settings.html" });
+      if (!ok) {
+        status.textContent = error || "Couldn't reach checkout.";
+        status.className = "save-status err";
+        btn.disabled = false; btn.textContent = "Buy story pack — $4.99";
+      }
+      // ok = redirected away
     });
 
     // ── Subscription management ────────────────────────
