@@ -1093,9 +1093,9 @@
       //      — avoids showing a random book that isn't theirs during the wait
       //   3. Rotating marketing-cover placeholder for stories that somehow
       //      have a title but no AI cover yet (backfill period / legacy rows)
-      const img = s.cover_image_url
-        ? s.cover_image_url
-        : (inProgress ? "/media/loading.webp" : bookImageFor(s));
+      // Real cover if we have it, otherwise always loading.webp — never a
+      // random library book, since that reads as "wrong cover" to the user.
+      const img = s.cover_image_url || "/media/loading.webp";
       const palette = coverPaletteFor(s);
       const heroCover = $("heroCover");
       heroCover.style.backgroundImage = `url("${img}"), linear-gradient(140deg, ${palette[0]}, ${palette[1]} 60%, ${palette[2]})`;
@@ -1188,7 +1188,7 @@
         const thumb = brandNew
           ? `<div class="os-thumb" aria-label="Being written"
                   style="background:url('/media/loading.webp'), ${gradient}; background-size:cover; background-position:center;"></div>`
-          : `<div class="os-thumb" style="background:url('${s.cover_image_url || bookImageFor(s)}'), ${gradient}; background-size:cover; background-position:center;">
+          : `<div class="os-thumb" style="background:url('${s.cover_image_url || '/media/loading.webp'}'), ${gradient}; background-size:cover; background-position:center;">
                ${s.cover_image_url && s.title ? `<div class="cover-title-overlay">${escapeHtml(s.title.length > 20 ? s.title.slice(0, 20) + "…" : s.title)}</div>` : ""}
              </div>`;
 

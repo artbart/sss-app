@@ -236,12 +236,11 @@
       throw new Error("story not found");
     }
 
-    // Paint hero — prefer real AI cover, otherwise use the /media/loading.webp
-    // placeholder for pending stories (no title yet), else fall back to the
-    // rotating book placeholder for legacy stories that somehow lack a cover.
-    const bookImg = story.cover_image_url
-      ? story.cover_image_url
-      : (!story.title ? "/media/loading.webp" : bookImageFor(story));
+    // Paint hero — prefer real AI cover, otherwise always show the
+    // /media/loading.webp placeholder. Never pull a random library cover
+    // as a fallback — that misleads the reader into thinking the wrong book
+    // is loading. (loading.webp reads clearly as "this is being generated".)
+    const bookImg = story.cover_image_url || "/media/loading.webp";
     const gradient = coverGradientFor(story);
     $("storyCover").style.backgroundImage = `url('${bookImg}'), ${gradient}`;
     $("storyCover").href = `/chapter.html?story=${encodeURIComponent(storyId)}&n=1`;
