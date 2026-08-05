@@ -83,6 +83,29 @@
       font-family: Georgia, serif; color: #fff; font-weight: normal;
       font-size: 22px; margin: 0 0 10px;
     }
+
+    /* ─── Chapter rating widget (mirrors chapter.html, kept in sync) ── */
+    .rating-wrap { margin: 32px 0 8px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center; }
+    .rating-link { background: transparent; border: 0; cursor: pointer; font-family: Arial, sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 0.02em; padding: 6px 8px; }
+    .rating-link:hover { color: var(--gold); }
+    .rating-link .star { color: var(--gold); margin-right: 4px; }
+    .rating-panel { max-width: 460px; margin: 0 auto; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; padding: 18px 18px 16px; text-align: left; }
+    .rating-panel .rp-q { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 10px; font-weight: 600; text-align: center; }
+    .rating-stars { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-bottom: 12px; }
+    .rating-star { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: var(--muted); font-family: Arial, sans-serif; font-size: 13px; font-weight: 600; padding: 10px 0; border-radius: 8px; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    .rating-star:hover, .rating-star.is-hover { background: rgba(240,212,140,0.14); border-color: rgba(240,212,140,0.35); color: var(--gold); }
+    .rating-star.is-selected { background: rgba(240,212,140,0.28); border-color: var(--gold); color: #fff; }
+    .rating-text { width: 100%; background: rgba(0,0,0,0.28); color: #f4ece1; border: 1px solid rgba(255,255,255,0.10); border-radius: 10px; font-family: Georgia, serif; font-size: 14px; line-height: 1.5; padding: 10px 12px; resize: vertical; min-height: 60px; margin-bottom: 12px; }
+    .rating-text::placeholder { color: rgba(255,255,255,0.35); font-style: italic; }
+    .rating-actions { display: flex; gap: 10px; justify-content: space-between; }
+    .rating-submit { background: var(--cta); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+    .rating-submit:hover:not(:disabled) { background: var(--cta-hover); }
+    .rating-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .rating-skip { background: transparent; border: 0; cursor: pointer; color: var(--muted); font-family: Arial, sans-serif; font-size: 13px; padding: 10px 12px; }
+    .rating-skip:hover { color: #fff; }
+    .rating-thanks { font-family: Arial, sans-serif; font-size: 13px; color: var(--gold); letter-spacing: 0.02em; }
+    .rating-thanks .r-stars { font-weight: 700; }
+    .rating-error { color: #ff9a9a; font-family: Arial, sans-serif; font-size: 12px; margin-top: 8px; text-align: center; }
   </style>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -128,7 +151,7 @@
   </nav>
 
   <script type="module">
-    import { renderShell, logEvent, getSessionOrPreview, supabase } from "/assets/lib.js";
+    import { renderShell, logEvent, getSessionOrPreview, supabase, getChapterRating, saveChapterRating } from "/assets/lib.js";
     await getSessionOrPreview({ users: [{ display_name: "Arturas" }] });
     await renderShell({ activeNav: "library" });
 
@@ -222,7 +245,7 @@
             .select("id, title, heat_level, hook, opening_premise, target_chapter_count, cover_image_url, user_id")
             .eq("id", storyId).maybeSingle(),
           supabase.from("chapters")
-            .select("chapter_number, summary, text")
+            .select("id, chapter_number, summary, text")
             .eq("story_id", storyId).order("chapter_number", { ascending: true }),
         ]);
 
@@ -251,6 +274,7 @@
             <div class="ch-body">
               ${renderChapterProse(c.text)}
             </div>
+            <div class="rating-slot" data-chapter-id="${esc(c.id)}" data-chapter-number="${c.chapter_number}"></div>
           </article>
         `).join("");
 
@@ -282,12 +306,120 @@
 
         document.title = `${title} — Stuff So Sweet Library`;
         try { await logEvent("library_book_opened", { story_id: storyId, title }); } catch (_) {}
+
+        // Wire a rating widget for each chapter. Widgets are independent —
+        // each checks the DB for an existing rating and either shows the
+        // collapsed link (fresh) or the locked "thanks" state (already rated).
+        document.querySelectorAll(".rating-slot").forEach(slot => {
+          const chId = slot.dataset.chapterId;
+          const chNum = parseInt(slot.dataset.chapterNumber, 10);
+          if (!chId) return;
+          renderRatingWidget(slot, chId, chNum);
+        });
       } catch (e) {
         content.innerHTML = `<div class="error-state">
           <h2>Couldn't open this book</h2>
           <p>${esc(e.message || "Unknown error")}. <a href="/library/" style="color:var(--gold)">Back to library →</a></p>
         </div>`;
       }
+    }
+
+    // ── Rating widget (per-chapter, inline in the library long-scroll page).
+    // Same behavior as chapter.html: collapsed link → expand to 1-10 stars +
+    // optional text → submit → locked "thanks" state. One shot per (user,
+    // chapter) enforced by the DB.
+    async function renderRatingWidget(slot, chapterId, chapterNumber) {
+      slot.innerHTML = "";
+      const { rating } = await getChapterRating(chapterId);
+      if (rating) { renderRatingThanks(slot, rating.stars); return; }
+      const wrap = document.createElement("div");
+      wrap.className = "rating-wrap";
+      wrap.innerHTML = `<button type="button" class="rating-link">
+        <span class="star">★</span>Rate this chapter</button>`;
+      slot.appendChild(wrap);
+      wrap.querySelector(".rating-link").addEventListener("click",
+        () => renderRatingPanel(slot, chapterId, chapterNumber));
+    }
+
+    function renderRatingPanel(slot, chapterId, chapterNumber) {
+      slot.innerHTML = "";
+      const wrap = document.createElement("div");
+      wrap.className = "rating-wrap";
+      wrap.innerHTML = `
+        <div class="rating-panel">
+          <p class="rp-q">How was this chapter?</p>
+          <div class="rating-stars">
+            ${Array.from({length: 10}, (_, i) => `
+              <button type="button" class="rating-star" data-v="${i + 1}" aria-label="${i + 1} out of 10">${i + 1}</button>
+            `).join("")}
+          </div>
+          <textarea class="rating-text" rows="2" placeholder="Optional: what worked, what didn't?"></textarea>
+          <div class="rating-actions">
+            <button type="button" class="rating-submit" disabled>Submit</button>
+            <button type="button" class="rating-skip">Skip</button>
+          </div>
+          <div class="rating-error" style="display:none"></div>
+        </div>`;
+      slot.appendChild(wrap);
+
+      let selected = 0;
+      const stars = wrap.querySelectorAll(".rating-star");
+      const submitBtn = wrap.querySelector(".rating-submit");
+      const skipBtn   = wrap.querySelector(".rating-skip");
+      const textEl    = wrap.querySelector(".rating-text");
+      const errEl     = wrap.querySelector(".rating-error");
+      const isTouch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+
+      stars.forEach(btn => {
+        const v = parseInt(btn.dataset.v, 10);
+        if (!isTouch) {
+          btn.addEventListener("mouseenter", () => {
+            stars.forEach(s => s.classList.toggle("is-hover",
+              parseInt(s.dataset.v, 10) <= v && !s.classList.contains("is-selected")));
+          });
+          btn.addEventListener("mouseleave", () => {
+            stars.forEach(s => s.classList.remove("is-hover"));
+          });
+        }
+        btn.addEventListener("click", () => {
+          selected = v;
+          stars.forEach(s => s.classList.toggle("is-selected",
+            parseInt(s.dataset.v, 10) <= v));
+          submitBtn.disabled = false;
+        });
+      });
+
+      skipBtn.addEventListener("click", () => renderRatingWidget(slot, chapterId, chapterNumber));
+
+      submitBtn.addEventListener("click", async () => {
+        if (!selected) return;
+        submitBtn.disabled = true; submitBtn.textContent = "Saving…";
+        errEl.style.display = "none";
+        const text = textEl.value;
+        const { ok, alreadyRated, error } = await saveChapterRating(chapterId, {
+          story_id: storyId,
+          chapter_number: chapterNumber,
+          stars: selected,
+          feedback_text: text,
+        });
+        if (ok || alreadyRated) {
+          logEvent("chapter_rated", {
+            story_id: storyId, chapter_number: chapterNumber,
+            metadata: { stars: selected, has_text: !!text.trim(), library: true },
+          }).catch(() => {});
+          renderRatingThanks(slot, selected);
+        } else {
+          errEl.textContent = error || "Couldn't save. Try again in a moment.";
+          errEl.style.display = "block";
+          submitBtn.disabled = false; submitBtn.textContent = "Submit";
+        }
+      });
+    }
+
+    function renderRatingThanks(slot, stars) {
+      slot.innerHTML = `<div class="rating-wrap">
+        <div class="rating-thanks">Thanks — you rated this chapter <span class="r-stars">${stars}/10</span>.</div>
+      </div>`;
     }
   </script>
 </body>

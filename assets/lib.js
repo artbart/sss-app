@@ -533,6 +533,62 @@ export async function renderShell(opts = {}) {
 const STORY_LIMITS = { standard: 3, lite: 1 };
 export function storyLimitFor(planTier) { return STORY_LIMITS[planTier] ?? STORY_LIMITS.standard; }
 
+// ─── Chapter ratings ────────────────────────────────────────────────
+// One-shot per user per chapter (1-10 stars + optional text). No updates
+// allowed by the DB — the widget hides itself after first submit.
+//
+// getChapterRating(chapterId) → { rating: {stars, feedback_text, created_at} | null, error? }
+// saveChapterRating(chapterId, {story_id, chapter_number, stars, feedback_text?})
+//    → { ok: true, rating } on success
+//    → { ok: false, alreadyRated: true } if a rating already exists (unique violation)
+//    → { ok: false, error: message } for any other failure
+export async function getChapterRating(chapterId) {
+  if (!chapterId) return { rating: null };
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { rating: null };
+    const { data, error } = await supabase.from("chapter_ratings")
+      .select("stars, feedback_text, created_at")
+      .eq("chapter_id", chapterId)
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (error) return { rating: null, error: error.message };
+    return { rating: data || null };
+  } catch (e) {
+    return { rating: null, error: e?.message || "load failed" };
+  }
+}
+
+export async function saveChapterRating(chapterId, { story_id, chapter_number, stars, feedback_text } = {}) {
+  if (!chapterId) return { ok: false, error: "missing chapter id" };
+  if (!Number.isInteger(stars) || stars < 1 || stars > 10) {
+    return { ok: false, error: "stars must be 1-10" };
+  }
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { ok: false, error: "not signed in" };
+    const payload = {
+      chapter_id:     chapterId,
+      user_id:        session.user.id,
+      story_id,
+      chapter_number,
+      stars,
+      // Trim + cap text so a runaway paste doesn't bloat the row
+      feedback_text:  (feedback_text || "").trim().slice(0, 2000) || null,
+    };
+    const { data, error } = await supabase.from("chapter_ratings")
+      .insert(payload).select("stars, feedback_text, created_at").single();
+    if (error) {
+      // Postgres unique_violation → already rated (defensive; UI shouldn't call twice)
+      if (error.code === "23505") return { ok: false, alreadyRated: true };
+      return { ok: false, error: error.message };
+    }
+    return { ok: true, rating: data };
+  } catch (e) {
+    return { ok: false, error: e?.message || "save failed" };
+  }
+}
+
 async function gateNewStoryNav() {
   const navItems = document.querySelectorAll('[data-nav="new"]');
   if (!navItems.length) return;                    // no new-story link on this page

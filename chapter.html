@@ -137,6 +137,99 @@
     @media (max-width: 900px) {
       .to-top-btn { display: flex; }
     }
+
+    /* ─── Chapter rating widget ─────────────────────────────────────
+       Sits below the choose-next options / nav row. Collapsed by
+       default (subtle link), expands inline into a 1-10 star strip
+       plus optional feedback. Locks after first submit — the DB
+       enforces one row per (chapter, user). */
+    .rating-wrap {
+      margin: 40px 0 8px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .rating-link {
+      background: transparent; border: 0; cursor: pointer;
+      font-family: Arial, sans-serif; font-size: 13px;
+      color: var(--muted); letter-spacing: 0.02em;
+      padding: 6px 8px;
+    }
+    .rating-link:hover { color: var(--gold); }
+    .rating-link .star { color: var(--gold); margin-right: 4px; }
+
+    .rating-panel {
+      max-width: 460px; margin: 0 auto;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 18px 18px 16px;
+      text-align: left;
+    }
+    .rating-panel .rp-q {
+      font-family: Arial, sans-serif; font-size: 13px; color: var(--faint);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin: 0 0 10px; font-weight: 600; text-align: center;
+    }
+    .rating-stars {
+      display: grid; grid-template-columns: repeat(10, 1fr);
+      gap: 4px; margin-bottom: 12px;
+    }
+    .rating-star {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--muted);
+      font-family: Arial, sans-serif; font-size: 13px; font-weight: 600;
+      padding: 10px 0; border-radius: 8px;
+      cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .rating-star:hover, .rating-star.is-hover {
+      background: rgba(240,212,140,0.14);
+      border-color: rgba(240,212,140,0.35);
+      color: var(--gold);
+    }
+    .rating-star.is-selected {
+      background: rgba(240,212,140,0.28);
+      border-color: var(--gold);
+      color: #fff;
+    }
+    .rating-text {
+      width: 100%;
+      background: rgba(0,0,0,0.28);
+      color: #f4ece1;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 10px;
+      font-family: Georgia, serif; font-size: 14px; line-height: 1.5;
+      padding: 10px 12px; resize: vertical; min-height: 60px;
+      margin-bottom: 12px;
+    }
+    .rating-text::placeholder { color: rgba(255,255,255,0.35); font-style: italic; }
+    .rating-actions { display: flex; gap: 10px; justify-content: space-between; }
+    .rating-submit {
+      background: var(--cta); color: #fff; border: none;
+      padding: 10px 20px; border-radius: 10px;
+      font-family: Arial, sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, opacity 0.15s;
+    }
+    .rating-submit:hover:not(:disabled) { background: var(--cta-hover); }
+    .rating-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .rating-skip {
+      background: transparent; border: 0; cursor: pointer;
+      color: var(--muted); font-family: Arial, sans-serif; font-size: 13px;
+      padding: 10px 12px;
+    }
+    .rating-skip:hover { color: #fff; }
+    .rating-thanks {
+      font-family: Arial, sans-serif; font-size: 13px;
+      color: var(--gold); letter-spacing: 0.02em;
+    }
+    .rating-thanks .r-stars { font-weight: 700; }
+    .rating-error {
+      color: #ff9a9a; font-family: Arial, sans-serif; font-size: 12px;
+      margin-top: 8px; text-align: center;
+    }
   </style>
 
   <!-- Google Tag Manager -->
@@ -185,6 +278,7 @@
 
         <div id="optionsArea"></div>
         <div id="navArea"></div>
+        <div id="ratingArea"></div>
       </div>
 
     </main>
@@ -204,7 +298,7 @@
   </nav>
 
   <script type="module">
-    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode } from "/assets/lib.js";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js";
 
     const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -336,6 +430,117 @@
       } else {
         renderOptionButtons(chapter);
       }
+
+      // Rating widget (below choices / nav / final block).
+      // Skip in preview mode — no real user, no real chapter id.
+      if (!isPreviewMode() && chapter?.id) {
+        renderRatingWidget(chapter);
+      }
+    }
+
+    // ── Chapter rating widget ─────────────────────────────────────
+    // Collapsed "★ Rate this chapter" link → expanded 1-10 star strip
+    // + optional textarea + Submit. One-shot per (user, chapter) enforced
+    // by the DB. Once submitted, widget shows permanent "Thanks — 8/10".
+    async function renderRatingWidget(chap) {
+      const area = $("ratingArea");
+      if (!area) return;
+      area.innerHTML = "";                                   // reset
+
+      // Ask the DB whether this user has already rated this chapter.
+      // If yes → show locked "thanks" state. If no → show collapsed link.
+      const { rating } = await getChapterRating(chap.id);
+      if (rating) { renderRatingThanks(rating.stars); return; }
+
+      const wrap = document.createElement("div");
+      wrap.className = "rating-wrap";
+      wrap.innerHTML = `<button type="button" class="rating-link" id="ratingOpen">
+        <span class="star">★</span>Rate this chapter</button>`;
+      area.appendChild(wrap);
+      $("ratingOpen").addEventListener("click", () => renderRatingPanel(chap));
+    }
+
+    function renderRatingPanel(chap) {
+      const area = $("ratingArea");
+      area.innerHTML = "";
+      const wrap = document.createElement("div");
+      wrap.className = "rating-wrap";
+      wrap.innerHTML = `
+        <div class="rating-panel">
+          <p class="rp-q">How was this chapter?</p>
+          <div class="rating-stars" id="ratingStars">
+            ${Array.from({length: 10}, (_, i) => `
+              <button type="button" class="rating-star" data-v="${i + 1}" aria-label="${i + 1} out of 10">${i + 1}</button>
+            `).join("")}
+          </div>
+          <textarea class="rating-text" id="ratingText" rows="2"
+            placeholder="Optional: what worked, what didn't?"></textarea>
+          <div class="rating-actions">
+            <button type="button" class="rating-submit" id="ratingSubmit" disabled>Submit</button>
+            <button type="button" class="rating-skip" id="ratingSkip">Skip</button>
+          </div>
+          <div class="rating-error" id="ratingErr" style="display:none"></div>
+        </div>`;
+      area.appendChild(wrap);
+
+      let selected = 0;
+      const stars = area.querySelectorAll(".rating-star");
+      const submitBtn = $("ratingSubmit");
+
+      // Hover preview on desktop only (touch devices skip — no hover state)
+      const isTouch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      stars.forEach(btn => {
+        const v = parseInt(btn.dataset.v, 10);
+        if (!isTouch) {
+          btn.addEventListener("mouseenter", () => {
+            stars.forEach(s => s.classList.toggle("is-hover",
+              parseInt(s.dataset.v, 10) <= v && !s.classList.contains("is-selected")));
+          });
+          btn.addEventListener("mouseleave", () => {
+            stars.forEach(s => s.classList.remove("is-hover"));
+          });
+        }
+        btn.addEventListener("click", () => {
+          selected = v;
+          stars.forEach(s => s.classList.toggle("is-selected",
+            parseInt(s.dataset.v, 10) <= v));
+          submitBtn.disabled = false;
+        });
+      });
+
+      $("ratingSkip").addEventListener("click", () => renderRatingWidget(chap));
+
+      submitBtn.addEventListener("click", async () => {
+        if (!selected) return;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Saving…";
+        $("ratingErr").style.display = "none";
+        const text = $("ratingText").value;
+        const { ok, alreadyRated, error } = await saveChapterRating(chap.id, {
+          story_id: storyId,
+          chapter_number: chapterN,
+          stars: selected,
+          feedback_text: text,
+        });
+        if (ok || alreadyRated) {
+          logEvent("chapter_rated", {
+            story_id: storyId, chapter_number: chapterN,
+            metadata: { stars: selected, has_text: !!text.trim() },
+          }).catch(() => {});
+          renderRatingThanks(selected);
+        } else {
+          $("ratingErr").textContent = error || "Couldn't save. Try again in a moment.";
+          $("ratingErr").style.display = "block";
+          submitBtn.disabled = false; submitBtn.textContent = "Submit";
+        }
+      });
+    }
+
+    function renderRatingThanks(stars) {
+      const area = $("ratingArea");
+      area.innerHTML = `<div class="rating-wrap">
+        <div class="rating-thanks">Thanks — you rated this chapter <span class="r-stars">${stars}/10</span>.</div>
+      </div>`;
     }
 
     function renderProse(text) {
