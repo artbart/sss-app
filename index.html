@@ -109,8 +109,14 @@
             if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
             if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
           }
-          const target = isMagic ? emailMagic : (emailPassword && emailPassword.value ? passwordInput : emailPassword);
-          if (target) setTimeout(function () { try { target.focus(); } catch (_) {} }, 30);
+          // Auto-focus only on desktop / mouse devices. On touch, letting
+          // the browser pop the keyboard from a tab tap is disorienting —
+          // user can tap the field themselves.
+          const isTouch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+          if (!isTouch) {
+            const target = isMagic ? emailMagic : (emailPassword && emailPassword.value ? passwordInput : emailPassword);
+            if (target) setTimeout(function () { try { target.focus(); } catch (_) {} }, 30);
+          }
         }
         tabMagic.addEventListener("click", function () { activate("magic"); });
         tabPassword.addEventListener("click", function () { activate("password"); });
