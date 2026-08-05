@@ -619,9 +619,12 @@ async function gateNewStoryNav() {
 
   // Lifetime affects access, not quota — a lifetime holder's plan_tier stays
   // "standard", so they get the same 3/month cap as any standard subscriber.
+  // extra_story_credits are lifetime top-up tokens ($4.99 = 3) — they stack
+  // on top of the monthly limit and don't reset.
   const { data: prof } = await supabase.from("users")
-    .select("plan_tier, lifetime_at").eq("id", session.user.id).maybeSingle();
+    .select("plan_tier, lifetime_at, extra_story_credits").eq("id", session.user.id).maybeSingle();
   const limit = storyLimitFor(prof?.plan_tier);
+  const credits = Number(prof?.extra_story_credits ?? 0) || 0;
 
   const now = new Date();
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
@@ -632,26 +635,81 @@ async function gateNewStoryNav() {
   if (error) return;                               // silent fail — better to allow
 
   const used = count || 0;
-  const left = Math.max(0, limit - used);
+  const monthlyLeft = Math.max(0, limit - used);
+  const effectiveLeft = monthlyLeft + credits;
 
   navItems.forEach((a) => {
-    // Append a small quota hint so the label always shows N left OR reset date.
+    // Append a small quota hint so the label always shows N left OR the
+    // buy-pack call-to-action when both monthly + credits are exhausted.
     let hint = a.querySelector('.n-quota');
     if (!hint) {
       hint = document.createElement('span');
       hint.className = 'n-quota';
       a.appendChild(hint);
     }
-    hint.textContent = left === 0 ? ' · Resets 1st' : ` · ${left} left`;
-    if (left === 0) {
-      a.style.opacity = "0.45";
-      a.style.pointerEvents = "none";
-      a.setAttribute("aria-disabled", "true");
+    if (effectiveLeft === 0) {
+      hint.textContent = ' · Buy more →';
+      a.setAttribute("data-quota-blocked", "1");
       a.setAttribute("title",
-        `You've used all ${limit} of your stories this month. Quota resets on the 1st.`);
-      a.addEventListener("click", (e) => { e.preventDefault(); return false; });
+        `You've used all ${limit} monthly stories and you have no extra credits. ` +
+        `Buy a story pack to keep going, or wait for the monthly reset.`);
+      // Reroute the click to open the pack modal instead of following the
+      // /quiz2.html link. Pages that host the modal (stories.html) listen
+      // for the "sss:open-pack-modal" event; pages that don't fall back to
+      // a full-page redirect that stories.html handles via ?openpack=1.
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("sss:open-pack-modal"));
+        // If nothing on this page picks it up, bounce to home which does.
+        setTimeout(() => {
+          const stillHere = location.pathname !== "/stories.html";
+          if (stillHere && !window.__sssPackModalRendered) {
+            location.href = "/stories.html?openpack=1";
+          }
+        }, 120);
+        return false;
+      });
+    } else {
+      // Show both counters when the user has extras; else just monthly.
+      hint.textContent = credits > 0
+        ? ` · ${monthlyLeft} + ${credits}`
+        : ` · ${monthlyLeft} left`;
+      a.removeAttribute("data-quota-blocked");
     }
   });
+}
+
+// ─── Story pack (top-up) ────────────────────────────────────────────
+// One-time $4.99 = 3 extra story credits, no cap on how many packs.
+// Wired to the create-story-pack-checkout edge function. Callers pass
+// return_path (defaults to "/stories.html") — that's where the user
+// lands with ?pack=ok or ?pack=cancel after Stripe.
+export async function startStoryPackCheckout({ returnPath = "/stories.html" } = {}) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      return { ok: false, error: "Sign in first — then buy your pack." };
+    }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-story-pack-checkout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ return_path: returnPath }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.url) {
+      return { ok: false, error: json.error || `Checkout failed (${res.status})` };
+    }
+    logEvent("story_pack_checkout_opened", { metadata: { return_path: returnPath } }).catch(() => {});
+    // Redirect straight to Stripe Checkout. Return isn't reached in success case.
+    window.location.href = json.url;
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e?.message || "Couldn't reach checkout." };
+  }
 }
 
 /* ===== PWA service worker registration ===== */
