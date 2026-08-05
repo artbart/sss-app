@@ -559,6 +559,28 @@ export async function getChapterRating(chapterId) {
   }
 }
 
+// Sanitize user-supplied feedback text before persisting.
+// Same principle as the quiz2 hardening: this text may later feed a
+// report artifact or (if we ever wire it in) a generation prompt. Strip
+// HTML tags, strip control characters except regular whitespace, collapse
+// runaway whitespace, and cap length. Purely defensive — the DB accepts
+// anything.
+function sanitizeFeedbackText(raw) {
+  if (raw == null) return null;
+  let s = String(raw);
+  // Drop HTML/XML tags — trivial XSS defense for any future rendering
+  s = s.replace(/<[^>]*>/g, "");
+  // Drop control chars (keep \t \n \r); zero-width/BOM chars too
+  s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+  s = s.replace(/[​-‍﻿]/g, "");
+  // Collapse runaway whitespace (>3 blank lines / >20 spaces in a row)
+  s = s.replace(/\n{4,}/g, "\n\n\n");
+  s = s.replace(/ {20,}/g, "                    ");
+  s = s.trim();
+  if (s.length > 2000) s = s.slice(0, 2000);
+  return s.length ? s : null;
+}
+
 export async function saveChapterRating(chapterId, { story_id, chapter_number, stars, feedback_text } = {}) {
   if (!chapterId) return { ok: false, error: "missing chapter id" };
   if (!Number.isInteger(stars) || stars < 1 || stars > 10) {
@@ -573,8 +595,7 @@ export async function saveChapterRating(chapterId, { story_id, chapter_number, s
       story_id,
       chapter_number,
       stars,
-      // Trim + cap text so a runaway paste doesn't bloat the row
-      feedback_text:  (feedback_text || "").trim().slice(0, 2000) || null,
+      feedback_text:  sanitizeFeedbackText(feedback_text),
     };
     const { data, error } = await supabase.from("chapter_ratings")
       .insert(payload).select("stars, feedback_text, created_at").single();

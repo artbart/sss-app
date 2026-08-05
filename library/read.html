@@ -89,7 +89,7 @@
     .rating-link { background: transparent; border: 0; cursor: pointer; font-family: Arial, sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 0.02em; padding: 6px 8px; }
     .rating-link:hover { color: var(--gold); }
     .rating-link .star { color: var(--gold); margin-right: 4px; }
-    .rating-panel { max-width: 460px; margin: 0 auto; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; padding: 18px 18px 16px; text-align: left; }
+    .rating-panel { max-width: 460px; margin: 0 auto; background: var(--card, rgba(255,255,255,0.03)); border: 1px solid var(--rm-border, rgba(255,255,255,0.10)); border-radius: 14px; padding: 18px 18px 16px; text-align: left; }
     .rating-panel .rp-q { font-family: Arial, sans-serif; font-size: 13px; color: var(--faint); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 10px; font-weight: 600; text-align: center; }
     .rating-stars { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-bottom: 12px; }
     .rating-star { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: var(--muted); font-family: Arial, sans-serif; font-size: 13px; font-weight: 600; padding: 10px 0; border-radius: 8px; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -151,7 +151,7 @@
   </nav>
 
   <script type="module">
-    import { renderShell, logEvent, getSessionOrPreview, supabase, getChapterRating, saveChapterRating } from "/assets/lib.js?v=42";
+    import { renderShell, logEvent, getSessionOrPreview, supabase, getChapterRating, saveChapterRating } from "/assets/lib.js?v=43";
     await getSessionOrPreview({ users: [{ display_name: "Arturas" }] });
     await renderShell({ activeNav: "library" });
 
@@ -345,6 +345,11 @@
       slot.innerHTML = "";
       const wrap = document.createElement("div");
       wrap.className = "rating-wrap";
+      // Scroll the panel into view on next frame — user just tapped the
+      // link so the whole block should center on screen.
+      requestAnimationFrame(() => {
+        wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
       wrap.innerHTML = `
         <div class="rating-panel">
           <p class="rp-q">How was this chapter?</p>
