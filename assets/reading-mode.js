@@ -3,7 +3,7 @@
  * library book reading. Self-contained, no imports. Included by:
  *   • chapter.html
  *   • /library/read.html
- *   • every /library/book/*/index.html static book page
+ *   • every /library/book/[slug]/index.html static book page
  *
  * Behavior:
  *   1. On script load (before DOM ready) — read localStorage and apply
