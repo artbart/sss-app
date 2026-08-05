@@ -483,7 +483,7 @@ export async function renderShell(opts = {}) {
     a.href = "/stories.html?openpack=1";
     a.dataset.action = "buy-pack";
     a.title = "One-time $4.99 · adds 3 stories · credits never expire";
-    a.innerHTML = `<span class="n-ico">🎟️</span> Buy story pack`;
+    a.innerHTML = `<span class="n-ico">📦</span> Buy story pack`;
     a.style.marginTop = "8px";
     a.style.opacity = "0.85";
     a.addEventListener("click", (e) => {
