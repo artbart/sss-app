@@ -28,6 +28,45 @@
   <meta property="og:image:height" content="630">
 
   <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    /* Sign-in page: 2-column layout — magic link on the left, password on
+       the right, with a divider between them. Both are always visible so
+       there's no toggle and no "forgot?" flow needed (if you forgot your
+       password you just use the magic link). Mobile stacks the columns. */
+    .signin-card { max-width: 720px !important; text-align: left; }
+    .signin-card > h1, .signin-card > .lede, .signin-card > .brand-large { text-align: center; }
+    .signin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-top: 24px;
+    }
+    .signin-col h2 {
+      font-family: Arial, sans-serif;
+      font-size: 14px; letter-spacing: 0.10em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 14px; font-weight: 600;
+    }
+    .signin-col .btn { width: 100%; margin-top: 12px; }
+    .signin-col .input + .input { margin-top: 10px; }
+    .signin-divider {
+      background: rgba(255,255,255,0.14);
+      width: 1px; align-self: stretch; min-height: 160px;
+    }
+    .signin-hint {
+      font-family: Arial, sans-serif; font-size: 11px; color: var(--faint);
+      margin-top: 8px; line-height: 1.4;
+    }
+    @media (max-width: 640px) {
+      .signin-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .signin-divider {
+        width: 100%; height: 1px; min-height: 0;
+      }
+    }
+  </style>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -44,31 +83,39 @@
   <!-- End Google Tag Manager (noscript) -->
 
   <main class="center">
-    <div class="card">
+    <div class="card signin-card">
       <div class="brand-large">Stuff So <span class="gold">Sweet</span></div>
       <h1 id="signinHeadline">Sign in to <span class="gold">your stories</span>.</h1>
-      <p class="lede" id="signinLede">We'll send a sign-in link to your email — the same one you used at signup.</p>
+      <p class="lede" id="signinLede">Pick whichever's easier — a one-click magic link, or your password if you've set one.</p>
 
-      <form id="signInForm">
-        <input type="email" id="email" class="input" placeholder="you@example.com" autocomplete="email" required>
-        <!-- Password field hidden by default. Revealed when user flips to
-             password mode via the toggle below. Autocomplete='current-password'
-             lets the browser + password manager offer to fill it. -->
-        <input type="password" id="password" class="input mt-16" placeholder="Password" autocomplete="current-password" style="display:none" minlength="6">
-        <button type="submit" id="submitBtn" class="btn mt-16">Send me a sign-in link</button>
-      </form>
+      <div class="signin-grid">
+        <!-- Left column: magic link -->
+        <div class="signin-col">
+          <h2>Use magic link</h2>
+          <form id="magicForm">
+            <input type="email" id="emailMagic" class="input" placeholder="you@example.com" autocomplete="email" required>
+            <button type="submit" id="magicBtn" class="btn">Send me a sign-in link</button>
+            <div id="msgMagic" class="msg" style="display:none;margin-top:10px"></div>
+          </form>
+        </div>
 
-      <!-- Auth-mode toggle. Shows one link at a time depending on which
-           mode we're in. Magic-link path stays the default so nothing
-           changes for the existing user base. -->
-      <div class="fine" id="modeToggle" style="text-align:center;margin-top:14px">
-        <a href="#" id="usePasswordLink">Have a password? Sign in with it →</a>
-        <a href="#" id="useMagicLinkLink" style="display:none">← Use a sign-in link instead</a>
+        <!-- Vertical divider (becomes horizontal on mobile) -->
+        <div class="signin-divider" aria-hidden="true"></div>
+
+        <!-- Right column: password -->
+        <div class="signin-col">
+          <h2>Use password</h2>
+          <form id="passwordForm">
+            <input type="email" id="emailPassword" class="input" placeholder="you@example.com" autocomplete="email" required>
+            <input type="password" id="password" class="input" placeholder="Password" autocomplete="current-password" required minlength="6">
+            <button type="submit" id="passwordBtn" class="btn">Sign in</button>
+            <div class="signin-hint">Forgot? Use the magic link on the left — sign in, then set a new password in Settings.</div>
+            <div id="msgPassword" class="msg" style="display:none;margin-top:10px"></div>
+          </form>
+        </div>
       </div>
 
-      <div id="msg" class="msg" style="display:none"></div>
-
-      <div class="fine">
+      <div class="fine" style="margin-top:24px">
         By signing in you agree to our <a href="https://stuffsosweet.com/terms-of-services.html">Terms</a> and <a href="https://stuffsosweet.com/privacy-policy.html">Privacy Policy</a>.
         <br><br>
         Don't have stories yet? <a href="https://stuffsosweet.com/">Start one →</a>
@@ -82,43 +129,32 @@
     // If a session already exists, skip the sign-in form and go to stories.
     await redirectIfAuthenticated("/stories.html");
 
-    const form = document.getElementById("signInForm");
-    const emailInput = document.getElementById("email");
+    const magicForm    = document.getElementById("magicForm");
+    const passwordForm = document.getElementById("passwordForm");
+    const emailMagic    = document.getElementById("emailMagic");
+    const emailPassword = document.getElementById("emailPassword");
     const passwordInput = document.getElementById("password");
-    const submitBtn = document.getElementById("submitBtn");
-    const msg = document.getElementById("msg");
-    const usePasswordLink = document.getElementById("usePasswordLink");
-    const useMagicLinkLink = document.getElementById("useMagicLinkLink");
+    const magicBtn     = document.getElementById("magicBtn");
+    const passwordBtn  = document.getElementById("passwordBtn");
+    const msgMagic     = document.getElementById("msgMagic");
+    const msgPassword  = document.getElementById("msgPassword");
 
-    // Auth mode: 'link' (default, magic link) or 'password'. Toggle updates
-    // which field is visible + which submit action fires.
-    let mode = "link";
-
-    function showMsg(text, kind = "info") {
-      msg.className = "msg " + kind;
-      msg.textContent = text;
-      msg.style.display = "block";
+    function showMsg(el, text, kind = "info") {
+      el.className = "msg " + kind;
+      el.textContent = text;
+      el.style.display = "block";
     }
 
-    function setMode(next) {
-      mode = next;
-      const isPw = mode === "password";
-      passwordInput.style.display = isPw ? "" : "none";
-      passwordInput.required = isPw;
-      usePasswordLink.style.display = isPw ? "none" : "";
-      useMagicLinkLink.style.display = isPw ? "" : "none";
-      submitBtn.textContent = isPw ? "Sign in" : "Send me a sign-in link";
-      submitBtn.disabled = false;
-      msg.style.display = "none";
-      if (isPw) passwordInput.focus();
-    }
-
-    usePasswordLink.addEventListener("click", (e) => { e.preventDefault(); setMode("password"); });
-    useMagicLinkLink.addEventListener("click", (e) => { e.preventDefault(); setMode("link"); });
+    // Two email fields, one for each column — sync them as the user types
+    // so if they change modes mid-flow they don't have to retype. First
+    // interaction wins if both differ.
+    emailMagic.addEventListener("input", () => { emailPassword.value = emailMagic.value; });
+    emailPassword.addEventListener("input", () => { emailMagic.value = emailPassword.value; });
 
     // Pre-fill email from ?email= query (used by the marketing-site "Read your stories" CTA)
     const params = new URLSearchParams(location.search);
-    if (params.get("email")) emailInput.value = params.get("email");
+    const prefill = params.get("email");
+    if (prefill) { emailMagic.value = prefill; emailPassword.value = prefill; }
 
     // Contextual headline: if user was bounced here from a chapter/story URL
     // (via requireAuth() → /?next=<url>), swap the copy so they know why they
@@ -128,56 +164,42 @@
       document.getElementById("signinHeadline").innerHTML =
         `Sign in to <span class="gold">keep reading</span>.`;
       document.getElementById("signinLede").textContent =
-        "Enter the email you used at signup and we'll send you a one-click link that opens right at your chapter. Or use your password if you've set one.";
+        "Pick whichever's easier — a one-click magic link, or your password if you've set one. Either way we'll drop you back at the chapter.";
     }
 
-    let cooldownUntil = 0;
-    form.addEventListener("submit", async (e) => {
+    // ─── Magic-link submit ────────────────────────────────────────────
+    let magicCooldownUntil = 0;
+    magicForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      // ─── Password mode ──────────────────────────────────────────────
-      if (mode === "password") {
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Signing in…";
-        msg.style.display = "none";
-        const { ok, error } = await signInWithPassword(emailInput.value, passwordInput.value);
-        if (ok) {
-          const target = /^\//.test(next) ? next : "/stories.html";
-          window.location.replace(target);
-        } else {
-          showMsg(error || "Invalid email or password.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Sign in";
-        }
-        return;
-      }
-
-      // ─── Magic-link mode (default) ─────────────────────────────────
-      if (Date.now() < cooldownUntil) return;
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Sending…";
-      msg.style.display = "none";
-
-      const { ok, error } = await requestMagicLink(emailInput.value);
-
+      if (Date.now() < magicCooldownUntil) return;
+      magicBtn.disabled = true;
+      magicBtn.textContent = "Sending…";
+      msgMagic.style.display = "none";
+      const { ok, error } = await requestMagicLink(emailMagic.value);
       if (ok) {
-        showMsg(
-          "Check your inbox — we sent a sign-in link to " + emailInput.value.trim() +
-          ". The link works for 24 hours.",
-          "success"
-        );
-        submitBtn.textContent = "Sign-in link sent ✓";
-        // 30-second cooldown to discourage spam re-clicks
-        cooldownUntil = Date.now() + 30000;
-        setTimeout(() => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Send another link";
-        }, 30000);
+        showMsg(msgMagic, "Check your inbox — link sent to " + emailMagic.value.trim() + ". Works for 24 hours.", "success");
+        magicBtn.textContent = "Sign-in link sent ✓";
+        magicCooldownUntil = Date.now() + 30000;
+        setTimeout(() => { magicBtn.disabled = false; magicBtn.textContent = "Send another link"; }, 30000);
       } else {
-        showMsg(error || "Something went wrong. Try again in a moment.", "error");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Send me a sign-in link";
+        showMsg(msgMagic, error || "Something went wrong. Try again in a moment.", "error");
+        magicBtn.disabled = false; magicBtn.textContent = "Send me a sign-in link";
+      }
+    });
+
+    // ─── Password submit ──────────────────────────────────────────────
+    passwordForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      passwordBtn.disabled = true;
+      passwordBtn.textContent = "Signing in…";
+      msgPassword.style.display = "none";
+      const { ok, error } = await signInWithPassword(emailPassword.value, passwordInput.value);
+      if (ok) {
+        const target = /^\//.test(next) ? next : "/stories.html";
+        window.location.replace(target);
+      } else {
+        showMsg(msgPassword, error || "Invalid email or password.", "error");
+        passwordBtn.disabled = false; passwordBtn.textContent = "Sign in";
       }
     });
   </script>
