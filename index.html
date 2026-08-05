@@ -82,11 +82,55 @@
     </div>
   </main>
 
+  <!-- Non-module tab switcher — runs immediately, no imports, no awaits.
+       Wires up before the module below in case the module import stalls
+       or throws (some mobile browsers have flaky IndexedDB/localStorage
+       that can hang Supabase's session check). Tabs must always work. -->
+  <script>
+    (function () {
+      function wireTabs() {
+        const tabMagic    = document.getElementById("tabMagic");
+        const tabPassword = document.getElementById("tabPassword");
+        const paneMagic    = document.getElementById("paneMagic");
+        const panePassword = document.getElementById("panePassword");
+        if (!tabMagic || !tabPassword || !paneMagic || !panePassword) return;
+        function activate(which) {
+          const isMagic = which === "magic";
+          tabMagic.classList.toggle("is-active", isMagic);
+          tabPassword.classList.toggle("is-active", !isMagic);
+          tabMagic.setAttribute("aria-selected", String(isMagic));
+          tabPassword.setAttribute("aria-selected", String(!isMagic));
+          paneMagic.classList.toggle("is-active", isMagic);
+          panePassword.classList.toggle("is-active", !isMagic);
+          const emailMagic    = document.getElementById("emailMagic");
+          const emailPassword = document.getElementById("emailPassword");
+          const passwordInput = document.getElementById("password");
+          if (emailMagic && emailPassword) {
+            if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
+            if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
+          }
+          const target = isMagic ? emailMagic : (emailPassword && emailPassword.value ? passwordInput : emailPassword);
+          if (target) setTimeout(function () { try { target.focus(); } catch (_) {} }, 30);
+        }
+        tabMagic.addEventListener("click", function () { activate("magic"); });
+        tabPassword.addEventListener("click", function () { activate("password"); });
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", wireTabs);
+      } else {
+        wireTabs();
+      }
+    })();
+  </script>
+
   <script type="module">
     import { redirectIfAuthenticated, requestMagicLink, signInWithPassword } from "/assets/lib.js";
 
     // If a session already exists, skip the sign-in form and go to stories.
-    await redirectIfAuthenticated("/stories.html");
+    // Wrapped so a failure here (e.g. blocked storage on mobile) still
+    // lets the rest of the module — form submits, prefill, contextual copy
+    // — run.
+    try { await redirectIfAuthenticated("/stories.html"); } catch (_) {}
 
     const magicForm    = document.getElementById("magicForm");
     const passwordForm = document.getElementById("passwordForm");
@@ -98,36 +142,11 @@
     const msgMagic     = document.getElementById("msgMagic");
     const msgPassword  = document.getElementById("msgPassword");
 
-    const tabMagic    = document.getElementById("tabMagic");
-    const tabPassword = document.getElementById("tabPassword");
-    const paneMagic    = document.getElementById("paneMagic");
-    const panePassword = document.getElementById("panePassword");
-
     function showMsg(el, text, kind = "info") {
       el.className = "msg " + kind;
       el.textContent = text;
       el.style.display = "block";
     }
-
-    // Tab switching — carry the typed email across so the user doesn't
-    // retype if they change their mind mid-flow.
-    function activateTab(which) {
-      const isMagic = which === "magic";
-      tabMagic.classList.toggle("is-active", isMagic);
-      tabPassword.classList.toggle("is-active", !isMagic);
-      tabMagic.setAttribute("aria-selected", String(isMagic));
-      tabPassword.setAttribute("aria-selected", String(!isMagic));
-      paneMagic.classList.toggle("is-active", isMagic);
-      panePassword.classList.toggle("is-active", !isMagic);
-      // Carry email across
-      if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
-      if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
-      // Focus first empty field in the newly visible pane
-      const target = isMagic ? emailMagic : (emailPassword.value ? passwordInput : emailPassword);
-      setTimeout(() => target.focus(), 30);
-    }
-    tabMagic.addEventListener("click", () => activateTab("magic"));
-    tabPassword.addEventListener("click", () => activateTab("password"));
 
     // Pre-fill email from ?email= query (used by the marketing-site "Read your stories" CTA)
     const params = new URLSearchParams(location.search);

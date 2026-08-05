@@ -66,6 +66,46 @@
     </div>
   </main>
 
+  <!-- Non-module tab switcher — same safety net as the sign-in page.
+       Tabs must work even if the Supabase module below fails to import
+       or hangs on mobile. -->
+  <script>
+    (function () {
+      function wireTabs() {
+        const tabMagic    = document.getElementById("tabMagic");
+        const tabPassword = document.getElementById("tabPassword");
+        const paneMagic    = document.getElementById("paneMagic");
+        const panePassword = document.getElementById("panePassword");
+        if (!tabMagic || !tabPassword || !paneMagic || !panePassword) return;
+        function activate(which) {
+          const isMagic = which === "magic";
+          tabMagic.classList.toggle("is-active", isMagic);
+          tabPassword.classList.toggle("is-active", !isMagic);
+          tabMagic.setAttribute("aria-selected", String(isMagic));
+          tabPassword.setAttribute("aria-selected", String(!isMagic));
+          paneMagic.classList.toggle("is-active", isMagic);
+          panePassword.classList.toggle("is-active", !isMagic);
+          const emailMagic    = document.getElementById("emailMagic");
+          const emailPassword = document.getElementById("emailPassword");
+          const passwordInput = document.getElementById("password");
+          if (emailMagic && emailPassword) {
+            if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
+            if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
+          }
+          const target = isMagic ? emailMagic : (emailPassword && emailPassword.value ? passwordInput : emailPassword);
+          if (target) setTimeout(function () { try { target.focus(); } catch (_) {} }, 30);
+        }
+        tabMagic.addEventListener("click", function () { activate("magic"); });
+        tabPassword.addEventListener("click", function () { activate("password"); });
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", wireTabs);
+      } else {
+        wireTabs();
+      }
+    })();
+  </script>
+
   <script type="module">
     import { supabase, logEvent, requestMagicLink, signInWithPassword } from "/assets/lib.js";
 
@@ -97,18 +137,14 @@
       return null;
     }
 
-    // ─── Fallback forms: same tabbed magic-link + password as the sign-in page.
-    // Wired lazily (only when we're about to show the error state) so the
-    // happy path doesn't pay for any of it.
+    // ─── Fallback forms: wire the same magic-link + password submits as the
+    // sign-in page. Tabs are wired unconditionally by the non-module block
+    // above; here we only bind the form submits (which need imports).
     let formsWired = false;
     function wireFallbackForms() {
       if (formsWired) return;
       formsWired = true;
 
-      const tabMagic    = document.getElementById("tabMagic");
-      const tabPassword = document.getElementById("tabPassword");
-      const paneMagic    = document.getElementById("paneMagic");
-      const panePassword = document.getElementById("panePassword");
       const magicForm    = document.getElementById("magicForm");
       const passwordForm = document.getElementById("passwordForm");
       const emailMagic    = document.getElementById("emailMagic");
@@ -124,22 +160,6 @@
         el.textContent = text;
         el.style.display = "block";
       }
-
-      function activateTab(which) {
-        const isMagic = which === "magic";
-        tabMagic.classList.toggle("is-active", isMagic);
-        tabPassword.classList.toggle("is-active", !isMagic);
-        tabMagic.setAttribute("aria-selected", String(isMagic));
-        tabPassword.setAttribute("aria-selected", String(!isMagic));
-        paneMagic.classList.toggle("is-active", isMagic);
-        panePassword.classList.toggle("is-active", !isMagic);
-        if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
-        if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
-        const target = isMagic ? emailMagic : (emailPassword.value ? passwordInput : emailPassword);
-        setTimeout(() => target.focus(), 30);
-      }
-      tabMagic.addEventListener("click", () => activateTab("magic"));
-      tabPassword.addEventListener("click", () => activateTab("password"));
 
       // Preserve ?next= so both flows land the user back where they were headed.
       const qs = new URLSearchParams(location.search);
