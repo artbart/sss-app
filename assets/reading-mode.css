@@ -118,10 +118,11 @@ html[data-theme="light"] .bottom-nav .bn-item {
 html[data-theme="light"] .bottom-nav .bn-item.active {
   color: var(--text);
 }
-html[data-theme="light"] .u-av {
-  background: var(--card-hi);
+html[data-theme="light"] .u-av,
+html[data-theme="light"] .u-name {
   color: var(--text);
 }
+html[data-theme="light"] .u-av { background: var(--card-hi); }
 
 /* Prose colors — chapter.html and the two library book layouts each
    hardcode their prose color. Override them all. */
