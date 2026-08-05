@@ -1,0 +1,276 @@
+/* Reading mode — dark ↔ light theme + 3 light palettes for long-form
+   chapter/library reading. Applied via data attributes on <html>:
+     data-theme="dark" | "light"
+     data-palette="sepia" | "pocket" | "paper"      (only meaningful in light)
+   State is persisted in localStorage["sss.readingTheme" | "sss.readingPalette"]
+   by /assets/reading-mode.js. This file is CSS-only.
+
+   Included by: chapter.html, /library/read.html, and every /library/book/*/
+   static book page. app-shell + style.css always load first; this file
+   only overrides variables + a handful of hardcoded prose colors. */
+
+/* ═══ LIGHT — SEPIA (Apple iBooks / Kobo style) ═══════════════════
+   Warmest of the three. Cream paper, warm-brown text, deeper gold.
+   Best in low-light rooms; feels like a physical book. */
+html[data-theme="light"][data-palette="sepia"] {
+  --bg-top:      #f2e8d5;
+  --bg-bottom:   #e6dcc4;
+  --text:        #3a3229;
+  --muted:       rgba(58,50,41,0.85);
+  --faint:       rgba(58,50,41,0.60);
+  --very-faint:  rgba(58,50,41,0.38);
+  --gold:        #8f6a00;
+  --cta:         #b0303c;
+  --cta-hover:   #8f2531;
+  --card:        rgba(58,50,41,0.05);
+  --card-hi:     rgba(58,50,41,0.10);
+  --input:       rgba(58,50,41,0.06);
+  --err:         #b3261e;
+  --rm-prose:    #443d33;
+  --rm-border:   rgba(58,50,41,0.14);
+  --rm-toolbar-bg: rgba(58,50,41,0.06);
+}
+
+/* ═══ LIGHT — POCKET / INSTAPAPER ═════════════════════════════════
+   Pale-yellow paper, near-black text. Web-reader convention (Pocket,
+   Instapaper, Firefox Reader View). Slightly cooler than sepia. */
+html[data-theme="light"][data-palette="pocket"] {
+  --bg-top:      #f5eecc;
+  --bg-bottom:   #efe7c2;
+  --text:        #333333;
+  --muted:       rgba(51,51,51,0.85);
+  --faint:       rgba(51,51,51,0.60);
+  --very-faint:  rgba(51,51,51,0.38);
+  --gold:        #8a6a00;
+  --cta:         #b0303c;
+  --cta-hover:   #8f2531;
+  --card:        rgba(51,51,51,0.04);
+  --card-hi:     rgba(51,51,51,0.09);
+  --input:       rgba(51,51,51,0.06);
+  --err:         #b3261e;
+  --rm-prose:    #383e40;
+  --rm-border:   rgba(51,51,51,0.13);
+  --rm-toolbar-bg: rgba(51,51,51,0.07);
+}
+
+/* ═══ LIGHT — PAPER (near-white) ══════════════════════════════════
+   Almost white with a hint of warmth. Kindle Paperwhite feel.
+   Coolest of the three; best in bright rooms. */
+html[data-theme="light"][data-palette="paper"] {
+  --bg-top:      #fafaf7;
+  --bg-bottom:   #f2f1ec;
+  --text:        #1a1a1a;
+  --muted:       rgba(26,26,26,0.85);
+  --faint:       rgba(26,26,26,0.58);
+  --very-faint:  rgba(26,26,26,0.38);
+  --gold:        #7d5900;
+  --cta:         #b0303c;
+  --cta-hover:   #8f2531;
+  --card:        rgba(26,26,26,0.04);
+  --card-hi:     rgba(26,26,26,0.08);
+  --input:       rgba(26,26,26,0.05);
+  --err:         #b3261e;
+  --rm-prose:    #2b2b2b;
+  --rm-border:   rgba(26,26,26,0.11);
+  --rm-toolbar-bg: rgba(26,26,26,0.06);
+}
+
+/* When light theme is on, unset the burgundy body gradient — the CSS
+   var override above changed the endpoints, so the gradient is now
+   cream-on-cream and looks flat. Use a soft top-to-bottom gradient
+   between the two palette-defined endpoints instead. */
+html[data-theme="light"], html[data-theme="light"] body {
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  color: var(--text);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* App shell — rail, mobile header, bottom nav — flip cleanly.
+   All rely on rgba(255,255,255,x) hardcodes we need to override. */
+html[data-theme="light"] .m-header,
+html[data-theme="light"] .rail {
+  background: rgba(0,0,0,0.03);
+  border-color: var(--rm-border);
+}
+html[data-theme="light"] .m-brand,
+html[data-theme="light"] .rail-brand {
+  color: var(--text);
+}
+html[data-theme="light"] .rail-nav a {
+  color: var(--muted);
+}
+html[data-theme="light"] .rail-nav a:hover {
+  background: var(--card-hi);
+  color: var(--text);
+}
+html[data-theme="light"] .rail-nav a.active {
+  background: var(--card-hi);
+  color: var(--text);
+}
+html[data-theme="light"] .bottom-nav {
+  background: rgba(0,0,0,0.04);
+  border-color: var(--rm-border);
+}
+html[data-theme="light"] .bottom-nav .bn-item {
+  color: var(--muted);
+}
+html[data-theme="light"] .bottom-nav .bn-item.active {
+  color: var(--text);
+}
+html[data-theme="light"] .u-av {
+  background: var(--card-hi);
+  color: var(--text);
+}
+
+/* Prose colors — chapter.html and the two library book layouts each
+   hardcode their prose color. Override them all. */
+html[data-theme="light"] .prose p {                       /* chapter.html */
+  color: var(--rm-prose);
+}
+html[data-theme="light"] .ch-body,
+html[data-theme="light"] .ch-body p {                     /* /library/read.html + static books */
+  color: var(--rm-prose);
+}
+html[data-theme="light"] .ch-body em {
+  color: var(--rm-prose);
+  opacity: 0.95;
+}
+html[data-theme="light"] .ch-body hr.scene-break {
+  background: rgba(140,106,0,0.28);
+}
+
+/* Reader canvas typographic bits (chapter.html story-title / label) */
+html[data-theme="light"] .story-title {
+  color: var(--very-faint);
+}
+html[data-theme="light"] .chapter-label {
+  color: var(--faint);
+}
+
+/* Library book hero + TOC — the static book pages use these classes,
+   and /library/read.html mirrors them exactly. */
+html[data-theme="light"] .book-hero h1,
+html[data-theme="light"] .book-hero .cover-frame .cover-title-overlay,
+html[data-theme="light"] .ch-title,
+html[data-theme="light"] .book-end .the-end {
+  color: var(--gold);
+}
+html[data-theme="light"] .book-hero .author,
+html[data-theme="light"] .book-hero .meta,
+html[data-theme="light"] .toc h2,
+html[data-theme="light"] .ch-num,
+html[data-theme="light"] .toc-num {
+  color: var(--faint);
+}
+html[data-theme="light"] .book-hero .summary {
+  color: var(--rm-prose);
+  opacity: 1;
+}
+html[data-theme="light"] .toc li a {
+  color: var(--text);
+  border-color: var(--rm-border);
+}
+html[data-theme="light"] .toc li a:hover {
+  color: var(--gold);
+}
+html[data-theme="light"] .book-end .back-link {
+  color: var(--text);
+  border-color: var(--rm-border);
+}
+
+/* Chapter reader controls (chapter.html) — option buttons + nav row */
+html[data-theme="light"] .option-btn {
+  background: var(--cta); color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+html[data-theme="light"] .option-btn:hover { background: var(--cta-hover); }
+html[data-theme="light"] .nav-btn {
+  background: var(--card);
+  color: var(--muted);
+  border-color: var(--rm-border);
+}
+html[data-theme="light"] .nav-btn:hover {
+  background: var(--card-hi); color: var(--text);
+}
+html[data-theme="light"] .nav-btn.primary,
+html[data-theme="light"] .nav-btn.primary:hover {
+  background: var(--cta); color: #fff; border-color: var(--cta);
+}
+html[data-theme="light"] .waiting-card {
+  background: rgba(140,106,0,0.06);
+  border-color: rgba(140,106,0,0.28);
+}
+html[data-theme="light"] .waiting-card .label { color: var(--text); }
+
+/* ─── Reading-mode toolbar (toggle + palette picker) ──────────────
+   Two patterns:
+     .rm-toolbar        — standalone right-aligned row (library book pages)
+     .reader-header     — inline row: [back-link] on the left, [.rm-toolbar]
+                          on the right (chapter.html — reuses existing
+                          .back-link markup). */
+.rm-toolbar {
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 8px; margin: 0 0 16px;
+}
+.reader-header {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin: 0 0 18px;
+}
+.reader-header .back-link { margin-bottom: 0; }
+.reader-header .rm-toolbar { margin-bottom: 0; }
+.rm-toolbar .rm-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px 7px 10px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); color: #fff;
+  border: 1px solid rgba(255,255,255,0.10);
+  font-family: Arial, sans-serif; font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+}
+.rm-toolbar .rm-btn:hover { background: rgba(255,255,255,0.14); }
+.rm-toolbar .rm-btn:active { transform: scale(0.97); }
+.rm-toolbar .rm-btn .ico { font-size: 14px; line-height: 1; }
+
+.rm-palette {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 999px; padding: 3px;
+}
+.rm-palette button {
+  background: transparent; border: none; cursor: pointer;
+  padding: 5px 10px; border-radius: 999px;
+  font-family: Arial, sans-serif; font-size: 11px; font-weight: 500;
+  color: #fff; opacity: 0.6;
+  transition: background 0.15s, opacity 0.15s;
+}
+.rm-palette button.active {
+  background: rgba(255,255,255,0.14); opacity: 1;
+}
+
+/* Light-mode toolbar re-skins */
+html[data-theme="light"] .rm-toolbar .rm-btn {
+  background: var(--rm-toolbar-bg);
+  color: var(--text);
+  border-color: var(--rm-border);
+}
+html[data-theme="light"] .rm-toolbar .rm-btn:hover { background: var(--card-hi); }
+html[data-theme="light"] .rm-palette {
+  background: var(--rm-toolbar-bg);
+  border-color: var(--rm-border);
+}
+html[data-theme="light"] .rm-palette button { color: var(--text); }
+html[data-theme="light"] .rm-palette button.active { background: var(--card-hi); }
+
+/* Palette picker is a light-mode-only affordance — hide in dark. */
+html[data-theme="dark"] .rm-palette,
+html:not([data-theme="light"]) .rm-palette {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .rm-toolbar { flex-wrap: wrap; gap: 6px; }
+  .rm-toolbar .rm-btn { font-size: 11px; padding: 6px 10px 6px 8px; }
+  .rm-palette button { padding: 4px 8px; font-size: 10px; }
+}
