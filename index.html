@@ -29,42 +29,43 @@
 
   <link rel="stylesheet" href="/assets/style.css">
   <style>
-    /* Sign-in page: 2-column layout — magic link on the left, password on
-       the right, with a divider between them. Both are always visible so
-       there's no toggle and no "forgot?" flow needed (if you forgot your
-       password you just use the magic link). Mobile stacks the columns. */
-    .signin-card { max-width: 720px !important; text-align: left; }
-    .signin-card > h1, .signin-card > .lede, .signin-card > .brand-large { text-align: center; }
-    .signin-grid {
-      display: grid;
-      grid-template-columns: 1fr 1px 1fr;
-      gap: 24px;
-      align-items: start;
-      margin-top: 24px;
+    /* Sign-in page: single centered card with two tabs — Magic link
+       (default) and Password. User switches with the tab strip; each tab
+       swaps in its own form below. If you forgot your password you just
+       use the magic link tab — no dedicated forgot flow. */
+    .signin-tabs {
+      display: flex;
+      gap: 0;
+      margin: 22px 0 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
     }
-    .signin-col h2 {
+    .signin-tab {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
       font-family: Arial, sans-serif;
-      font-size: 14px; letter-spacing: 0.10em; text-transform: uppercase;
-      color: var(--muted); margin: 0 0 14px; font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 10px 6px 12px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
     }
-    .signin-col .btn { width: 100%; margin-top: 12px; }
-    .signin-col .input + .input { margin-top: 10px; }
-    .signin-divider {
-      background: rgba(255,255,255,0.14);
-      width: 1px; align-self: stretch; min-height: 160px;
+    .signin-tab:hover { color: var(--ink); }
+    .signin-tab.is-active {
+      color: var(--ink);
+      border-bottom-color: var(--gold, #c9a961);
     }
+    .signin-pane { display: none; }
+    .signin-pane.is-active { display: block; }
+    .signin-pane .input + .input { margin-top: 10px; }
+    .signin-pane .btn { width: 100%; margin-top: 12px; }
     .signin-hint {
       font-family: Arial, sans-serif; font-size: 11px; color: var(--faint);
-      margin-top: 8px; line-height: 1.4;
-    }
-    @media (max-width: 640px) {
-      .signin-grid {
-        grid-template-columns: 1fr;
-        gap: 18px;
-      }
-      .signin-divider {
-        width: 100%; height: 1px; min-height: 0;
-      }
+      margin-top: 10px; line-height: 1.4; text-align: center;
     }
   </style>
   <!-- Google Tag Manager -->
@@ -83,36 +84,34 @@
   <!-- End Google Tag Manager (noscript) -->
 
   <main class="center">
-    <div class="card signin-card">
+    <div class="card">
       <div class="brand-large">Stuff So <span class="gold">Sweet</span></div>
       <h1 id="signinHeadline">Sign in to <span class="gold">your stories</span>.</h1>
-      <p class="lede" id="signinLede">Pick whichever's easier — a one-click magic link, or your password if you've set one.</p>
+      <p class="lede" id="signinLede">Choose your sign-in method below.</p>
 
-      <div class="signin-grid">
-        <!-- Left column: magic link -->
-        <div class="signin-col">
-          <h2>Use magic link</h2>
-          <form id="magicForm">
-            <input type="email" id="emailMagic" class="input" placeholder="you@example.com" autocomplete="email" required>
-            <button type="submit" id="magicBtn" class="btn">Send me a sign-in link</button>
-            <div id="msgMagic" class="msg" style="display:none;margin-top:10px"></div>
-          </form>
-        </div>
+      <div class="signin-tabs" role="tablist">
+        <button type="button" class="signin-tab is-active" id="tabMagic" role="tab" aria-selected="true" aria-controls="paneMagic">Magic link</button>
+        <button type="button" class="signin-tab" id="tabPassword" role="tab" aria-selected="false" aria-controls="panePassword">Password</button>
+      </div>
 
-        <!-- Vertical divider (becomes horizontal on mobile) -->
-        <div class="signin-divider" aria-hidden="true"></div>
+      <!-- Magic-link pane (default) -->
+      <div class="signin-pane is-active" id="paneMagic" role="tabpanel" aria-labelledby="tabMagic">
+        <form id="magicForm">
+          <input type="email" id="emailMagic" class="input" placeholder="you@example.com" autocomplete="email" required>
+          <button type="submit" id="magicBtn" class="btn">Send me a sign-in link</button>
+          <div id="msgMagic" class="msg" style="display:none;margin-top:10px"></div>
+        </form>
+      </div>
 
-        <!-- Right column: password -->
-        <div class="signin-col">
-          <h2>Use password</h2>
-          <form id="passwordForm">
-            <input type="email" id="emailPassword" class="input" placeholder="you@example.com" autocomplete="email" required>
-            <input type="password" id="password" class="input" placeholder="Password" autocomplete="current-password" required minlength="6">
-            <button type="submit" id="passwordBtn" class="btn">Sign in</button>
-            <div class="signin-hint">Forgot? Use the magic link on the left — sign in, then set a new password in Settings.</div>
-            <div id="msgPassword" class="msg" style="display:none;margin-top:10px"></div>
-          </form>
-        </div>
+      <!-- Password pane -->
+      <div class="signin-pane" id="panePassword" role="tabpanel" aria-labelledby="tabPassword">
+        <form id="passwordForm">
+          <input type="email" id="emailPassword" class="input" placeholder="you@example.com" autocomplete="email" required>
+          <input type="password" id="password" class="input" placeholder="Password" autocomplete="current-password" required minlength="6">
+          <button type="submit" id="passwordBtn" class="btn">Sign in</button>
+          <div class="signin-hint">Forgot? Switch back to the Magic link tab — sign in, then set a new password in Settings.</div>
+          <div id="msgPassword" class="msg" style="display:none;margin-top:10px"></div>
+        </form>
       </div>
 
       <div class="fine" style="margin-top:24px">
@@ -139,17 +138,36 @@
     const msgMagic     = document.getElementById("msgMagic");
     const msgPassword  = document.getElementById("msgPassword");
 
+    const tabMagic    = document.getElementById("tabMagic");
+    const tabPassword = document.getElementById("tabPassword");
+    const paneMagic    = document.getElementById("paneMagic");
+    const panePassword = document.getElementById("panePassword");
+
     function showMsg(el, text, kind = "info") {
       el.className = "msg " + kind;
       el.textContent = text;
       el.style.display = "block";
     }
 
-    // Two email fields, one for each column — sync them as the user types
-    // so if they change modes mid-flow they don't have to retype. First
-    // interaction wins if both differ.
-    emailMagic.addEventListener("input", () => { emailPassword.value = emailMagic.value; });
-    emailPassword.addEventListener("input", () => { emailMagic.value = emailPassword.value; });
+    // Tab switching — carry the typed email across so the user doesn't
+    // retype if they change their mind mid-flow.
+    function activateTab(which) {
+      const isMagic = which === "magic";
+      tabMagic.classList.toggle("is-active", isMagic);
+      tabPassword.classList.toggle("is-active", !isMagic);
+      tabMagic.setAttribute("aria-selected", String(isMagic));
+      tabPassword.setAttribute("aria-selected", String(!isMagic));
+      paneMagic.classList.toggle("is-active", isMagic);
+      panePassword.classList.toggle("is-active", !isMagic);
+      // Carry email across
+      if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
+      if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
+      // Focus first empty field in the newly visible pane
+      const target = isMagic ? emailMagic : (emailPassword.value ? passwordInput : emailPassword);
+      setTimeout(() => target.focus(), 30);
+    }
+    tabMagic.addEventListener("click", () => activateTab("magic"));
+    tabPassword.addEventListener("click", () => activateTab("password"));
 
     // Pre-fill email from ?email= query (used by the marketing-site "Read your stories" CTA)
     const params = new URLSearchParams(location.search);
@@ -164,7 +182,7 @@
       document.getElementById("signinHeadline").innerHTML =
         `Sign in to <span class="gold">keep reading</span>.`;
       document.getElementById("signinLede").textContent =
-        "Pick whichever's easier — a one-click magic link, or your password if you've set one. Either way we'll drop you back at the chapter.";
+        "Either method will drop you back at the chapter.";
     }
 
     // ─── Magic-link submit ────────────────────────────────────────────

@@ -103,12 +103,7 @@ a:hover { text-decoration: underline; }
   color: #fff4ec;
   margin-bottom: 32px;
 }
-.brand-large::before,
-.brand-large::after {
-  content: "•";
-  color: var(--gold);
-  font-size: 14px;
-}
+/* Old decorative dots (• • • wordmark) removed — cleaner without. */
 
 h1 {
   font-size: clamp(28px, 6vw, 36px);
