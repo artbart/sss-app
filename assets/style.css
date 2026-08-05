@@ -103,7 +103,48 @@ a:hover { text-decoration: underline; }
   color: #fff4ec;
   margin-bottom: 32px;
 }
-/* Old decorative dots (• • • wordmark) removed — cleaner without. */
+/* Old decorative dots ( wordmark) removed — cleaner without. */
+
+/* Tabbed sign-in — shared by / (fresh sign-in) and /auth/callback (link-
+   expired fallback). Same card, same tabs, same forms. */
+.signin-tabs {
+  display: flex;
+  gap: 0;
+  margin: 22px 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.signin-tab {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 10px 6px 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.signin-tab:hover { color: var(--ink); }
+.signin-tab.is-active {
+  color: var(--ink);
+  border-bottom-color: var(--gold, #c9a961);
+}
+.signin-pane { display: none; }
+.signin-pane.is-active { display: block; }
+.signin-pane .input + .input { margin-top: 10px; }
+.signin-pane .btn { width: 100%; margin-top: 12px; }
+.signin-hint {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: var(--faint);
+  margin-top: 10px;
+  line-height: 1.4;
+  text-align: center;
+}
 
 h1 {
   font-size: clamp(28px, 6vw, 36px);

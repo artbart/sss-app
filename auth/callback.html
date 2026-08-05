@@ -36,14 +36,38 @@
       </div>
       <div id="err" style="display:none">
         <h2>This sign-in link didn't work.</h2>
-        <p class="lede" id="errDetail"></p>
-        <a class="btn mt-16" style="display:inline-block;text-decoration:none;text-align:center" href="/">Send a new link</a>
+        <p class="lede" id="errDetail">The link may have expired (links last 24 hours) or already been used. Sign in again below — pick whichever's easier.</p>
+
+        <div class="signin-tabs" role="tablist">
+          <button type="button" class="signin-tab is-active" id="tabMagic" role="tab" aria-selected="true" aria-controls="paneMagic">Magic link</button>
+          <button type="button" class="signin-tab" id="tabPassword" role="tab" aria-selected="false" aria-controls="panePassword">Password</button>
+        </div>
+
+        <!-- Magic-link pane (default) -->
+        <div class="signin-pane is-active" id="paneMagic" role="tabpanel" aria-labelledby="tabMagic">
+          <form id="magicForm">
+            <input type="email" id="emailMagic" class="input" placeholder="you@example.com" autocomplete="email" required>
+            <button type="submit" id="magicBtn" class="btn">Send me a new link</button>
+            <div id="msgMagic" class="msg" style="display:none;margin-top:10px"></div>
+          </form>
+        </div>
+
+        <!-- Password pane -->
+        <div class="signin-pane" id="panePassword" role="tabpanel" aria-labelledby="tabPassword">
+          <form id="passwordForm">
+            <input type="email" id="emailPassword" class="input" placeholder="you@example.com" autocomplete="email" required>
+            <input type="password" id="password" class="input" placeholder="Password" autocomplete="current-password" required minlength="6">
+            <button type="submit" id="passwordBtn" class="btn">Sign in</button>
+            <div class="signin-hint">Forgot? Switch back to the Magic link tab — sign in, then set a new password in Settings.</div>
+            <div id="msgPassword" class="msg" style="display:none;margin-top:10px"></div>
+          </form>
+        </div>
       </div>
     </div>
   </main>
 
   <script type="module">
-    import { supabase, logEvent } from "/assets/lib.js";
+    import { supabase, logEvent, requestMagicLink, signInWithPassword } from "/assets/lib.js";
 
     const working = document.getElementById("working");
     const okEl = document.getElementById("ok");
@@ -52,11 +76,117 @@
 
     function fail(detail) {
       working.style.display = "none";
-      errDetail.textContent = detail || "The link may have expired (links last 24 hours) or already been used.";
+      if (detail) errDetail.textContent = detail;
+      // else leave the default helpful copy already in the DOM
       errEl.style.display = "block";
+      wireFallbackForms();
     }
 
+    // Supabase surfaces link-expired / already-used errors in the URL hash
+    // as `#error=access_denied&error_code=otp_expired&...`. If we spot that,
+    // skip the exchange attempt entirely and go straight to the fallback —
+    // the SDK would throw a generic "no session" otherwise.
+    function hashError() {
+      const h = (location.hash || "").replace(/^#/, "");
+      if (!h) return null;
+      const p = new URLSearchParams(h);
+      if (p.get("error") || p.get("error_code")) {
+        return p.get("error_description")?.replace(/\+/g, " ")
+          || "The link may have expired or already been used.";
+      }
+      return null;
+    }
+
+    // ─── Fallback forms: same tabbed magic-link + password as the sign-in page.
+    // Wired lazily (only when we're about to show the error state) so the
+    // happy path doesn't pay for any of it.
+    let formsWired = false;
+    function wireFallbackForms() {
+      if (formsWired) return;
+      formsWired = true;
+
+      const tabMagic    = document.getElementById("tabMagic");
+      const tabPassword = document.getElementById("tabPassword");
+      const paneMagic    = document.getElementById("paneMagic");
+      const panePassword = document.getElementById("panePassword");
+      const magicForm    = document.getElementById("magicForm");
+      const passwordForm = document.getElementById("passwordForm");
+      const emailMagic    = document.getElementById("emailMagic");
+      const emailPassword = document.getElementById("emailPassword");
+      const passwordInput = document.getElementById("password");
+      const magicBtn     = document.getElementById("magicBtn");
+      const passwordBtn  = document.getElementById("passwordBtn");
+      const msgMagic     = document.getElementById("msgMagic");
+      const msgPassword  = document.getElementById("msgPassword");
+
+      function showMsg(el, text, kind = "info") {
+        el.className = "msg " + kind;
+        el.textContent = text;
+        el.style.display = "block";
+      }
+
+      function activateTab(which) {
+        const isMagic = which === "magic";
+        tabMagic.classList.toggle("is-active", isMagic);
+        tabPassword.classList.toggle("is-active", !isMagic);
+        tabMagic.setAttribute("aria-selected", String(isMagic));
+        tabPassword.setAttribute("aria-selected", String(!isMagic));
+        paneMagic.classList.toggle("is-active", isMagic);
+        panePassword.classList.toggle("is-active", !isMagic);
+        if (isMagic && emailPassword.value && !emailMagic.value) emailMagic.value = emailPassword.value;
+        if (!isMagic && emailMagic.value && !emailPassword.value) emailPassword.value = emailMagic.value;
+        const target = isMagic ? emailMagic : (emailPassword.value ? passwordInput : emailPassword);
+        setTimeout(() => target.focus(), 30);
+      }
+      tabMagic.addEventListener("click", () => activateTab("magic"));
+      tabPassword.addEventListener("click", () => activateTab("password"));
+
+      // Preserve ?next= so both flows land the user back where they were headed.
+      const qs = new URLSearchParams(location.search);
+      const next = qs.get("next") || "";
+
+      // Magic-link submit — same rate-limit-aware pattern as index.html.
+      let magicCooldownUntil = 0;
+      magicForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (Date.now() < magicCooldownUntil) return;
+        magicBtn.disabled = true; magicBtn.textContent = "Sending…";
+        msgMagic.style.display = "none";
+        const { ok, error } = await requestMagicLink(emailMagic.value);
+        if (ok) {
+          showMsg(msgMagic, "Check your inbox — new link sent to " + emailMagic.value.trim() + ". Works for 24 hours.", "success");
+          magicBtn.textContent = "Sign-in link sent";
+          magicCooldownUntil = Date.now() + 30000;
+          setTimeout(() => { magicBtn.disabled = false; magicBtn.textContent = "Send another link"; }, 30000);
+        } else {
+          showMsg(msgMagic, error || "Something went wrong. Try again in a moment.", "error");
+          magicBtn.disabled = false; magicBtn.textContent = "Send me a new link";
+        }
+      });
+
+      // Password submit — sign in and redirect back to ?next= or /stories.html.
+      passwordForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        passwordBtn.disabled = true; passwordBtn.textContent = "Signing in…";
+        msgPassword.style.display = "none";
+        const { ok, error } = await signInWithPassword(emailPassword.value, passwordInput.value);
+        if (ok) {
+          const target = /^\//.test(next) ? next : "/stories.html";
+          window.location.replace(target);
+        } else {
+          showMsg(msgPassword, error || "Invalid email or password.", "error");
+          passwordBtn.disabled = false; passwordBtn.textContent = "Sign in";
+        }
+      });
+    }
+
+    // ─── Main flow ───────────────────────────────────────────────────
     try {
+      // If the URL hash tells us the link is already dead, skip straight to
+      // the fallback with the real error message.
+      const hashErr = hashError();
+      if (hashErr) { fail(hashErr); throw new Error("__handled__"); }
+
       // detectSessionInUrl is on, so the SDK auto-exchanges the token from
       // the URL hash/query into a session. Then we just confirm the session.
       // Some Supabase versions need a manual exchangeCodeForSession when ?code= is in the URL.
@@ -92,8 +222,10 @@
 
       setTimeout(() => { window.location.href = target; }, 800);
     } catch (e) {
-      console.error("[sss-app] callback failed:", e);
-      fail(e?.message);
+      if (e?.message !== "__handled__") {
+        console.error("[sss-app] callback failed:", e);
+        fail(e?.message);
+      }
     }
   </script>
 </body>
