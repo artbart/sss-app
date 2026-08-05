@@ -880,7 +880,7 @@
   </nav>
 
   <script type="module">
-    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js?v=46";
+    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js?v=47";
 
     // ─── LOCALHOST PREVIEW MODE (mock data, no auth, no DB) ────────────
     // On localhost with ?preview=1, skip auth and inject realistic mock
@@ -1417,7 +1417,7 @@
         const err = document.getElementById("packErr");
         btn.disabled = true; btn.textContent = "Opening Stripe…";
         err.style.display = "none";
-        const { startStoryPackCheckout } = await import("/assets/lib.js?v=46");
+        const { startStoryPackCheckout } = await import("/assets/lib.js?v=47");
         const { ok, error } = await startStoryPackCheckout({ returnPath: "/stories.html" });
         if (!ok) {
           err.textContent = error || "Couldn't reach checkout.";
@@ -1430,14 +1430,13 @@
     }
     function openPackModal() {
       const m = ensurePackModal();
-      const ctx = window.__sssPackContext || { credits: 0, monthlyLeft: 0 };
+      const ctx = window.__sssPackContext || { credits: 0, used: 0, total: 0 };
       const ctxEl = document.getElementById("packContext");
       if (ctxEl) {
-        ctxEl.textContent = ctx.credits > 0
-          ? `You currently have ${ctx.credits} extra credits · ${ctx.monthlyLeft} monthly left`
-          : (ctx.monthlyLeft === 0
-              ? `You've used all your monthly stories. Quota resets on the 1st.`
-              : `You currently have ${ctx.monthlyLeft} monthly stories left`);
+        const left = Math.max(0, (ctx.total || 0) - (ctx.used || 0));
+        ctxEl.textContent = left === 0
+          ? `You've used all your stories (${ctx.used}/${ctx.total}). Adding a pack takes you to ${ctx.used}/${ctx.total + 3}.`
+          : `Currently at ${ctx.used}/${ctx.total} · adding a pack takes you to ${ctx.used}/${ctx.total + 3}.`;
       }
       m.style.display = "flex";
     }
