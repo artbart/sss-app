@@ -109,6 +109,47 @@ export async function requestMagicLink(email) {
   return { ok: true };
 }
 
+// Sign in with email + password. Optional path alongside magic-link auth —
+// users who've set a password in settings can skip the email round-trip.
+// Returns { ok: true, session } on success, { ok: false, error } on failure.
+export async function signInWithPassword(email, password) {
+  const cleaned = (email || "").trim().toLowerCase();
+  if (!cleaned || !cleaned.includes("@")) {
+    return { ok: false, error: "Enter a valid email address." };
+  }
+  if (!password || password.length < 6) {
+    return { ok: false, error: "Password must be at least 6 characters." };
+  }
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: cleaned,
+    password,
+  });
+  if (error) {
+    console.error("[sss-app] signInWithPassword failed:", error);
+    // Supabase's default 'Invalid login credentials' is user-friendly enough.
+    return { ok: false, error: error.message || "Invalid email or password." };
+  }
+  try { await logEvent("password_signin", { email: cleaned }); } catch (_) {}
+  return { ok: true, session: data.session };
+}
+
+// Set (or change) the current user's password. Requires an active session —
+// call this from settings.html, not from the sign-in page. Supabase's minimum
+// password length is 6; the check here mirrors that so we fail fast with a
+// clean error instead of sending the RPC and reading a cryptic response.
+export async function setPassword(newPassword) {
+  if (!newPassword || newPassword.length < 6) {
+    return { ok: false, error: "Password must be at least 6 characters." };
+  }
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) {
+    console.error("[sss-app] setPassword failed:", error);
+    return { ok: false, error: error.message || "Couldn't set password. Try again." };
+  }
+  try { await logEvent("password_set"); } catch (_) {}
+  return { ok: true };
+}
+
 // Fetch the current session (or null).
 export async function getSession() {
   const { data } = await supabase.auth.getSession();

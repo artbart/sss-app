@@ -214,6 +214,29 @@
           <div class="save-status" id="saveStatus"></div>
         </form>
 
+        <!-- ─── Password section (outside the main <form>) ─────────────
+             Kept out of the settings form so setting/changing a password
+             doesn't re-save the notification preferences. Own submit
+             button, own status line. Magic-link sign-in still works
+             regardless — this is purely additive. -->
+        <div class="section" id="passwordSection" style="margin-top:24px;">
+          <h2>Password</h2>
+          <p class="field-label" style="margin-bottom: 12px;">
+            Optional. If set, you can sign in with email + password instead of
+            waiting for a magic link. Magic-link sign-in still works either way.
+          </p>
+          <div class="field">
+            <label class="field-label" for="passwordNew">New password</label>
+            <input class="input" type="password" id="passwordNew" placeholder="At least 6 characters" autocomplete="new-password" minlength="6">
+          </div>
+          <div class="field">
+            <label class="field-label" for="passwordConfirm">Confirm password</label>
+            <input class="input" type="password" id="passwordConfirm" placeholder="Repeat it once" autocomplete="new-password" minlength="6">
+          </div>
+          <button type="button" class="cta-primary" id="passwordSaveBtn" style="margin-top:6px">Set password</button>
+          <div class="save-status" id="passwordStatus"></div>
+        </div>
+
         <div class="section" id="subSection" style="display:none;margin-top:24px;">
           <h2>Subscription</h2>
           <div class="field-readonly" id="subStatusLine" style="margin-bottom:14px;">…</div>
@@ -238,7 +261,7 @@
   </nav>
 
   <script type="module">
-    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode, posthog, posthogReady } from "/assets/lib.js";
+    import { supabase, renderShell, signOut, logEvent, getSessionOrPreview, isPreviewMode, posthog, posthogReady, setPassword } from "/assets/lib.js";
 
     const session = await getSessionOrPreview({
       users: [{
@@ -316,6 +339,37 @@
       status.textContent = "Saved ✓"; status.className = "save-status ok";
       saveBtn.disabled = false; saveBtn.textContent = "Save changes";
       setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 3000);
+    });
+
+    // ── Password (opt-in, additive to magic-link auth) ───
+    $("passwordSaveBtn").addEventListener("click", async () => {
+      const btn = $("passwordSaveBtn"), status = $("passwordStatus");
+      const pw = $("passwordNew").value;
+      const pw2 = $("passwordConfirm").value;
+      status.textContent = "";
+      if (pw !== pw2) {
+        status.textContent = "The two passwords don't match.";
+        status.className = "save-status err";
+        return;
+      }
+      if (pw.length < 6) {
+        status.textContent = "Password must be at least 6 characters.";
+        status.className = "save-status err";
+        return;
+      }
+      btn.disabled = true; btn.textContent = "Setting…";
+      const { ok, error } = await setPassword(pw);
+      if (ok) {
+        $("passwordNew").value = "";
+        $("passwordConfirm").value = "";
+        status.textContent = "Password set ✓ — you can now sign in with email + password on the sign-in page.";
+        status.className = "save-status ok";
+      } else {
+        status.textContent = "Couldn't set password: " + error;
+        status.className = "save-status err";
+      }
+      btn.disabled = false; btn.textContent = "Set password";
+      setTimeout(() => { if (status.classList.contains("ok")) { status.textContent = ""; status.className = "save-status"; } }, 6000);
     });
 
     // ── Subscription management ────────────────────────

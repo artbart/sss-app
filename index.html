@@ -51,8 +51,20 @@
 
       <form id="signInForm">
         <input type="email" id="email" class="input" placeholder="you@example.com" autocomplete="email" required>
+        <!-- Password field hidden by default. Revealed when user flips to
+             password mode via the toggle below. Autocomplete='current-password'
+             lets the browser + password manager offer to fill it. -->
+        <input type="password" id="password" class="input mt-16" placeholder="Password" autocomplete="current-password" style="display:none" minlength="6">
         <button type="submit" id="submitBtn" class="btn mt-16">Send me a sign-in link</button>
       </form>
+
+      <!-- Auth-mode toggle. Shows one link at a time depending on which
+           mode we're in. Magic-link path stays the default so nothing
+           changes for the existing user base. -->
+      <div class="fine" id="modeToggle" style="text-align:center;margin-top:14px">
+        <a href="#" id="usePasswordLink">Have a password? Sign in with it →</a>
+        <a href="#" id="useMagicLinkLink" style="display:none">← Use a sign-in link instead</a>
+      </div>
 
       <div id="msg" class="msg" style="display:none"></div>
 
@@ -65,21 +77,44 @@
   </main>
 
   <script type="module">
-    import { redirectIfAuthenticated, requestMagicLink } from "/assets/lib.js";
+    import { redirectIfAuthenticated, requestMagicLink, signInWithPassword } from "/assets/lib.js";
 
     // If a session already exists, skip the sign-in form and go to stories.
     await redirectIfAuthenticated("/stories.html");
 
     const form = document.getElementById("signInForm");
     const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
     const submitBtn = document.getElementById("submitBtn");
     const msg = document.getElementById("msg");
+    const usePasswordLink = document.getElementById("usePasswordLink");
+    const useMagicLinkLink = document.getElementById("useMagicLinkLink");
+
+    // Auth mode: 'link' (default, magic link) or 'password'. Toggle updates
+    // which field is visible + which submit action fires.
+    let mode = "link";
 
     function showMsg(text, kind = "info") {
       msg.className = "msg " + kind;
       msg.textContent = text;
       msg.style.display = "block";
     }
+
+    function setMode(next) {
+      mode = next;
+      const isPw = mode === "password";
+      passwordInput.style.display = isPw ? "" : "none";
+      passwordInput.required = isPw;
+      usePasswordLink.style.display = isPw ? "none" : "";
+      useMagicLinkLink.style.display = isPw ? "" : "none";
+      submitBtn.textContent = isPw ? "Sign in" : "Send me a sign-in link";
+      submitBtn.disabled = false;
+      msg.style.display = "none";
+      if (isPw) passwordInput.focus();
+    }
+
+    usePasswordLink.addEventListener("click", (e) => { e.preventDefault(); setMode("password"); });
+    useMagicLinkLink.addEventListener("click", (e) => { e.preventDefault(); setMode("link"); });
 
     // Pre-fill email from ?email= query (used by the marketing-site "Read your stories" CTA)
     const params = new URLSearchParams(location.search);
@@ -93,12 +128,31 @@
       document.getElementById("signinHeadline").innerHTML =
         `Sign in to <span class="gold">keep reading</span>.`;
       document.getElementById("signinLede").textContent =
-        "Enter the email you used at signup and we'll send you a one-click link that opens right at your chapter.";
+        "Enter the email you used at signup and we'll send you a one-click link that opens right at your chapter. Or use your password if you've set one.";
     }
 
     let cooldownUntil = 0;
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // ─── Password mode ──────────────────────────────────────────────
+      if (mode === "password") {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Signing in…";
+        msg.style.display = "none";
+        const { ok, error } = await signInWithPassword(emailInput.value, passwordInput.value);
+        if (ok) {
+          const target = /^\//.test(next) ? next : "/stories.html";
+          window.location.replace(target);
+        } else {
+          showMsg(error || "Invalid email or password.", "error");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Sign in";
+        }
+        return;
+      }
+
+      // ─── Magic-link mode (default) ─────────────────────────────────
       if (Date.now() < cooldownUntil) return;
 
       submitBtn.disabled = true;
