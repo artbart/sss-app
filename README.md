@@ -37,3 +37,5 @@ User-facing reader app at https://app.stuffsosweet.com.
 - Phase 8 — Settings, sign out, reading-position
 - Phase 9 — In-app quiz (or iframe)
 - Phase 10 — End-to-end verification
+
+<!-- shadow deploy test 2026-08-06T17:20:58Z — verifying Cloudflare auto-deploys from sss-app main -->
