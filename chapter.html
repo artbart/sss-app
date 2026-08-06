@@ -70,6 +70,42 @@
     .option-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .option-btn strong { font-weight: 700; }
 
+    /* Per-option modifier chips (IDEA #3, "Shape this option"). Always
+       visible under each option when the model produced modifiers. Legacy
+       chapters without modifiers just don't render this block. Theme-aware
+       via --card / --gold / --text so reading-mode palettes look right. */
+    .option-card { margin-bottom: 10px; }
+    .option-card .option-btn { margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+    .opt-mods {
+      background: var(--card, rgba(255,255,255,0.03));
+      border: 1px solid var(--rm-border, rgba(255,255,255,0.10));
+      border-top: none;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+      padding: 10px 14px 12px;
+      margin-bottom: 10px;
+      font-family: Arial, sans-serif;
+    }
+    .opt-mods-label {
+      font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+      color: var(--faint, rgba(255,255,255,0.55));
+      margin-bottom: 8px; font-weight: 600;
+    }
+    .opt-mod {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0; cursor: pointer; user-select: none;
+      font-size: 13px; line-height: 1.4;
+      color: var(--text, #f4ece1);
+      touch-action: manipulation;
+    }
+    .opt-mod input[type="checkbox"] {
+      width: 16px; height: 16px; margin: 0; cursor: pointer;
+      accent-color: var(--gold, #f0d48c);
+    }
+    .opt-mod:hover span { color: var(--gold, #f0d48c); }
+    .opt-mod input:disabled { cursor: not-allowed; opacity: 0.5; }
+    .opt-mod input:disabled + span { opacity: 0.5; }
+
     /* Prev/all/next nav row */
     .nav-row { display: flex; justify-content: space-between; margin-top: 26px; gap: 10px; }
     .nav-btn {
@@ -310,7 +346,7 @@
     // Prevents habit-#9 SyntaxErrors when a page imports a symbol that a
     // client's cached lib.js doesn't have yet. Bump BOTH sw.js CACHE_VERSION
     // AND this ?v= in the same push when lib.js exports change.
-    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=47";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=48";
 
     const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -569,26 +605,56 @@
 
     function renderOptionButtons(chapter) {
       const opts = [chapter.option_1, chapter.option_2, chapter.option_3].filter(Boolean);
+      // Per-option modifier chips (IDEA #3, "Shape this option"). Comes as
+      // {"1":[...],"2":[...],"3":[...]} on chapter.next_options_modifiers.
+      // Legacy chapters (V1 or pre-Aug-6) have this null → no checkboxes,
+      // identical to today. Always-visible when present (no toggle).
+      const mods = (chapter && chapter.next_options_modifiers) || {};
+
       $("optionsArea").innerHTML = `
         <p class="choose-label">Choose what happens next:</p>
-        ${opts.map((opt, i) => `
-          <button class="option-btn" data-i="${i + 1}">
-            <strong>Option ${i + 1}.</strong> ${escapeHtml(opt)}
-          </button>`).join("")}
+        ${opts.map((opt, i) => {
+          const idx = i + 1;
+          const optMods = Array.isArray(mods[String(idx)]) ? mods[String(idx)] : [];
+          const chipsHtml = optMods.length
+            ? `<div class="opt-mods" data-for="${idx}">
+                <div class="opt-mods-label">Shape this option (optional):</div>
+                ${optMods.map((m, j) => `
+                  <label class="opt-mod">
+                    <input type="checkbox" data-mod="${escapeHtml(m)}" data-i="${idx}">
+                    <span>${escapeHtml(m)}</span>
+                  </label>`).join("")}
+              </div>`
+            : "";
+          return `<div class="option-card">
+            <button class="option-btn" data-i="${idx}">
+              <strong>Option ${idx}.</strong> ${escapeHtml(opt)}
+            </button>
+            ${chipsHtml}
+          </div>`;
+        }).join("")}
       `;
       $("optionsArea").querySelectorAll(".option-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
-          await submitChoice(parseInt(btn.dataset.i, 10));
+          const idx = parseInt(btn.dataset.i, 10);
+          // Collect ONLY the modifiers checked under THIS option's card
+          const checked = [...$("optionsArea").querySelectorAll(
+            `.opt-mods[data-for="${idx}"] input[type="checkbox"]:checked`
+          )].map(cb => cb.dataset.mod);
+          await submitChoice(idx, checked);
         });
       });
       renderNavButtons(chapterN, story?.target_chapter_count || 10, all);
     }
 
-    async function submitChoice(optionIndex) {
+    async function submitChoice(optionIndex, modifiers) {
       $("optionsArea").querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+      $("optionsArea").querySelectorAll(".opt-mod input").forEach(cb => cb.disabled = true);
       const SUPABASE_URL = "https://gmhbcxylqubhxozomhlt.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaGJjeHlscXViaHhvem9taGx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTk5OTksImV4cCI6MjA5MjczNTk5OX0.GAM73P5X7fT1BIziTfvqUpFT2W_W5EtFb5Gze5cIFfY";
       try {
+        const body = { story_id: storyId, chapter_number: chapterN, option: optionIndex };
+        if (Array.isArray(modifiers) && modifiers.length > 0) body.modifiers = modifiers;
         const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-choice`, {
           method: "POST",
           headers: {
@@ -596,12 +662,16 @@
             "apikey": SUPABASE_ANON_KEY,
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
           },
-          body: JSON.stringify({ story_id: storyId, chapter_number: chapterN, option: optionIndex }),
+          body: JSON.stringify(body),
         });
         const result = await res.json();
         await logEvent("option_clicked", {
           story_id: storyId, chapter_number: chapterN,
-          metadata: { option: optionIndex, status: result.status },
+          metadata: {
+            option: optionIndex, status: result.status,
+            modifiers_count: (modifiers && modifiers.length) || 0,
+            modifiers: modifiers || [],
+          },
         });
         if (result.status === "ok" || result.status === "success" || result.status === "duplicate") {
           renderWaitingState();
