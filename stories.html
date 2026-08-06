@@ -880,7 +880,7 @@
   </nav>
 
   <script type="module">
-    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js?v=49";
+    import { requireAuth, supabase, logEvent, buildChatUrl, storyLimitFor } from "/assets/lib.js?v=50";
 
     // ─── LOCALHOST PREVIEW MODE (mock data, no auth, no DB) ────────────
     // On localhost with ?preview=1, skip auth and inject realistic mock
@@ -1417,7 +1417,7 @@
         const err = document.getElementById("packErr");
         btn.disabled = true; btn.textContent = "Opening Stripe…";
         err.style.display = "none";
-        const { startStoryPackCheckout } = await import("/assets/lib.js?v=49");
+        const { startStoryPackCheckout } = await import("/assets/lib.js?v=50");
         const { ok, error } = await startStoryPackCheckout({ returnPath: "/stories.html" });
         if (!ok) {
           err.textContent = error || "Couldn't reach checkout.";
