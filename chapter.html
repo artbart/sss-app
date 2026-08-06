@@ -346,7 +346,7 @@
     // Prevents habit-#9 SyntaxErrors when a page imports a symbol that a
     // client's cached lib.js doesn't have yet. Bump BOTH sw.js CACHE_VERSION
     // AND this ?v= in the same push when lib.js exports change.
-    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=48";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=49";
 
     const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -618,7 +618,7 @@
           const optMods = Array.isArray(mods[String(idx)]) ? mods[String(idx)] : [];
           const chipsHtml = optMods.length
             ? `<div class="opt-mods" data-for="${idx}">
-                <div class="opt-mods-label">Shape this option (optional):</div>
+                <div class="opt-mods-label">Optional additions:</div>
                 ${optMods.map((m, j) => `
                   <label class="opt-mod">
                     <input type="checkbox" data-mod="${escapeHtml(m)}" data-i="${idx}">
