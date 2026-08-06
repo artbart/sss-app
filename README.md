@@ -39,3 +39,5 @@ User-facing reader app at https://app.stuffsosweet.com.
 - Phase 10 — End-to-end verification
 
 <!-- shadow deploy test 2026-08-06T17:20:58Z — verifying Cloudflare auto-deploys from sss-app main -->
+
+<!-- redeploy nudge 2026-08-06T18:04:58Z -->
