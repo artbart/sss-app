@@ -401,7 +401,7 @@
     // Prevents habit-#9 SyntaxErrors when a page imports a symbol that a
     // client's cached lib.js doesn't have yet. Bump BOTH sw.js CACHE_VERSION
     // AND this ?v= in the same push when lib.js exports change.
-    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=50";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=51";
 
     const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -685,7 +685,7 @@
           // button fills the full width.
           const actionRow = hasMods
             ? `<div class="opt-actions" data-for="${idx}">
-                <button type="button" class="opt-secondary" data-shape="${idx}">Shape this →</button>
+                <button type="button" class="opt-secondary" data-shape="${idx}">Customize →</button>
                 <button type="button" class="opt-primary" data-select="${idx}">Select this option ${idx} →</button>
               </div>`
             : `<div class="opt-actions solo">
