@@ -203,17 +203,18 @@
     }
     .opt-secondary:hover { color: var(--cta, #d1566a); }
     .opt-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
-    /* Collapsed-state Select — soft tinted pill, not full width */
+    /* Collapsed-state Select — RED accent (user pref: reader can pick
+       an option without expanding, so the primary action stays loud). */
     .option-card:not(.open) .opt-actions .opt-primary {
       width: auto;
-      background: rgba(255,255,255,0.06);
-      color: var(--text, #f3ebec);
+      background: var(--cta, #d1566a);
+      color: #fff;
       font-size: 14px;
       padding: 12px 18px;
       min-height: 46px;
     }
     .option-card:not(.open) .opt-actions .opt-primary:hover:not(:disabled) {
-      background: rgba(209,86,106,0.22);
+      background: var(--cta-hover, #e2687c);
     }
 
     /* Chapters WITHOUT modifiers (V1 legacy). Card is always collapsed-
@@ -231,7 +232,9 @@
       font-size: 15px; min-height: 48px;
     }
 
-    /* Mobile — collapsed actions stack 50/50 grid instead of right-aligned */
+    /* Mobile — collapsed actions stack 50/50 grid; both buttons full
+       width in their cell, text centered. Primary CTA stays full-width
+       when card is open. */
     @media (max-width: 480px) {
       .option-card { padding: 18px 18px 18px 26px; }
       .option-card:not(.open):not(.no-mods) .opt-actions {
@@ -240,6 +243,8 @@
       .option-card:not(.open):not(.no-mods) .opt-actions .opt-secondary,
       .option-card:not(.open):not(.no-mods) .opt-actions .opt-primary {
         width: 100%;
+        text-align: center;
+        padding-left: 8px; padding-right: 8px;
       }
     }
 
@@ -483,7 +488,7 @@
     // Prevents habit-#9 SyntaxErrors when a page imports a symbol that a
     // client's cached lib.js doesn't have yet. Bump BOTH sw.js CACHE_VERSION
     // AND this ?v= in the same push when lib.js exports change.
-    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=57";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=58";
 
     const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -763,7 +768,7 @@
         const optMods = Array.isArray(mods[String(idx)]) ? mods[String(idx)] : [];
         return { idx, opt, optMods, hasMods: optMods.length > 0 };
       });
-      const defaultOpen = optMeta.find(m => m.hasMods)?.idx || null;
+      const defaultOpen = null;  // spec: cards start collapsed, user opens via Customize
 
       function countLabel(n) {
         if (n === 0) return "No additions";
@@ -803,7 +808,7 @@
                  <button type="button" class="opt-primary" data-select="${idx}">Select this option ${idx} →</button>
                </div>`
             : `<div class="opt-actions">
-                 <button type="button" class="opt-secondary" data-open="${idx}">Customize</button>
+                 <button type="button" class="opt-secondary" data-open="${idx}"><span data-customize-label="${idx}">Customize</span></button>
                  <button type="button" class="opt-primary" data-select="${idx}">Select this option ${idx} →</button>
                </div>`;
 
@@ -823,10 +828,17 @@
       // Update the count line on the OPEN card whenever a checkbox is toggled
       function updateCount(idx) {
         const additions = $("optionsArea").querySelector(`.option-card[data-card="${idx}"] .opt-additions`);
-        const countEl   = $("optionsArea").querySelector(`.opt-count[data-count="${idx}"]`);
-        if (!additions || !countEl) return;
+        if (!additions) return;
         const n = additions.querySelectorAll('input[type="checkbox"]:checked').length;
-        countEl.textContent = countLabel(n);
+        // Open-card count line (below the primary CTA)
+        const countEl = $("optionsArea").querySelector(`.opt-count[data-count="${idx}"]`);
+        if (countEl) countEl.textContent = countLabel(n);
+        // Collapsed-card Customize button label — surface count so the
+        // reader knows their picks are still active before hitting Select.
+        const customizeLabel = $("optionsArea").querySelector(`[data-customize-label="${idx}"]`);
+        if (customizeLabel) {
+          customizeLabel.textContent = n > 0 ? `Customize (${n} selected)` : "Customize";
+        }
       }
 
       // Exclusive open logic: clicking Customize on a closed card opens it
