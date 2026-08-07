@@ -72,132 +72,175 @@
     .option-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .option-btn strong { font-weight: 700; }
 
-    /* ─── Option card (IDEA #3 v3, "Shape this option") ────────────────
-       Default (collapsed) state: red card, white prose. Customize is a
-       plain text-link (no bg, no border) so the card doesn't feel like
-       a form. Select is a translucent pill on the red.
-       Expanded state: card becomes theme-neutral (--card / --text) —
-       "editing mode." Modifier checkboxes show. Full-width red Select
-       button at the bottom. Clicking the option text in expanded state
-       collapses back. Chapters without modifiers (V1/legacy) get a
-       single full-width Select button. Theme-aware. */
+    /* ─── Option cards (spec: expandable-option-blocks v4) ──────────
+       Two-tone surfaces (page bg vs card surface). Red is state, not
+       decoration — appears only on: open card's 3px left rail, mono
+       index number, checked checkbox, primary CTA. Exactly ONE card is
+       open at a time. Prose leads (serif 16/1.6), quiet mono index.
+       Theme-aware via reading-mode.css --* variables, with dark defaults.
+       Tokens picked to survive Sepia/Paper/Pocket palettes too. */
     .option-card {
-      margin-bottom: 12px;
-      background: var(--cta, #e04b57);
-      border: none;
+      position: relative;
+      margin-bottom: 14px;
+      background: var(--card, #2b1d22);
+      border: 1px solid var(--rm-border, rgba(209,86,106,0.38));
       border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 6px 16px rgba(224,75,87,0.25);
-      transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+      padding: 20px 22px 22px 30px;  /* extra left for rail + index */
+      box-shadow: 3px 3px 0 rgba(209,86,106,0.20);
+      transition: box-shadow 0.15s, border-color 0.15s;
     }
-    .option-text {
-      font-family: Georgia, serif; font-size: 15px; line-height: 1.5;
-      color: #fff;
-      padding: 16px 18px 6px;
+    .option-card::before {
+      /* 3px left rail: neutral by default, accent when open */
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: rgba(255,255,255,0.09);
+      border-radius: 14px 0 0 14px;
     }
-    .option-text strong { font-weight: 700; color: #fff; }
-
-    .opt-actions {
-      display: flex; gap: 12px; align-items: center;
-      padding: 6px 18px 14px;
-    }
-    .opt-actions.solo { padding: 4px 18px 14px; }
-
-    /* Customize — text-link style. No bg, no border. Underline signals
-       "click me" without competing visually with the Select CTA. */
-    /* Customize — button style (user pref): translucent gold pill, no border. */
-    .opt-secondary {
-      background: rgba(240,212,140,0.10);
-      border: none;
-      color: var(--gold, #f0d48c);
-      font-family: Arial, sans-serif; font-size: 13px; font-weight: 600;
-      padding: 10px 14px; border-radius: 10px; cursor: pointer;
-      transition: background 0.15s;
-      touch-action: manipulation;
-    }
-    .opt-secondary:hover { background: rgba(240,212,140,0.18); }
-    .opt-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* Select — translucent pill on the red card. Pushed to the right
-       so Customize sits inline-left, Select right. */
-    .opt-primary {
-      margin-left: auto;
-      background: rgba(255,255,255,0.14);
-      border: 1px solid rgba(255,255,255,0.35);
-      color: #fff;
-      font-family: Arial, sans-serif; font-size: 13px; font-weight: 600;
-      padding: 9px 18px; border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.15s;
-      touch-action: manipulation;
-    }
-    .opt-primary:hover:not(:disabled) { background: rgba(255,255,255,0.24); }
-    .opt-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-    .opt-primary.full {
-      margin-left: 0; width: 100%; text-align: center;
-      padding: 12px 16px; font-size: 14px;
+    .option-card.open::before { background: var(--cta, #d1566a); }
+    .option-card.open {
+      border-color: rgba(209,86,106,0.55);
+      box-shadow: 3px 3px 0 rgba(209,86,106,0.30);
     }
 
-    /* ─── EXPANDED state ─────────────────────────────────────────────
-       Triggered by JS adding .expanded to .option-card when Customize
-       is tapped. Card stays RED (option-text keeps the same styling
-       as default) — only the .opt-mods panel below adopts the theme-
-       neutral surface. Reader visually recognises the option is still
-       the same red card; the neutral panel below is clearly the
-       "editing tools" area. */
-    .option-card.expanded .option-text {
-      cursor: pointer;   /* click text to collapse back */
+    /* Header row: mono index number hangs to the left of prose */
+    .opt-header { display: flex; gap: 12px; align-items: baseline; }
+    .opt-index {
+      font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 600;
+      color: var(--cta, #d1566a);
+      flex: 0 0 auto;
+      min-width: 20px;
     }
-    .option-card.expanded .option-text:hover {
-      opacity: 0.90;
+    .opt-text {
+      flex: 1;
+      font-family: Georgia, 'Source Serif 4', serif;
+      font-size: 16px; line-height: 1.6;
+      color: var(--text, #f3ebec);
+      margin: 0;
+      text-wrap: pretty;
     }
+    .opt-text strong { font-weight: 600; }  /* no attention-grab lead-in */
 
-    /* Modifier panel — hidden by default via .collapsed. When shown,
-       sits below the red option-text on the SOLID page background
-       (--bg-bottom). Must be solid (not transparent --card) or the red
-       parent bleeds through and the panel reads pink instead of neutral.
-       Dark theme = deep burgundy-black; light themes = solid cream/paper. */
-    .opt-mods {
-      padding: 12px 18px 14px;
-      font-family: Arial, sans-serif;
-      background: var(--bg-bottom, #1a0008);
-      border-top: 1px solid rgba(255,255,255,0.18);
-      color: var(--text, #f4ece1);
-    }
-    .opt-mods.collapsed { display: none; }
+    /* Additions block — only shown when card is .open. Structure: label +
+       ≥44px checkbox rows + full-width primary CTA + count line. */
+    .opt-additions { display: none; margin-top: 16px; }
+    .option-card.open .opt-additions { display: block; }
+
     .opt-mods-label {
+      font-family: Arial, sans-serif;
       font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
-      color: var(--faint, rgba(255,255,255,0.55));
-      margin-bottom: 8px; font-weight: 600;
+      color: var(--faint, #8b7679);
+      font-weight: 600;
+      margin-bottom: 8px;
     }
     .opt-mod {
-      display: flex; align-items: center; gap: 8px;
-      padding: 7px 0; cursor: pointer; user-select: none;
-      font-size: 13px; line-height: 1.4;
-      color: var(--text, #f4ece1);
+      display: flex; align-items: center; gap: 12px;
+      min-height: 44px; padding: 8px 6px;
+      cursor: pointer; user-select: none;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      font-size: 14px; line-height: 1.4;
+      color: var(--text, #ded2d4);
+      touch-action: manipulation;
+      transition: background 0.12s;
+    }
+    .opt-mod:hover { background: rgba(255,255,255,0.06); }
+    .opt-mod input[type="checkbox"] {
+      width: 20px; height: 20px; margin: 0; cursor: pointer; flex: 0 0 auto;
+      accent-color: var(--cta, #d1566a);
+      border-radius: 6px;
+    }
+    .opt-mod input:disabled { cursor: not-allowed; opacity: 0.5; }
+    .opt-mod input:disabled ~ span { opacity: 0.5; }
+
+    /* Primary-row layout: full-width CTA + count label sitting below */
+    .opt-primary-row { margin-top: 14px; }
+    .opt-count {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: var(--faint, #8b7679);
+      margin-top: 8px;
+    }
+
+    /* CTAs. Only ONE loud action per card — the primary CTA on the open
+       card gets the solid accent fill. Collapsed cards get a soft tinted
+       Select + borderless Customize. */
+    .opt-primary {
+      display: block; width: 100%;
+      background: var(--cta, #d1566a);
+      border: none;
+      color: #fff;
+      font-family: Arial, sans-serif; font-size: 16px; font-weight: 600;
+      padding: 15px 18px; border-radius: 10px;
+      min-height: 52px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
       touch-action: manipulation;
     }
-    .opt-mod input[type="checkbox"] {
-      width: 16px; height: 16px; margin: 0; cursor: pointer;
-      accent-color: var(--gold, #f0d48c);
-    }
-    .opt-mod:hover span { color: var(--gold, #f0d48c); }
-    .opt-mod input:disabled { cursor: not-allowed; opacity: 0.5; }
-    .opt-mod input:disabled + span { opacity: 0.5; }
+    .opt-primary:hover:not(:disabled) { background: var(--cta-hover, #e2687c); }
+    .opt-primary:active { transform: translateY(1px); }
+    .opt-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Expanded-state Select button — full-width red CTA at the bottom
-       of the modifier panel. Overrides .opt-primary's translucent
-       treatment because we're on the neutral bg now. */
-    .opt-select-expanded {
-      margin-top: 14px;
-      background: var(--cta, #e04b57) !important;
-      border: none !important;
-      color: #fff !important;
-      width: 100%; padding: 12px 14px; font-size: 14px;
-      box-shadow: 0 4px 12px rgba(224,75,87,0.20);
+    /* Collapsed-state action row: right-aligned Customize + Select pill.
+       On mobile the two stack 50/50. */
+    .opt-actions { display: none; }
+    .option-card:not(.open) .opt-actions {
+      display: flex; gap: 10px; justify-content: flex-end;
+      align-items: center; margin-top: 12px;
     }
-    .opt-select-expanded:hover:not(:disabled) {
-      background: var(--cta-hover, #c11a2b) !important;
+    /* Secondary (Customize) — text button, no bg/border, muted → accent hover */
+    .opt-secondary {
+      background: transparent;
+      border: none;
+      color: var(--faint, #8b7679);
+      font-family: Arial, sans-serif; font-size: 14px; font-weight: 500;
+      padding: 10px 12px; min-height: 46px;
+      cursor: pointer;
+      transition: color 0.15s;
+      touch-action: manipulation;
+    }
+    .opt-secondary:hover { color: var(--cta, #d1566a); }
+    .opt-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* Collapsed-state Select — soft tinted pill, not full width */
+    .option-card:not(.open) .opt-actions .opt-primary {
+      width: auto;
+      background: rgba(255,255,255,0.06);
+      color: var(--text, #f3ebec);
+      font-size: 14px;
+      padding: 12px 18px;
+      min-height: 46px;
+    }
+    .option-card:not(.open) .opt-actions .opt-primary:hover:not(:disabled) {
+      background: rgba(209,86,106,0.22);
+    }
+
+    /* Chapters WITHOUT modifiers (V1 legacy). Card is always collapsed-
+       looking but shows a single full-width Select CTA — no Customize. */
+    .option-card.no-mods {
+      /* Rail stays neutral (no .open state possible on these) */
+    }
+    .option-card.no-mods .opt-actions {
+      display: block; margin-top: 14px;
+    }
+    .option-card.no-mods .opt-primary {
+      width: 100%;
+      background: var(--cta, #d1566a);
+      color: #fff;
+      font-size: 15px; min-height: 48px;
+    }
+
+    /* Mobile — collapsed actions stack 50/50 grid instead of right-aligned */
+    @media (max-width: 480px) {
+      .option-card { padding: 18px 18px 18px 26px; }
+      .option-card:not(.open):not(.no-mods) .opt-actions {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      }
+      .option-card:not(.open):not(.no-mods) .opt-actions .opt-secondary,
+      .option-card:not(.open):not(.no-mods) .opt-actions .opt-primary {
+        width: 100%;
+      }
     }
 
     /* Prev/all/next nav row */
@@ -440,7 +483,7 @@
     // Prevents habit-#9 SyntaxErrors when a page imports a symbol that a
     // client's cached lib.js doesn't have yet. Bump BOTH sw.js CACHE_VERSION
     // AND this ?v= in the same push when lib.js exports change.
-    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=56";
+    import { supabase, renderShell, logEvent, buildChatUrl, getSessionOrPreview, isPreviewMode, getChapterRating, saveChapterRating } from "/assets/lib.js?v=57";
 
     const $ = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
@@ -699,128 +742,141 @@
 
     function renderOptionButtons(chapter) {
       const opts = [chapter.option_1, chapter.option_2, chapter.option_3].filter(Boolean);
-      // Per-option modifier chips (IDEA #3, "Shape this option"). Comes as
+      // Per-option modifier chips (IDEA #3, "Optional additions"). Comes as
       // {"1":[...],"2":[...],"3":[...]} on chapter.next_options_modifiers.
-      // Legacy chapters (V1 or pre-Aug-6) have this null → no chips, no
-      // "Shape this" button, identical to today.
+      // Legacy chapters (V1 or pre-Aug-6) have this null → cards render
+      // as .no-mods (single full-width Select, no Customize).
       //
-      // UI model: option text is the read-only prose card. Below it, an
-      // action row with two buttons:
-      //   [ Shape this → ]  [ Select this option → ]
-      // If the reader hits Select, we submit with no modifiers (fast path).
-      // If they hit Shape this, the modifier list expands + a full-width
-      // "Select this option" button appears below the checkboxes.
+      // UI model (v4 — spec: expandable-option-blocks):
+      // • Exactly ONE card is open at a time.
+      // • Default open = the FIRST card that has modifiers. If no card has
+      //   modifiers (all V1-legacy), none is open — all render .no-mods.
+      // • Open card: additions checklist + full-width solid CTA + count line.
+      // • Closed card: right-aligned [Customize] [Select this option N →].
+      // • Clicking Customize on a closed card opens it, closing whichever
+      //   was previously open.
       const mods = (chapter && chapter.next_options_modifiers) || {};
+
+      // Precompute per-option state so we can pick default open card
+      const optMeta = opts.map((opt, i) => {
+        const idx = i + 1;
+        const optMods = Array.isArray(mods[String(idx)]) ? mods[String(idx)] : [];
+        return { idx, opt, optMods, hasMods: optMods.length > 0 };
+      });
+      const defaultOpen = optMeta.find(m => m.hasMods)?.idx || null;
+
+      function countLabel(n) {
+        if (n === 0) return "No additions";
+        if (n === 1) return "1 addition";
+        return `${n} additions`;
+      }
 
       $("optionsArea").innerHTML = `
         <p class="choose-label">Choose what happens next:</p>
-        ${opts.map((opt, i) => {
-          const idx = i + 1;
-          const optMods = Array.isArray(mods[String(idx)]) ? mods[String(idx)] : [];
-          const hasMods = optMods.length > 0;
+        ${optMeta.map(({ idx, opt, optMods, hasMods }) => {
+          const isOpen = idx === defaultOpen;
+          const noMods = !hasMods;
+          const cardClasses = [
+            "option-card",
+            isOpen ? "open" : "",
+            noMods ? "no-mods" : "",
+          ].filter(Boolean).join(" ");
 
-          // Two-button action row (default state). "Shape this" only shows
-          // when the option has modifiers to reveal — otherwise the Select
-          // button fills the full width.
-          const actionRow = hasMods
-            ? `<div class="opt-actions" data-for="${idx}">
-                <button type="button" class="opt-secondary" data-shape="${idx}">Customize →</button>
+          const additionsHtml = hasMods ? `
+            <div class="opt-additions">
+              <div class="opt-mods-label">Optional additions</div>
+              ${optMods.map((m) => `
+                <label class="opt-mod">
+                  <input type="checkbox" data-mod="${escapeHtml(m)}" data-i="${idx}">
+                  <span>${escapeHtml(m)}</span>
+                </label>`).join("")}
+              <div class="opt-primary-row">
                 <button type="button" class="opt-primary" data-select="${idx}">Select this option ${idx} →</button>
-              </div>`
-            : `<div class="opt-actions solo">
-                <button type="button" class="opt-primary full" data-select="${idx}">Select this option ${idx} →</button>
-              </div>`;
-
-          const modsHtml = hasMods
-            ? `<div class="opt-mods collapsed" data-for="${idx}">
-                <div class="opt-mods-label">Optional additions:</div>
-                ${optMods.map((m) => `
-                  <label class="opt-mod">
-                    <input type="checkbox" data-mod="${escapeHtml(m)}" data-i="${idx}">
-                    <span>${escapeHtml(m)}</span>
-                  </label>`).join("")}
-                <button type="button" class="opt-primary full opt-select-expanded" data-select="${idx}">Select this option ${idx} with additions →</button>
-              </div>`
-            : "";
-
-          return `<div class="option-card" data-card="${idx}">
-            <div class="option-text" data-text="${idx}">
-              <strong>Option ${idx}.</strong> ${escapeHtml(opt)}
+                <div class="opt-count" data-count="${idx}">No additions</div>
+              </div>
             </div>
-            ${modsHtml}
-            ${actionRow}
-          </div>`;
+          ` : "";
+
+          // Collapsed / no-mods actions row
+          const actionsHtml = noMods
+            ? `<div class="opt-actions">
+                 <button type="button" class="opt-primary" data-select="${idx}">Select this option ${idx} →</button>
+               </div>`
+            : `<div class="opt-actions">
+                 <button type="button" class="opt-secondary" data-open="${idx}">Customize</button>
+                 <button type="button" class="opt-primary" data-select="${idx}">Select this option ${idx} →</button>
+               </div>`;
+
+          return `
+            <div class="${cardClasses}" data-card="${idx}">
+              <div class="opt-header">
+                <span class="opt-index">${String(idx).padStart(2, "0")}</span>
+                <p class="opt-text" data-text="${idx}">${escapeHtml(opt)}</p>
+              </div>
+              ${additionsHtml}
+              ${actionsHtml}
+            </div>
+          `;
         }).join("")}
       `;
 
-      // Small helper: count checked modifier boxes for one option and
-      // reflect it in the collapsed-state Customize link, so a user who
-      // ticked boxes then collapsed knows their picks are still active
-      // (and will be applied when they hit Select). Zero-check state
-      // just shows "Customize →".
-      function updateCustomizeCount(idx) {
-        const panel  = $("optionsArea").querySelector(`.opt-mods[data-for="${idx}"]`);
-        const button = $("optionsArea").querySelector(`[data-shape="${idx}"]`);
-        if (!panel || !button) return;
-        const count = panel.querySelectorAll('input[type="checkbox"]:checked').length;
-        button.textContent = count > 0
-          ? `Customize (${count} added) →`
-          : `Customize →`;
+      // Update the count line on the OPEN card whenever a checkbox is toggled
+      function updateCount(idx) {
+        const additions = $("optionsArea").querySelector(`.option-card[data-card="${idx}"] .opt-additions`);
+        const countEl   = $("optionsArea").querySelector(`.opt-count[data-count="${idx}"]`);
+        if (!additions || !countEl) return;
+        const n = additions.querySelectorAll('input[type="checkbox"]:checked').length;
+        countEl.textContent = countLabel(n);
       }
 
-      // Customize: reveal modifier list + hide the two-button row + mark
-      // the card as .expanded so CSS switches the .opt-mods panel to the
-      // theme-neutral surface. (The panel has its own Select button.)
-      $("optionsArea").querySelectorAll("[data-shape]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const idx = btn.dataset.shape;
-          const card = $("optionsArea").querySelector(`.option-card[data-card="${idx}"]`);
-          const panel = $("optionsArea").querySelector(`.opt-mods[data-for="${idx}"]`);
-          const actions = $("optionsArea").querySelector(`.opt-actions[data-for="${idx}"]`);
-          if (card) card.classList.add("expanded");
-          if (panel) panel.classList.remove("collapsed");
-          if (actions) actions.style.display = "none";
+      // Exclusive open logic: clicking Customize on a closed card opens it
+      // and closes any previously open card. Checkboxes are preserved (state
+      // lives in the DOM inside .opt-additions, which just gets hidden).
+      $("optionsArea").querySelectorAll("[data-open]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const idx = btn.dataset.open;
+          const cards = $("optionsArea").querySelectorAll(".option-card");
+          cards.forEach(c => c.classList.remove("open"));
+          const target = $("optionsArea").querySelector(`.option-card[data-card="${idx}"]`);
+          if (target) target.classList.add("open");
+          updateCount(idx);
         });
       });
 
-      // Collapse-on-text-click: when a card is expanded, tapping the
-      // option text collapses it back to the red default state. DOES NOT
-      // clear the checkboxes — reader may want to review the option prose
-      // without checkbox clutter and still submit with their picks. The
-      // count is surfaced on the collapsed Customize button so the user
-      // sees they have hidden selections active.
+      // Click the prose text on an OPEN card to collapse it back. Doesn't
+      // clear checkboxes — user may re-open via Customize and see them still
+      // ticked. (Skipped on .no-mods cards since they have no open state.)
       $("optionsArea").querySelectorAll("[data-text]").forEach(textEl => {
         textEl.addEventListener("click", () => {
           const idx = textEl.dataset.text;
           const card = $("optionsArea").querySelector(`.option-card[data-card="${idx}"]`);
-          if (!card || !card.classList.contains("expanded")) return;
-          const panel = $("optionsArea").querySelector(`.opt-mods[data-for="${idx}"]`);
-          const actions = $("optionsArea").querySelector(`.opt-actions[data-for="${idx}"]`);
-          card.classList.remove("expanded");
-          if (panel) panel.classList.add("collapsed");
-          if (actions) actions.style.display = "";
-          updateCustomizeCount(idx);
+          if (!card || !card.classList.contains("open") || card.classList.contains("no-mods")) return;
+          card.classList.remove("open");
         });
       });
 
-      // Live-update the Customize count as boxes are toggled inside the
-      // panel (so if user unchecks everything then collapses, they see
-      // "Customize →" not stale "(N added)").
+      // Live count on the open card as boxes are toggled
       $("optionsArea").querySelectorAll(".opt-mod input[type='checkbox']").forEach(cb => {
-        cb.addEventListener("change", () => {
-          updateCustomizeCount(cb.dataset.i);
+        cb.addEventListener("change", (e) => {
+          e.stopPropagation();
+          updateCount(cb.dataset.i);
         });
       });
+      // Prevent label-row clicks from bubbling up to the card open handler
+      $("optionsArea").querySelectorAll(".opt-mod").forEach(row => {
+        row.addEventListener("click", (e) => e.stopPropagation());
+      });
 
-      // Select handlers — both the fast-path button and the expanded-state
-      // button call the same handler. Collect any modifiers checked under
-      // this option's card (empty array on the fast path since panel
-      // isn't visible).
+      // Select handlers — collect any checked modifiers under THIS option's
+      // additions block (empty array if the option has no modifiers or none
+      // are checked). All Select buttons fire the same submitChoice path.
       $("optionsArea").querySelectorAll("[data-select]").forEach(btn => {
-        btn.addEventListener("click", async () => {
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
           const idx = parseInt(btn.dataset.select, 10);
           const checked = [...$("optionsArea").querySelectorAll(
-            `.opt-mods[data-for="${idx}"] input[type="checkbox"]:checked`
+            `.option-card[data-card="${idx}"] .opt-additions input[type="checkbox"]:checked`
           )].map(cb => cb.dataset.mod);
           await submitChoice(idx, checked);
         });
